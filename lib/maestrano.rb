@@ -1,0 +1,2 @@
+module Maestrano
+end
