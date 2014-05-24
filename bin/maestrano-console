@@ -2,6 +2,8 @@
 irb = RUBY_PLATFORM =~ /(:?mswin|mingw)/ ? 'irb.bat' : 'irb'
 
 libs =  " -r irb/completion"
+libs <<  " -I #{File.dirname(__FILE__) + '/../lib'}"
 libs <<  " -r #{File.dirname(__FILE__) + '/../lib/maestrano'}"
-puts "Loading maestrano gem"
+puts ">> Loading Maestrano console"
+puts ">>"
 exec "#{irb} #{libs} --simple-prompt"
