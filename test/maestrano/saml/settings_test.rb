@@ -31,9 +31,9 @@ class SettingsTest < Test::Unit::TestCase
           :idp_sso_target_url => "http://sso.muda.no/sso",
           :idp_slo_target_url => "http://sso.muda.no/slo",
           :idp_cert_fingerprint => "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00",
-          :name_identifier_format => "urn:oasis:names:tc:SAML:2.0:nameid-format:transient",
+          :name_identifier_format => Maestrano::Saml::Settings::NAMEID_TRANSIENT,
           :passive => true,
-          :protocol_binding => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+          :protocol_binding => Maestrano::Saml::Settings::PROTOCOL_BINDING_POST
       }
       @settings = Maestrano::Saml::Settings.new(config)
 
