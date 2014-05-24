@@ -22,6 +22,7 @@ module Maestrano
         @options  = options
         @response = (response =~ /^</) ? response : Base64.decode64(response)
         @document = Maestrano::XMLSecurity::SignedDocument.new(@response)
+        @settings = Maestrano::SSO.saml_settings
       end
 
       def is_valid?
