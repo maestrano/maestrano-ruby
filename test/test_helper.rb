@@ -8,4 +8,7 @@ require 'timecop'
 Dir[File.expand_path(File.join(File.dirname(__FILE__),"helpers/**/*.rb"))].each {|f| require f}
 
 class Test::Unit::TestCase
+  setup do
+    Maestrano.configure { |config| config.environment = 'production' }
+  end
 end
