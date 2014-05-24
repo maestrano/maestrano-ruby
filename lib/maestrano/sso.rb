@@ -23,6 +23,18 @@ module Maestrano
       return @after_signin_path
     end
     
+    # Return the saml_settings based on
+    # Maestrano configuration
+    def self.saml_settings
+      settings = Maestrano::Saml::Settings.new
+      settings.assertion_consumer_service_url = self.consume_url
+      settings.issuer                         = Maestrano.param('app_host')
+      settings.idp_sso_target_url             = self.idp_url
+      settings.idp_cert_fingerprint           = Maestrano.param('sso_x509_fingerprint')
+      settings.name_identifier_format         = Maestrano.param('sso_name_id_format')
+      settings
+    end
+    
     # Build a new SAML Request
     def self.build_request(get_params = {})
       Maestrano::Saml::Request.new(get_params)
