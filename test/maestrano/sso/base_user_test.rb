@@ -22,6 +22,10 @@ class BaseUserTest < Test::Unit::TestCase
     })
   end
   
+  should "have a local_id accessor" do
+    assert Maestrano::SSO::BaseUser.new(@saml_response).respond_to?(:local_id) == true
+  end
+  
   should "extract the rights attributes from the saml response" do
     user = Maestrano::SSO::BaseUser.new(@saml_response)
     assert user.sso_session == @saml_response.attributes['mno_session']

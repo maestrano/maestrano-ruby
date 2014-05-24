@@ -4,6 +4,7 @@ module Maestrano
       #============
       # Attributes
       #============
+      attr_accessor :local_id
       attr_reader :sso_session,:sso_session_recheck,
         :group_uid,:group_role,:uid,:virtual_uid,:email,
         :virtual_email,:name,:country, :company_name
