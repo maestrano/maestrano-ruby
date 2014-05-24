@@ -12,5 +12,8 @@ require 'maestrano/saml/settings'
 require 'maestrano/saml/validation_error'
 require 'maestrano/saml/metadata'
 
+# SSO
+require 'maestrano/sso/base_user'
+
 module Maestrano
 end
