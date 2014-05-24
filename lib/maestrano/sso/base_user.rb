@@ -1,18 +1,10 @@
 module Maestrano
   module SSO
     class BaseUser
-      #============
-      # Attributes
-      #============
       attr_accessor :local_id
       attr_reader :sso_session,:sso_session_recheck,
         :group_uid,:group_role,:uid,:virtual_uid,:email,
         :virtual_email,:name,:country, :company_name
-      
-      #===========
-      # Constants
-      #===========
-      SAML_ATTR_MAP = {sso_session: 'mno_sso_session', sso_session_recheck: 'mno_session_recheck' }
       
       # Initializer
       # @param Maestrano::SAML::Response
