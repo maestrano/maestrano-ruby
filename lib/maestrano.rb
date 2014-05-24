@@ -13,6 +13,7 @@ require 'maestrano/saml/validation_error'
 require 'maestrano/saml/metadata'
 
 # SSO
+require 'maestrano/sso'
 require 'maestrano/sso/base_user'
 require 'maestrano/sso/base_group'
 

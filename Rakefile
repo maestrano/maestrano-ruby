@@ -15,7 +15,7 @@ end
 
 Rake::TestTask.new(:sso) do |test|
   test.libs << 'lib' << 'test'
-  test.pattern = 'test/maestrano/sso/**/*_test.rb'
+  test.pattern = 'test/maestrano/sso{_test.rb,/**/*_test.rb}'
   test.verbose = true
 end
 
