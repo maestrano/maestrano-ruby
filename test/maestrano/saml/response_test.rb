@@ -1,4 +1,4 @@
-require File.expand_path('../../test_helper', __FILE__)
+require File.expand_path('../../../test_helper', __FILE__)
 
 class SamlTest < Test::Unit::TestCase
   include SamlTestHelper
