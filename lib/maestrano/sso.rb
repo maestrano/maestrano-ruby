@@ -1,28 +1,5 @@
 module Maestrano
   module SSO
-    class << self
-      attr_accessor :http_session, :after_signin_path
-    end
-    
-    # HTTP Session accessor
-    # If no http_session then try to get it
-    # from rack session
-    def self.http_session
-      unless self.http_session
-        @http_session = env["rack.session"] if (env && env["rack.session"])
-      end
-      
-      return @http_session
-    end
-    
-    # Where to redirect user after signin
-    def self.after_signin_path
-      if self.http_session && self.http_session['mno_previous_url']
-        return self.http_session['mno_previous_url']
-      end
-      return @after_signin_path
-    end
-    
     # Return the saml_settings based on
     # Maestrano configuration
     def self.saml_settings
