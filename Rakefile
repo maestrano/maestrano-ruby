@@ -13,6 +13,12 @@ Rake::TestTask.new(:saml) do |test|
   test.verbose = true
 end
 
+Rake::TestTask.new(:api) do |test|
+  test.libs << 'lib' << 'test'
+  test.pattern = 'test/maestrano/api/**/*_test.rb'
+  test.verbose = true
+end
+
 Rake::TestTask.new(:sso) do |test|
   test.libs << 'lib' << 'test'
   test.pattern = 'test/maestrano/sso{_test.rb,/**/*_test.rb}'
