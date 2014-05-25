@@ -36,8 +36,63 @@ class BaseUserTest < Test::Unit::TestCase
     assert user.virtual_uid == @saml_response.attributes['virtual_uid']
     assert user.email == @saml_response.attributes['email']
     assert user.virtual_email == @saml_response.attributes['virtual_email']
-    assert user.name == @saml_response.attributes['name']
+    assert user.first_name == @saml_response.attributes['name']
+    assert user.last_name == @saml_response.attributes['surname']
     assert user.country == @saml_response.attributes['country']
     assert user.company_name == @saml_response.attributes['company_name']
+  end
+  
+  context "to_hash presentation" do
+    should "have the right representation when user_creation_mode is virtual" do
+      Maestrano.configure { |config| config.user_creation_mode = 'virtual' }
+      sso_user = Maestrano::SSO::BaseUser.new(@saml_response)
+      assert sso_user.to_hash == {
+        provider: 'maestrano',
+        uid: sso_user.virtual_uid,
+        info: {
+          email: sso_user.virtual_email,
+          first_name: sso_user.first_name,
+          last_name: sso_user.last_name,
+          country: sso_user.country,
+          company_name: sso_user.company_name,
+        },
+        extra: {
+          uid: sso_user.uid,
+          virtual_uid: sso_user.virtual_uid,
+          real_email: sso_user.email,
+          virtual_email: sso_user.virtual_email,
+          group: {
+            uid: sso_user.group_uid,
+            role: sso_user.group_role
+          }
+        }
+      }
+    end
+    
+    should "have the right representation when user_creation_mode is real" do
+      Maestrano.configure { |config| config.user_creation_mode = 'real' }
+      sso_user = Maestrano::SSO::BaseUser.new(@saml_response)
+      assert sso_user.to_hash == {
+        provider: 'maestrano',
+        uid: sso_user.uid,
+        info: {
+          email: sso_user.email,
+          first_name: sso_user.first_name,
+          last_name: sso_user.last_name,
+          country: sso_user.country,
+          company_name: sso_user.company_name,
+        },
+        extra: {
+          uid: sso_user.uid,
+          virtual_uid: sso_user.virtual_uid,
+          real_email: sso_user.email,
+          virtual_email: sso_user.virtual_email,
+          group: {
+            uid: sso_user.group_uid,
+            role: sso_user.group_role,
+          }
+        }
+      }
+    end
   end
 end
