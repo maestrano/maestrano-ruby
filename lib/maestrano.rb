@@ -1,3 +1,7 @@
+# libs
+require 'rest_client'
+require 'json'
+
 # Version
 require 'maestrano/version'
 
