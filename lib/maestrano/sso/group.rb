@@ -9,7 +9,15 @@ module Maestrano
         #   group.name = (auth[:info][:company_name] || 'Your Group')
         #   group.country = auth[:info][:country]
         # end
-        raise NoMethodError, "You need to override find_for_maestrano_auth in your Group model"
+        raise NoMethodError, "You need to override find_for_maestrano_auth in your #{self.class.name} model"
+      end
+      
+      def maestrano?
+        if self.respond_to?(:provider)
+          return self.provider.to_s == 'maestrano'
+        else
+          raise NoMethodError, "You need to override maestrano? in your #{self.class.name} model"
+        end
       end
     end
   end
