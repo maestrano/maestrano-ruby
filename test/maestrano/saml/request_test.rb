@@ -1,164 +1,168 @@
 require File.expand_path('../../../test_helper', __FILE__)
 
-class RequestTest < Test::Unit::TestCase
+module Maestrano
+  module Saml
+    class RequestTest < Test::Unit::TestCase
 
-  context "Request" do
-    should "create the deflated SAMLRequest URL parameter" do
-      settings = Maestrano::Saml::Settings.new
-      settings.idp_sso_target_url = "http://example.com"
-      request = Maestrano::Saml::Request.new
-      request.settings = settings
-      auth_url = request.redirect_url
-      assert auth_url =~ /^http:\/\/example\.com\?SAMLRequest=/
+      context "Request" do
+        should "create the deflated SAMLRequest URL parameter" do
+          settings = Maestrano::Saml::Settings.new
+          settings.idp_sso_target_url = "http://example.com"
+          request = Maestrano::Saml::Request.new
+          request.settings = settings
+          auth_url = request.redirect_url
+          assert auth_url =~ /^http:\/\/example\.com\?SAMLRequest=/
       
-      payload  = CGI.unescape(auth_url.split("=").last)
-      decoded  = Base64.decode64(payload)
+          payload  = CGI.unescape(auth_url.split("=").last)
+          decoded  = Base64.decode64(payload)
 
-      zstream  = Zlib::Inflate.new(-Zlib::MAX_WBITS)
-      inflated = zstream.inflate(decoded)
-      zstream.finish
-      zstream.close
-      assert_match /^<samlp:AuthnRequest/, inflated
-    end
+          zstream  = Zlib::Inflate.new(-Zlib::MAX_WBITS)
+          inflated = zstream.inflate(decoded)
+          zstream.finish
+          zstream.close
+          assert_match /^<samlp:AuthnRequest/, inflated
+        end
 
-    should "create the deflated SAMLRequest URL parameter including the Destination" do
-      settings = Maestrano::Saml::Settings.new
-      settings.idp_sso_target_url = "http://example.com"
-      request = Maestrano::Saml::Request.new
-      request.settings = settings
-      auth_url = request.redirect_url
-      payload  = CGI.unescape(auth_url.split("=").last)
-      decoded  = Base64.decode64(payload)
+        should "create the deflated SAMLRequest URL parameter including the Destination" do
+          settings = Maestrano::Saml::Settings.new
+          settings.idp_sso_target_url = "http://example.com"
+          request = Maestrano::Saml::Request.new
+          request.settings = settings
+          auth_url = request.redirect_url
+          payload  = CGI.unescape(auth_url.split("=").last)
+          decoded  = Base64.decode64(payload)
 
-      zstream  = Zlib::Inflate.new(-Zlib::MAX_WBITS)
-      inflated = zstream.inflate(decoded)
-      zstream.finish
-      zstream.close
+          zstream  = Zlib::Inflate.new(-Zlib::MAX_WBITS)
+          inflated = zstream.inflate(decoded)
+          zstream.finish
+          zstream.close
 
-      assert_match /<samlp:AuthnRequest[^<]* Destination='http:\/\/example.com'/, inflated
-    end
+          assert_match /<samlp:AuthnRequest[^<]* Destination='http:\/\/example.com'/, inflated
+        end
 
-    should "create the SAMLRequest URL parameter without deflating" do
-      settings = Maestrano::Saml::Settings.new
-      settings.compress_request = false
-      settings.idp_sso_target_url = "http://example.com"
-      request = Maestrano::Saml::Request.new
-      request.settings = settings
-      auth_url = request.redirect_url
-      assert auth_url =~ /^http:\/\/example\.com\?SAMLRequest=/
+        should "create the SAMLRequest URL parameter without deflating" do
+          settings = Maestrano::Saml::Settings.new
+          settings.compress_request = false
+          settings.idp_sso_target_url = "http://example.com"
+          request = Maestrano::Saml::Request.new
+          request.settings = settings
+          auth_url = request.redirect_url
+          assert auth_url =~ /^http:\/\/example\.com\?SAMLRequest=/
       
-      payload  = CGI.unescape(auth_url.split("=").last)
-      decoded  = Base64.decode64(payload)
-      assert_match /^<samlp:AuthnRequest/, decoded
-    end
+          payload  = CGI.unescape(auth_url.split("=").last)
+          decoded  = Base64.decode64(payload)
+          assert_match /^<samlp:AuthnRequest/, decoded
+        end
 
-    should "create the SAMLRequest URL parameter with IsPassive" do
-      settings = Maestrano::Saml::Settings.new
-      settings.idp_sso_target_url = "http://example.com"
-      settings.passive = true
-      request = Maestrano::Saml::Request.new
-      request.settings = settings
-      auth_url = request.redirect_url
-      assert auth_url =~ /^http:\/\/example\.com\?SAMLRequest=/
-      payload  = CGI.unescape(auth_url.split("=").last)
-      decoded  = Base64.decode64(payload)
+        should "create the SAMLRequest URL parameter with IsPassive" do
+          settings = Maestrano::Saml::Settings.new
+          settings.idp_sso_target_url = "http://example.com"
+          settings.passive = true
+          request = Maestrano::Saml::Request.new
+          request.settings = settings
+          auth_url = request.redirect_url
+          assert auth_url =~ /^http:\/\/example\.com\?SAMLRequest=/
+          payload  = CGI.unescape(auth_url.split("=").last)
+          decoded  = Base64.decode64(payload)
 
-      zstream  = Zlib::Inflate.new(-Zlib::MAX_WBITS)
-      inflated = zstream.inflate(decoded)
-      zstream.finish
-      zstream.close
+          zstream  = Zlib::Inflate.new(-Zlib::MAX_WBITS)
+          inflated = zstream.inflate(decoded)
+          zstream.finish
+          zstream.close
 
-      assert_match /<samlp:AuthnRequest[^<]* IsPassive='true'/, inflated
-    end
+          assert_match /<samlp:AuthnRequest[^<]* IsPassive='true'/, inflated
+        end
 
-    should "create the SAMLRequest URL parameter with ProtocolBinding" do
-      settings = Maestrano::Saml::Settings.new
-      settings.idp_sso_target_url = "http://example.com"
-      settings.protocol_binding = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-      request = Maestrano::Saml::Request.new
-      request.settings = settings
-      auth_url = request.redirect_url
-      assert auth_url =~ /^http:\/\/example\.com\?SAMLRequest=/
-      payload  = CGI.unescape(auth_url.split("=").last)
-      decoded  = Base64.decode64(payload)
+        should "create the SAMLRequest URL parameter with ProtocolBinding" do
+          settings = Maestrano::Saml::Settings.new
+          settings.idp_sso_target_url = "http://example.com"
+          settings.protocol_binding = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+          request = Maestrano::Saml::Request.new
+          request.settings = settings
+          auth_url = request.redirect_url
+          assert auth_url =~ /^http:\/\/example\.com\?SAMLRequest=/
+          payload  = CGI.unescape(auth_url.split("=").last)
+          decoded  = Base64.decode64(payload)
 
-      zstream  = Zlib::Inflate.new(-Zlib::MAX_WBITS)
-      inflated = zstream.inflate(decoded)
-      zstream.finish
-      zstream.close
+          zstream  = Zlib::Inflate.new(-Zlib::MAX_WBITS)
+          inflated = zstream.inflate(decoded)
+          zstream.finish
+          zstream.close
 
-      assert_match /<samlp:AuthnRequest[^<]* ProtocolBinding='urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'/, inflated
-    end
+          assert_match /<samlp:AuthnRequest[^<]* ProtocolBinding='urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'/, inflated
+        end
 
-    should "accept extra parameters" do
-      settings = Maestrano::Saml::Settings.new
-      settings.idp_sso_target_url = "http://example.com"
+        should "accept extra parameters" do
+          settings = Maestrano::Saml::Settings.new
+          settings.idp_sso_target_url = "http://example.com"
       
-      request = Maestrano::Saml::Request.new
-      request.settings = settings
-      request.params = { :hello => "there" }
-      auth_url = request.redirect_url
-      assert auth_url =~ /&hello=there$/
+          request = Maestrano::Saml::Request.new
+          request.settings = settings
+          request.params = { :hello => "there" }
+          auth_url = request.redirect_url
+          assert auth_url =~ /&hello=there$/
       
-      request = Maestrano::Saml::Request.new
-      request.settings = settings
-      request.params = { :hello => nil }
-      auth_url = request.redirect_url
-      assert auth_url =~ /&hello=$/
-    end
+          request = Maestrano::Saml::Request.new
+          request.settings = settings
+          request.params = { :hello => nil }
+          auth_url = request.redirect_url
+          assert auth_url =~ /&hello=$/
+        end
 
-    context "when the target url doesn't contain a query string" do
-      should "create the SAMLRequest parameter correctly" do
-        settings = Maestrano::Saml::Settings.new
-        settings.idp_sso_target_url = "http://example.com"
+        context "when the target url doesn't contain a query string" do
+          should "create the SAMLRequest parameter correctly" do
+            settings = Maestrano::Saml::Settings.new
+            settings.idp_sso_target_url = "http://example.com"
 
-        request = Maestrano::Saml::Request.new
-        request.settings = settings
-        auth_url = request.redirect_url
-        assert auth_url =~ /^http:\/\/example.com\?SAMLRequest/
-      end
-    end
+            request = Maestrano::Saml::Request.new
+            request.settings = settings
+            auth_url = request.redirect_url
+            assert auth_url =~ /^http:\/\/example.com\?SAMLRequest/
+          end
+        end
 
-    context "when the target url contains a query string" do
-      should "create the SAMLRequest parameter correctly" do
-        settings = Maestrano::Saml::Settings.new
-        settings.idp_sso_target_url = "http://example.com?field=value"
+        context "when the target url contains a query string" do
+          should "create the SAMLRequest parameter correctly" do
+            settings = Maestrano::Saml::Settings.new
+            settings.idp_sso_target_url = "http://example.com?field=value"
 
-        request = Maestrano::Saml::Request.new
-        request.settings = settings
-        auth_url = request.redirect_url
-        assert auth_url =~ /^http:\/\/example.com\?field=value&SAMLRequest/
-      end
-    end
+            request = Maestrano::Saml::Request.new
+            request.settings = settings
+            auth_url = request.redirect_url
+            assert auth_url =~ /^http:\/\/example.com\?field=value&SAMLRequest/
+          end
+        end
     
-    context "with session" do
-      should "pass the group_id from session to the url" do
-        settings = Maestrano::Saml::Settings.new
-        settings.idp_sso_target_url = "http://example.com"
-        session = {mno_group_uid: 'cld-1'}
+        context "with session" do
+          should "pass the group_id from session to the url" do
+            settings = Maestrano::Saml::Settings.new
+            settings.idp_sso_target_url = "http://example.com"
+            session = {mno_group_uid: 'cld-1'}
         
-        request = Maestrano::Saml::Request.new
-        request.settings = settings
-        request.session = session
-        auth_url = request.redirect_url
-        assert auth_url =~ /&group_id=cld-1/
-      end
+            request = Maestrano::Saml::Request.new
+            request.settings = settings
+            request.session = session
+            auth_url = request.redirect_url
+            assert auth_url =~ /&group_id=cld-1/
+          end
       
-      should "pass ignore the group_id from session if already present in the params" do
-        settings = Maestrano::Saml::Settings.new
-        settings.idp_sso_target_url = "http://example.com"
-        session = {mno_group_uid: 'cld-1'}
+          should "pass ignore the group_id from session if already present in the params" do
+            settings = Maestrano::Saml::Settings.new
+            settings.idp_sso_target_url = "http://example.com"
+            session = {mno_group_uid: 'cld-1'}
         
-        request = Maestrano::Saml::Request.new
-        request.settings = settings
-        request.params = {group_id: 'cld-2'}
-        request.session = session
-        auth_url = request.redirect_url
+            request = Maestrano::Saml::Request.new
+            request.settings = settings
+            request.params = {group_id: 'cld-2'}
+            request.session = session
+            auth_url = request.redirect_url
         
-        assert auth_url =~ /&group_id=cld-2/
-        assert auth_url !~ /&group_id=cld-1/
+            assert auth_url =~ /&group_id=cld-2/
+            assert auth_url !~ /&group_id=cld-1/
+          end
+        end
+    
       end
     end
-    
   end
 end
