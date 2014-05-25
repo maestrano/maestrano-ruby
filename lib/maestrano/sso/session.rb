@@ -10,6 +10,10 @@ module Maestrano
         if recheck = (self.session['mno_session_recheck'] || self.session[:mno_session_recheck])
           self.recheck = Time.iso8601(recheck)
         end
+        
+        if self.uid.nil? || self.session_token.nil? || self.recheck.nil?
+          warn "Maestrano session information missing. Disabling session check"
+        end 
       end
     end
   end
