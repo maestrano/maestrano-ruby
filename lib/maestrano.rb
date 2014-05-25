@@ -24,6 +24,27 @@ require 'maestrano/sso/session'
 require 'maestrano/sso/user'
 require 'maestrano/sso/group'
 
+# API Errors
+require 'maestrano/api/error/base_error'
+require 'maestrano/api/error/authentication_error'
+require 'maestrano/api/error/connection_error'
+require 'maestrano/api/error/invalid_request_error'
+
+# API Operations
+require 'maestrano/api/operation/base'
+require 'maestrano/api/operation/create'
+require 'maestrano/api/operation/delete'
+require 'maestrano/api/operation/list'
+require 'maestrano/api/operation/update'
+
+# API
+require 'maestrano/api/util'
+require 'maestrano/api/object'
+require 'maestrano/api/resource'
+
+# API - Account Entities
+require 'maestrano/account/bill'
+
 module Maestrano
   
   class << self
