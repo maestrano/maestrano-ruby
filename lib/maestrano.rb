@@ -16,6 +16,8 @@ require 'maestrano/saml/metadata'
 require 'maestrano/sso'
 require 'maestrano/sso/base_user'
 require 'maestrano/sso/base_group'
+require 'maestrano/sso/user'
+require 'maestrano/sso/group'
 
 module Maestrano
   
