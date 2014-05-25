@@ -201,15 +201,17 @@ module Maestrano
         end
 
         should "making a POST request with parameters should have a body and no query string" do
+          date = Time.now.utc
           params = {
             group_id: 'cld-1',
             price_cents: 23000,
             currency: 'AUD',
-            description: 'Some bill'
+            description: 'Some bill',
+            period_started_at: date
           }
           @api_mock.expects(:post).once.with do |url, get, post|
             get.nil? && 
-            CGI.parse(post) == {"group_id"=>["cld-1"], "price_cents"=>["23000"], "currency"=>["AUD"], "description"=>["Some bill"]}
+            CGI.parse(post) == {"group_id"=>["cld-1"], "price_cents"=>["23000"], "currency"=>["AUD"], "description"=>["Some bill"], "period_started_at" => ["#{date.iso8601}"]}
           end.returns(test_response(test_account_bill))
           Maestrano::Account::Bill.create(params)
         end

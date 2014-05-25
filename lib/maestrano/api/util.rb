@@ -11,6 +11,8 @@ module Maestrano
           res
         when Array
           h.map { |v| objects_to_ids(v) }
+        when Time
+          h.iso8601
         else
           h
         end
