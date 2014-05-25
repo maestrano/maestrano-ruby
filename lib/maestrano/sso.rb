@@ -63,5 +63,19 @@ module Maestrano
       endpoint = 'auth/saml'
       return URI.escape("#{host}#{api_base}#{endpoint}/#{user_uid}?session=#{sso_session}")
     end
+    
+    # Set maestrano attributes in session
+    # Takes the BaseUser hash representation and current session
+    # in arguments
+    def self.set_session(session, auth)
+      if auth && (extra = (auth[:extra] || auth['extra'])) && (sso_session = (extra[:session] || extra['session']))
+        session[:mno_uid] = (sso_session[:uid] || sso_session['uid'])
+        session[:mno_session] = (sso_session[:token] || sso_session['token'])
+        if recheck = (sso_session[:recheck] || sso_session['recheck'])
+          session[:mno_session_recheck] = recheck.utc.iso8601
+        end
+        session[:mno_group_uid] = (sso_session[:group_uid] || sso_session['group_uid'])
+      end
+    end
   end
 end

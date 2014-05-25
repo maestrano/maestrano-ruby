@@ -57,4 +57,23 @@ class SSOTest < Test::Unit::TestCase
     response = Maestrano::SSO.build_response(response_document)
     assert Maestrano::SSO.build_response(response_document) == response
   end
+  
+  should "set the session correctly" do
+    session = {}
+    auth = {
+      extra: {
+        session: {
+          uid: 'usr-1',
+          token: '15fg6d',
+          recheck: Time.now,
+          group_uid: 'cld-3'
+        }
+      }
+    }
+    Maestrano::SSO.set_session(session,auth)
+    assert_equal session[:mno_uid], auth[:extra][:session][:uid]
+    assert_equal session[:mno_session], auth[:extra][:session][:token]
+    assert_equal session[:mno_session_recheck], auth[:extra][:session][:recheck].utc.iso8601
+    assert_equal session[:mno_group_uid], auth[:extra][:session][:group_uid]
+  end
 end
