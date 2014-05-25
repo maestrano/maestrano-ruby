@@ -11,11 +11,17 @@ module Maestrano
       end
 
       should "marshal a maestrano object correctly" do
-        obj = Maestrano::API::Object.construct_from({ :id => 1, :name => 'Maestrano' }, 'apikey')
+        date = Time.now.utc
+        obj = Maestrano::API::Object.construct_from({ 
+          id: 1, 
+          name: 'Maestrano',
+          some_date: date.iso8601
+        }, 'apikey')
         m = Marshal.load(Marshal.dump(obj))
         assert_equal 1, m.id
         assert_equal 'Maestrano', m.name
         assert_equal 'apikey', m.api_key
+        assert_equal date.iso8601, m.some_date.iso8601
       end
     end
   end

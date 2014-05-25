@@ -44,7 +44,12 @@ module Maestrano
           # Try converting to a known object class.  If none available, fall back to generic Maestrano::API::Object
           object_classes.fetch(resp[:object], Maestrano::API::Object).construct_from(resp, api_key)
         else
-          resp
+          # Automatically parse iso8601 dates
+          if resp =~ /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
+            Time.iso8601(resp).utc
+          else
+            resp
+          end
         end
       end
 
