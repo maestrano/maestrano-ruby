@@ -135,7 +135,7 @@ class RequestTest < Test::Unit::TestCase
       should "pass the group_id from session to the url" do
         settings = Maestrano::Saml::Settings.new
         settings.idp_sso_target_url = "http://example.com"
-        session = {group_uid: 'cld-1'}
+        session = {mno_group_uid: 'cld-1'}
         
         request = Maestrano::Saml::Request.new
         request.settings = settings
