@@ -33,4 +33,18 @@ class BaseGroupTest < Test::Unit::TestCase
     assert group.company_name == @saml_response.attributes['company_name']
     assert group.country == @saml_response.attributes['country']
   end
+  
+  should "have the right hash representation" do
+    sso_group = Maestrano::SSO::BaseGroup.new(@saml_response)
+    assert sso_group.to_hash == {
+      provider: 'maestrano',
+      uid: sso_group.uid,
+      info: {
+        free_trial_end_at: sso_group.free_trial_end_at,
+        company_name: sso_group.company_name,
+        country: sso_group.country,
+      },
+      extra: {}
+    }
+  end
 end
