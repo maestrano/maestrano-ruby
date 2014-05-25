@@ -12,7 +12,7 @@ module Maestrano
         end
         
         if self.uid.nil? || self.session_token.nil? || self.recheck.nil?
-          warn "Maestrano session information missing. User will have to relogin"
+          $stderr.puts "WARNING: Maestrano session information missing. User will have to relogin"
         end 
       end
       
