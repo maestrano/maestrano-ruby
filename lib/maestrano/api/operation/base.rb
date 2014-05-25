@@ -140,7 +140,8 @@ module Maestrano
             raise general_api_error(response.code, response.body)
           end
 
-          Util.symbolize_names(response)
+          response = Util.symbolize_names(response)
+          response[:data]
         end
 
         def self.general_api_error(rcode, rbody)

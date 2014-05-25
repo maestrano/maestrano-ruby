@@ -19,13 +19,27 @@ module Maestrano
       def self.object_classes
         @object_classes ||= {
           'account_bill' => Maestrano::Account::Bill,
+          'internal_list_object' => Maestrano::API::ListObject
         }
       end
 
       def self.convert_to_maestrano_object(resp, api_key)
         case resp
         when Array
-          resp.map { |i| convert_to_maestrano_object(i, api_key) }
+          if resp.empty? || !resp.first[:object]
+            resp
+          else
+            list = convert_to_maestrano_object({
+              object: 'internal_list_object', 
+              data:[],
+              url: convert_to_maestrano_object(resp.first, api_key).class.url
+            },api_key)
+            
+            resp.each do |i|
+              list.data.push(convert_to_maestrano_object(i, api_key))
+            end
+            list
+          end
         when Hash
           # Try converting to a known object class.  If none available, fall back to generic Maestrano::API::Object
           object_classes.fetch(resp[:object], Maestrano::API::Object).construct_from(resp, api_key)

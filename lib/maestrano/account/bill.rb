@@ -5,8 +5,8 @@ module Maestrano
       include Maestrano::API::Operation::Create
       include Maestrano::API::Operation::Update
 
-      def cancel(params={})
-        response, api_key = Maestrano::API::Operation::Base.request(:delete, url, @api_key, params)
+      def cancel
+        response, api_key = Maestrano::API::Operation::Base.request(:delete, url, @api_key)
         refresh_from(response, api_key)
         self
       end

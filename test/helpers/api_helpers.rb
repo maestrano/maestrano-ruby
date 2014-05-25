@@ -13,7 +13,7 @@ module APITestHelper
   def test_account_bill_content(params={})
     {
       object: 'account_bill',
-      uid: 'bill-1',
+      id: 'bill-1',
       group_id: 'cld-1',
       created_at: Time.now.utc.iso8601,
       price_cents: 2300,
@@ -39,6 +39,14 @@ module APITestHelper
       success: true,
       errors: {},
       data: [test_account_bill_content, test_account_bill_content, test_account_bill_content],
+    }
+  end
+  
+  def test_account_bill_array_one
+    {
+      success: true,
+      errors: {},
+      data: [test_account_bill_content],
     }
   end
   

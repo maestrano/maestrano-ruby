@@ -40,6 +40,7 @@ require 'maestrano/api/operation/update'
 # API
 require 'maestrano/api/util'
 require 'maestrano/api/object'
+require 'maestrano/api/list_object'
 require 'maestrano/api/resource'
 
 # API - Account Entities
