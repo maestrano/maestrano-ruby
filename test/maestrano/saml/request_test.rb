@@ -130,5 +130,35 @@ class RequestTest < Test::Unit::TestCase
         assert auth_url =~ /^http:\/\/example.com\?field=value&SAMLRequest/
       end
     end
+    
+    context "with session" do
+      should "pass the group_id from session to the url" do
+        settings = Maestrano::Saml::Settings.new
+        settings.idp_sso_target_url = "http://example.com"
+        session = {group_uid: 'cld-1'}
+        
+        request = Maestrano::Saml::Request.new
+        request.settings = settings
+        request.session = session
+        auth_url = request.redirect_url
+        assert auth_url =~ /&group_id=cld-1/
+      end
+      
+      should "pass ignore the group_id from session if already present in the params" do
+        settings = Maestrano::Saml::Settings.new
+        settings.idp_sso_target_url = "http://example.com"
+        session = {group_uid: 'cld-1'}
+        
+        request = Maestrano::Saml::Request.new
+        request.settings = settings
+        request.params = {group_id: 'cld-2'}
+        request.session = session
+        auth_url = request.redirect_url
+        puts auth_url
+        assert auth_url =~ /&group_id=cld-2/
+        assert auth_url !~ /&group_id=cld-1/
+      end
+    end
+    
   end
 end

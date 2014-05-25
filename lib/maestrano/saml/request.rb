@@ -9,11 +9,12 @@ module Maestrano
   module Saml
   include REXML
     class Request
-      attr_accessor :settings, :params
+      attr_accessor :settings, :params, :session
       
-      def initialize(params = {})
+      def initialize(params = {}, session = {})
         self.settings = Maestrano::SSO.saml_settings
         self.params = params
+        self.session = session
       end
       
       def redirect_url
@@ -31,6 +32,10 @@ module Maestrano
 
         self.params.each_pair do |key, value|
           request_params << "&#{key.to_s}=#{CGI.escape(value.to_s)}"
+        end
+        
+        if (request_params !~ /group_id=/) && (group_id = (self.session[:group_uid] || self.session['group_id']))
+          request_params << "&group_id=#{CGI.escape(group_id.to_s)}"
         end
 
         self.settings.idp_sso_target_url + request_params
