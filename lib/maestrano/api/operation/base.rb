@@ -170,7 +170,7 @@ module Maestrano
         end
 
         def self.invalid_request_error(errors, rcode, rbody, error_obj)
-          Maestrano::API::Error::InvalidRequestError.new(errors[:message], errors[:param], rcode,
+          Maestrano::API::Error::InvalidRequestError.new(errors.first.join(" "), errors.keys.first.to_s, rcode,
                                   rbody, error_obj)
         end
 

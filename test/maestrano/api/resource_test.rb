@@ -67,8 +67,8 @@ module Maestrano
           end
           
           should "use the per-object credential when creating" do
-            Maestrano.expects(:execute_request).with do |opts|
-              opts[:headers][:authorization] == 'Bearer sk_test_local'
+            Maestrano::API::Operation::Base.expects(:execute_request).with do |opts|
+              opts[:headers][:authorization] == "Basic #{Base64.encode64('sk_test_local:')}"
             end.returns(test_response(test_account_bill))
 
             Maestrano::Account::Bill.create({
@@ -84,8 +84,8 @@ module Maestrano
 
         context "with a global API key set" do
           should "use the per-object credential when creating" do
-            Maestrano.expects(:execute_request).with do |opts|
-              opts[:headers][:authorization] == 'Bearer local'
+            Maestrano::API::Operation::Base.expects(:execute_request).with do |opts|
+              opts[:headers][:authorization] == "Basic #{Base64.encode64('local:')}"
             end.returns(test_response(test_account_bill))
 
             Maestrano::Account::Bill.create({
@@ -99,17 +99,18 @@ module Maestrano
           end
 
           should "use the per-object credential when retrieving and making other calls" do
-            Maestrano.expects(:execute_request).with do |opts|
+            Maestrano::API::Operation::Base.expects(:execute_request).with do |opts|
               opts[:url] == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills/ch_test_account_bill" &&
-                opts[:headers][:authorization] == 'Bearer local'
+                opts[:headers][:authorization] == "Basic #{Base64.encode64('local:')}"
             end.returns(test_response(test_account_bill))
-            Maestrano.expects(:execute_request).with do |opts|
-              opts[:url] == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills/ch_test_account_bill/refund" &&
-                opts[:headers][:authorization] == 'Bearer local'
+            Maestrano::API::Operation::Base.expects(:execute_request).with do |opts|
+              opts[:url] == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills/ch_test_account_bill" &&
+                opts[:headers][:authorization] == "Basic #{Base64.encode64('local:')}" &&
+                opts[:method] == :delete
             end.returns(test_response(test_account_bill))
 
             ch = Maestrano::Account::Bill.retrieve('ch_test_account_bill', 'local')
-            ch.refund
+            ch.cancel
           end
         end
       end
@@ -308,7 +309,7 @@ module Maestrano
               rescued = true
               assert e.kind_of? Maestrano::API::Error::InvalidRequestError
               assert_equal "id", e.param
-              assert_equal "Missing id", e.message
+              assert_equal 'id does not exist', e.message
             end
 
             assert_equal true, rescued
