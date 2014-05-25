@@ -1,5 +1,5 @@
 module APITestHelper
-  def test_response(body, code=200)
+  def test_response(body={}, code=200)
     # When an exception is raised, restclient clobbers method_missing.  Hence we
     # can't just use the stubs interface.
     body = JSON.generate(body) if !(body.kind_of? String)
