@@ -9,10 +9,10 @@ module Maestrano
         @api_mock.expects(:get).twice.returns(test_response(test_account_bill_array))
         c = Maestrano::Account::Bill.all
         assert c.kind_of?(Maestrano::API::ListObject)
-        assert_equal('bills', c.url)
+        assert_equal('account/bills', c.url)
         all = c.all
         assert all.kind_of?(Maestrano::API::ListObject)
-        assert_equal('bills', all.url)
+        assert_equal('account/bills', all.url)
         assert all.data.kind_of?(Array)
       end
     end

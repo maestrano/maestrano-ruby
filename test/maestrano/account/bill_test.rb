@@ -31,7 +31,7 @@ module Maestrano
 
       should "create should successfully create a remote bill when passed correct parameters" do
         @api_mock.expects(:post).with do |url, api_key, params|
-          url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills" && api_key.nil? && 
+          url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills" && api_key.nil? && 
           CGI.parse(params) == {"group_id"=>["cld-1"], "price_cents"=>["23000"], "currency"=>["AUD"], "description"=>["Some bill"]}
         end.once.returns(test_response(test_account_bill))
 

@@ -2,14 +2,18 @@ module Maestrano
   module API
     class Resource < Maestrano::API::Object
       def self.class_name
-        self.name.split('::')[-1]
+        self.name.split('::').reject { |w| w.to_s == "Maestrano" }
       end
 
       def self.url
         if self == Maestrano::API::Resource
           raise NotImplementedError.new('Maestrano::API::Resource is an abstract class.  You should perform actions on its subclasses (Bill, Customer, etc.)')
         end
-        "#{CGI.escape(class_name.downcase)}s"
+        if class_name.is_a?(Array)
+          class_name.map { |w| CGI.escape(w.downcase) }.join("/") + 's'
+        else
+          "#{CGI.escape(class_name.downcase)}s"
+        end
       end
 
       def url

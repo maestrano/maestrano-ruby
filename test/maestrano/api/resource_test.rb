@@ -103,14 +103,14 @@ module Maestrano
       context "with valid credentials" do
         should "urlencode values in GET params" do
           response = test_response(test_account_bill_array)
-          @api_mock.expects(:get).with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills?bill=test%20bill", nil, nil).returns(response)
+          @api_mock.expects(:get).with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills?bill=test%20bill", nil, nil).returns(response)
           bills = Maestrano::Account::Bill.all(:bill => 'test bill').data
           assert bills.kind_of? Array
         end
 
         should "construct URL properly with base query parameters" do
           response = test_response(test_account_bill_array)
-          @api_mock.expects(:get).with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills?bill=test_account_bill", nil, nil).returns(response)
+          @api_mock.expects(:get).with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills?bill=test_account_bill", nil, nil).returns(response)
           bills = Maestrano::Account::Bill.all(:bill => 'test_account_bill')
 
           
@@ -118,7 +118,7 @@ module Maestrano
         
         should "construct URL properly with multiple query parameters" do
           response = test_response(test_account_bill_array)
-          @api_mock.expects(:get).with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills?bill=test_account_bill&paid=true", nil, nil).returns(response)
+          @api_mock.expects(:get).with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills?bill=test_account_bill&paid=true", nil, nil).returns(response)
           bills = Maestrano::Account::Bill.all(bill:'test_account_bill', paid: true)
         end
 
@@ -162,7 +162,7 @@ module Maestrano
           @api_mock.expects(:get).with do |url, api_key, params|
             uri = URI(url)
             query = CGI.parse(uri.query)
-            (url =~ %r{^#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills?} &&
+            (url =~ %r{^#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills?} &&
              query.keys.sort == ['offset', 'sad'])
           end.returns(test_response(test_account_bill_array_one))
           Maestrano::Account::Bill.all(:count => nil, :offset => 5, :sad => false)
@@ -170,7 +170,7 @@ module Maestrano
         
         should "setting a nil value for a param should exclude that param from the POST request" do
           @api_mock.expects(:post).with do |url, api_key, params|
-            url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills" &&
+            url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills" &&
               api_key.nil? &&
               CGI.parse(params) == { 'group_id' => ['cld-1'], 'price_cents' => ['23000'], 'currency' => ['AUD'] }
           end.returns(test_response(test_account_bill))
@@ -184,7 +184,7 @@ module Maestrano
 
         should "requesting with a unicode ID should result in a request" do
           response = test_response(test_missing_id_error, 404)
-          @api_mock.expects(:get).once.with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills/%E2%98%83", nil, nil).raises(RestClient::ExceptionWithResponse.new(response, 404))
+          @api_mock.expects(:get).once.with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills/%E2%98%83", nil, nil).raises(RestClient::ExceptionWithResponse.new(response, 404))
           c = Maestrano::Account::Bill.new("☃")
           assert_raises(Maestrano::API::Error::InvalidRequestError) { c.refresh }
         end
@@ -196,7 +196,7 @@ module Maestrano
 
         should "making a GET request with parameters should have a query string and no body" do
           params = { :limit => 1 }
-          @api_mock.expects(:get).once.with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills?limit=1", nil, nil).returns(test_response(test_account_bill_array_one))
+          @api_mock.expects(:get).once.with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills?limit=1", nil, nil).returns(test_response(test_account_bill_array_one))
           Maestrano::Account::Bill.all(params)
         end
 
@@ -240,7 +240,7 @@ module Maestrano
 
         should "updating an object should issue a PUT request with only the changed properties" do
           @api_mock.expects(:put).with do |url, api_key, params|
-            url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills/bill-1" && 
+            url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills/bill-1" && 
             api_key.nil? && CGI.parse(params) == {'description' => ['another_mn']}
           end.once.returns(test_response(test_account_bill))
           
@@ -267,7 +267,7 @@ module Maestrano
         should "deleting should send no props and result in an object that has no props other deleted" do
           @api_mock.expects(:get).never
           @api_mock.expects(:post).never
-          @api_mock.expects(:delete).with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills/bill-1", nil, nil).once.returns(test_response(test_account_bill))
+          @api_mock.expects(:delete).with("#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills/bill-1", nil, nil).once.returns(test_response(test_account_bill))
 
           c = Maestrano::Account::Bill.construct_from(test_account_bill[:data])
           class << c
