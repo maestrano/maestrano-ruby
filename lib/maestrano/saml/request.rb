@@ -34,7 +34,7 @@ module Maestrano
           request_params << "&#{key.to_s}=#{CGI.escape(value.to_s)}"
         end
         
-        if (request_params !~ /group_id=/) && (group_id = (self.session[:group_uid] || self.session['group_id']))
+        if (request_params !~ /group_id=/) && (group_id = (self.session[:mno_group_uid] || self.session['mno_group_uid']))
           request_params << "&group_id=#{CGI.escape(group_id.to_s)}"
         end
 
