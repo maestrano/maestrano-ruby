@@ -46,7 +46,7 @@ class BaseUserTest < Test::Unit::TestCase
     should "have the right representation when user_creation_mode is virtual" do
       Maestrano.configure { |config| config.user_creation_mode = 'virtual' }
       sso_user = Maestrano::SSO::BaseUser.new(@saml_response)
-      assert sso_user.to_hash == {
+      assert_equal sso_user.to_hash, {
         provider: 'maestrano',
         uid: sso_user.virtual_uid,
         info: {
@@ -64,6 +64,12 @@ class BaseUserTest < Test::Unit::TestCase
           group: {
             uid: sso_user.group_uid,
             role: sso_user.group_role
+          },
+          session: {
+            uid: sso_user.uid,
+            token: sso_user.sso_session,
+            recheck: sso_user.sso_session_recheck,
+            group_uid: sso_user.group_uid
           }
         }
       }
@@ -72,7 +78,7 @@ class BaseUserTest < Test::Unit::TestCase
     should "have the right representation when user_creation_mode is real" do
       Maestrano.configure { |config| config.user_creation_mode = 'real' }
       sso_user = Maestrano::SSO::BaseUser.new(@saml_response)
-      assert sso_user.to_hash == {
+      assert_equal sso_user.to_hash, {
         provider: 'maestrano',
         uid: sso_user.uid,
         info: {
@@ -90,6 +96,12 @@ class BaseUserTest < Test::Unit::TestCase
           group: {
             uid: sso_user.group_uid,
             role: sso_user.group_role,
+          },
+          session: {
+            uid: sso_user.uid,
+            token: sso_user.sso_session,
+            recheck: sso_user.sso_session_recheck,
+            group_uid: sso_user.group_uid
           }
         }
       }

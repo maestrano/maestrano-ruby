@@ -60,7 +60,13 @@ module Maestrano
             group: {
               uid: self.group_uid,
               role: self.group_role,
-            }
+            },
+            session: {
+              uid: self.uid,
+              token: self.sso_session,
+              recheck: self.sso_session_recheck,
+              group_uid: self.group_uid
+            },
           }
         }
       end
