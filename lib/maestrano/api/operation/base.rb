@@ -152,7 +152,7 @@ module Maestrano
           begin
             error_obj = JSON.parse(rbody)
             error_obj = Util.symbolize_names(error_obj)
-            error = error_obj[:error] or raise Maestrano::API::Error::BaseError.new # escape from parsing
+            errors = error_obj[:errors] or raise Maestrano::API::Error::BaseError.new # escape from parsing
 
           rescue JSON::ParserError, Maestrano::API::Error::BaseError
             raise general_api_error(rcode, rbody)
@@ -160,26 +160,26 @@ module Maestrano
 
           case rcode
           when 400, 404
-            raise invalid_request_error error, rcode, rbody, error_obj
+            raise invalid_request_error(errors, rcode, rbody, error_obj)
           when 401
-            raise authentication_error error, rcode, rbody, error_obj
+            raise authentication_error(errors, rcode, rbody, error_obj)
           else
-            raise api_error error, rcode, rbody, error_obj
+            raise api_error(errors, rcode, rbody, error_obj)
           end
 
         end
 
-        def self.invalid_request_error(error, rcode, rbody, error_obj)
-          Maestrano::API::Error::InvalidRequestError.new(error[:message], error[:param], rcode,
+        def self.invalid_request_error(errors, rcode, rbody, error_obj)
+          Maestrano::API::Error::InvalidRequestError.new(errors[:message], errors[:param], rcode,
                                   rbody, error_obj)
         end
 
-        def self.authentication_error(error, rcode, rbody, error_obj)
-          Maestrano::API::Error::AuthenticationError.new(error[:message], rcode, rbody, error_obj)
+        def self.authentication_error(errors, rcode, rbody, error_obj)
+          Maestrano::API::Error::AuthenticationError.new(errors.first.join(" "), rcode, rbody, error_obj)
         end
 
-        def self.api_error(error, rcode, rbody, error_obj)
-          Maestrano::API::Error::BaseError.new(error[:message], rcode, rbody, error_obj)
+        def self.api_error(errors, rcode, rbody, error_obj)
+          Maestrano::API::Error::BaseError.new(errors[:message], rcode, rbody, error_obj)
         end
 
         def self.handle_restclient_error(e)

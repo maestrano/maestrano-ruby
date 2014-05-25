@@ -50,8 +50,8 @@ module Maestrano
         rescue Maestrano::API::Error::AuthenticationError => e
           assert_equal(401, e.http_status)
           assert_equal(true, !!e.http_body)
-          assert_equal(true, !!e.json_body[:errors][:message])
-          assert_equal(test_invalid_api_key_error['error']['message'], e.json_body[:error][:message])
+          assert_equal(true, !!e.json_body[:errors])
+          assert_equal(test_invalid_api_key_error['errors'].first.join(" "), e.json_body[:errors].first.join(" "))
         end
       end
 
