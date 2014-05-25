@@ -22,6 +22,10 @@ module Maestrano
           raise NoMethodError, "You need to override maestrano? in your #{self.class.name} model"
         end
       end
+      
+      def maestrano_session_valid?(session)
+        Maestrano::SSO::Session.new(session).valid?
+      end
     end
   end
 end

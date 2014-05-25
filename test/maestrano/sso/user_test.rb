@@ -41,4 +41,21 @@ class UserTest < Test::Unit::TestCase
     end
   end
   
+  context "maestrano_session_valid?" do
+    should "return true if the sso session is valid" do
+      session = {}
+      sso_session = mock('sso_session')
+      Maestrano::SSO::Session.stubs(:new).with(session).returns(sso_session)
+      sso_session.stubs(:valid?).returns(true)
+      assert @user.maestrano_session_valid?(session)
+    end
+    
+    should "return false if the sso session is invalid" do
+      session = {}
+      sso_session = mock('sso_session')
+      Maestrano::SSO::Session.stubs(:new).with(session).returns(sso_session)
+      sso_session.stubs(:valid?).returns(false)
+      assert !@user.maestrano_session_valid?(session)
+    end
+  end
 end
