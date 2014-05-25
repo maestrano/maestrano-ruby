@@ -3,7 +3,6 @@ module Maestrano
     class Bill < Maestrano::API::Resource
       include Maestrano::API::Operation::List
       include Maestrano::API::Operation::Create
-      include Maestrano::API::Operation::Update
 
       def cancel
         response, api_key = Maestrano::API::Operation::Base.request(:delete, url, @api_key)

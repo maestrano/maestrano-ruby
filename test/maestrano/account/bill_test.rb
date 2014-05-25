@@ -15,17 +15,15 @@ module Maestrano
       end
 
       should "bills should be cancellable" do
-        assert_raises NoMethodError do
-          @api_mock.expects(:delete).once.returns(test_response(test_account_bill))
-          c = Maestrano::Account::Bill.retrieve("test_account_bill")
-          c.cancel
-        end
+        @api_mock.expects(:delete).once.returns(test_response(test_account_bill))
+        c = Maestrano::Account::Bill.construct_from(test_account_bill[:data])
+        c.cancel
       end
 
       should "bills should not be updateable" do
         assert_raises NoMethodError do
-          @api_mock.expects(:put).once.returns(test_response(test_account_bill))
-          c = Maestrano::Account::Bill.retrieve("test_account_bill")
+          @api_mock.stubs(:put).returns(test_response(test_account_bill))
+          c = Maestrano::Account::Bill.construct_from(test_account_bill[:data])
           c.save
         end
       end
@@ -33,12 +31,8 @@ module Maestrano
 
       should "create should successfully create a remote bill when passed correct parameters" do
         @api_mock.expects(:post).with do |url, api_key, params|
-          url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills" && api_key.nil? && CGI.parse(params) == {
-            'group_id' => 'cld-1',
-            'price_cents' => 2300,
-            'currency' => 'AUD',
-            'description' => 'Some bill',
-          }
+          url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}bills" && api_key.nil? && 
+          CGI.parse(params) == {"group_id"=>["cld-1"], "price_cents"=>["23000"], "currency"=>["AUD"], "description"=>["Some bill"]}
         end.once.returns(test_response(test_account_bill))
 
         bill = Maestrano::Account::Bill.create({
