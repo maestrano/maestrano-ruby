@@ -19,13 +19,13 @@ Gem::Specification.new do |s|
   
   s.add_dependency('rest-client', '~> 1.4')
   s.add_dependency('mime-types', '~> 1.25')
-  s.add_dependency('json', '~> 1.8.1')
+  s.add_dependency('json', '~> 1.8')
   
-  s.add_development_dependency('test-unit')
-  s.add_development_dependency('mocha', '~> 0.13.2')
-  s.add_development_dependency('shoulda', '~> 2.11.0')
+  s.add_development_dependency('test-unit', '~> 2')
+  s.add_development_dependency('mocha', '~> 0.13')
+  s.add_development_dependency('shoulda', '~> 2.11')
   s.add_development_dependency('timecop', '<= 0.6.0')
-  s.add_development_dependency('rake')
+  s.add_development_dependency('rake', '~> 10')
   
   s.add_runtime_dependency("uuid", ["~> 2.3"])
   s.add_runtime_dependency("nokogiri", [">= 1.5.0"])
