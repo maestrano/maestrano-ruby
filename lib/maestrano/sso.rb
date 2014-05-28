@@ -5,7 +5,7 @@ module Maestrano
     def self.saml_settings
       settings = Maestrano::Saml::Settings.new
       settings.assertion_consumer_service_url = self.consume_url
-      settings.issuer                         = Maestrano.param('app_host')
+      settings.issuer                         = Maestrano.param('api_key')
       settings.idp_sso_target_url             = self.idp_url
       settings.idp_cert_fingerprint           = Maestrano.param('sso_x509_fingerprint')
       settings.name_identifier_format         = Maestrano.param('sso_name_id_format')
