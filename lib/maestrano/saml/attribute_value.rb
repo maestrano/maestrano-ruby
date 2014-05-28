@@ -8,7 +8,7 @@ module Maestrano
       attr_accessor :values
       def initialize(str="", values=[])
         @values = values
-        super(str)
+        super(str.to_s)
       end
     end
   end
