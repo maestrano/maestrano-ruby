@@ -229,3 +229,18 @@ def consume
   redirect_to root_path
 end
 ```
+Note that for the consume action you should disable CSRF authenticity if your framework is using it by default. If CSRF authenticity is enabled then your app will complain on the fact that it is receiving a form without CSRF token.
+
+### Other Controllers
+If you want your users to benefit from single logout then you should define the following filter in a module and include it in all your controllers except the one handling single sign-on authentication.
+
+```ruby
+def verify_maestrano_session
+  if Maestrano.param(:sso_enabled)
+    if session && session[:mno_uid] && !Maestrano::SSO::Session.new(session).valid?
+      redirect_to Maestrano::SSO.init_url
+    end
+  end
+  true
+end
+```
