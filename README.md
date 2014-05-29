@@ -372,13 +372,13 @@ bills.each { |b| puts b.id }
 Access a single bill by id
 ```ruby
 bill = Maestrano::Account::Bill.retrieve("bill-f1d2s54")
-puts b.group_id
+puts bill.group_id
 ```
 
 Create a new bill
 ```ruby
 bill = Maestrano::Account::Bill.create(group_id: "cld-3", price_cents: 2000, description: "Product purchase")
-puts b.id
+puts bill.id
 ```
 
 Cancel a bill
@@ -387,4 +387,149 @@ bill = Maestrano::Account::Bill.retrieve("bill-f1d2s54")
 bill.cancel
 ```
 
+#### Recurring Bill
+A recurring bill charges a given customer at a regular interval without you having to do anything.
+
+```ruby
+Maestrano::Account::RecurringBill
+```
+
+##### Attributes
+
+<table>
+<tr>
+<th>Field</th>
+<th>Mode</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+<tr>
+
+<tr>
+<td><b>id</b></td>
+<td>readonly</td>
+<td>string</td>
+<td>-</td>
+<td>-</td>
+<td>The id of the recurring bill</td>
+<tr>
+
+<tr>
+<td><b>group_id</b></td>
+<td>read/write</td>
+<td>string</td>
+<td><b>Yes</b></td>
+<td>-</td>
+<td>The id of the group you are charging</td>
+<tr>
+
+<tr>
+<td><b>price_cents</b></td>
+<td>read/write</td>
+<td>Integer</td>
+<td><b>Yes</b></td>
+<td>-</td>
+<td>The amount in cents to charge to the customer</td>
+<tr>
+
+<tr>
+<td><b>description</b></td>
+<td>read/write</td>
+<td>String</td>
+<td><b>Yes</b></td>
+<td>-</td>
+<td>A description of the product billed as it should appear on customer invoice</td>
+<tr>
+
+<tr>
+<td><b>period</b></td>
+<td>read/write</td>
+<td>String</td>
+<td>-</td>
+<td>Month</td>
+<td>The unit of measure for the billing cycle. Must be one of the following: 'Day', 'Week', 'SemiMonth', 'Month', 'Year'</td>
+<tr>
+
+<tr>
+<td><b>frequency</b></td>
+<td>read/write</td>
+<td>Integer</td>
+<td>-</td>
+<td>1</td>
+<td>The number of billing periods that make up one billing cycle. The combination of billing frequency and billing period must be less than or equal to one year. If the billing period is SemiMonth, the billing frequency must be 1.</td>
+<tr>
+
+<tr>
+<td><b>cycles</b></td>
+<td>read/write</td>
+<td>Integer</td>
+<td>-</td>
+<td>nil</td>
+<td>The number of cycles this bill should be active for. In other words it's the number of times this recurring bill should charge the customer.</td>
+<tr>
+
+<tr>
+<td><b>start_date</b></td>
+<td>read/write</td>
+<td>Time</td>
+<td>-</td>
+<td>Now</td>
+<td>The date when this recurring bill should start billing the customer</td>
+<tr>
+
+<tr>
+<td><b>created_at</b></td>
+<td>readonly</td>
+<td>Time</td>
+<td>-</td>
+<td>-</td>
+<td>When the the bill was created</td>
+<tr>
+
+<tr>
+<td><b>currency</b></td>
+<td>read/write</td>
+<td>String</td>
+<td>-</td>
+<td>AUD</td>
+<td>The currency of the amount charged in <a href="http://en.wikipedia.org/wiki/ISO_4217#Active_codes">ISO 4217 format</a> (3 letter code)</td>
+<tr>
+
+<tr>
+<td><b>status</b></td>
+<td>readonly</td>
+<td>String</td>
+<td>-</td>
+<td>-</td>
+<td>Status of the recurring bill. Either 'pending', 'active', 'expired' or 'cancelled'.</td>
+<tr>
+
+</table>
+
+##### Actions
+
+List all recurring bills you have created and iterate through the list
+```ruby
+rec_bills = Maestrano::Account::RecurringBill.all
+rec_bills.each { |b| puts b.id }
+```
+
+Access a single recurring bill by id
+```ruby
+rec_bill = Maestrano::Account::RecurringBill.retrieve("rbill-f1d2s54")
+puts rec_bill.group_id
+```
+
+Create a new recurring bill
+```ruby
+rec_bill = Maestrano::Account::RecurringBill.create(group_id: "cld-3", price_cents: 2000, description: "Product purchase", period: 'Month', start_date: Time.now)
+puts rec_bill.id
+```
+
+Cancel a recurring bill
+```ruby
+rec_bill = Maestrano::Account::RecurringBill.retrieve("rbill-f1d2s54")
+rec_bill.cancel
+```
 
