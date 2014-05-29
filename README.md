@@ -11,9 +11,14 @@ For testing purpose we provide an API Sandbox where you can freely obtain an API
 
 To get started just go to: http://api-sandbox.maestrano.io
 
+## Getting Started with Rails
+
+If you're looking at integrating Maestrano in your Rails application then you should use the maestrano-rails gem.
+
+More details on the [maestrano-rails project page](https://github.com/maestrano/maestrano-rails).
 
 ## Getting Started
-The first step is create an initializer to configure the behaviour of the Maestrano gem - including setting your API key.
+The first step is to create an initializer to configure the behaviour of the Maestrano gem - including setting your API key.
 
 The initializer should look like this:
 ```ruby
@@ -28,14 +33,14 @@ Maestrano.configure do |config|
   # If set to 'test' then requests will be made to api-sandbox.maestrano.io
   # The api-sandbox allows you to easily test integration scenarios.
   # More details on http://api-sandbox.maestrano.io
-  config.environment = Rails.env.production? ? 'production' : 'test'
+  config.environment = 'test' # or 'production'
   
   # ==> API key
   # Your application API key which you can retrieve on http://maestrano.com
   # via your cloud partner dashboard.
   # For testing you can retrieve/generate an api_key from the API Sandbox directly 
   # on http://api-sandbox.maestrano.io
-  config.api_key = Rails.env.production? ? 'prod_api_key' : 'sandbox_api_key'
+  config.api_key = (config.environment == 'production' ? 'prod_api_key' : 'sandbox_api_key')
   
   # ==> Single Sign-On activation
   # Enable/Disable single sign-on. When troubleshooting authentication issues
@@ -45,7 +50,7 @@ Maestrano.configure do |config|
   # ==> Application host
   # This is your application host (e.g: mysuperapp.com) which is ultimately
   # used to redirect users to the right SAML url during SSO handshake.
-  config.app_host = Rails.env.production? ? 'https://my-production-app.com' : 'http://localhost:3000'
+  config.app_host = (config.environment == 'production' ? 'https://my-production-app.com' : 'http://localhost:3000')
   
   # ==> SSO Initialization endpoint
   # This is your application path to the SAML endpoint that allows users to
@@ -103,3 +108,124 @@ Maestrano.configure do |config|
 end
 ```
 
+## Single Sign-On Setup
+In order to get setup with single sign-on you will need a user model and a group model. It will also require you to write a controller for the init phase and consume phase of the single sign-on handshake.
+
+You might wonder why we need a 'group' on top of a user. Well Maestrano works with businesses and as such expects your service to be able to manage groups of users. A group represents 1) a billing entity 2) a collaboration group. During the first single sign-on handshake both a user and a group should be created. Additional users logging in via the same group should then be added to this existing group (see controller setup below)
+
+### User Setup
+Let's assume that your user model is called 'User'. The best way to get started with SSO is to define a class method on this model called 'find_or_create_for_maestrano' accepting a hash of attributes - provided by Maestrano - and aiming at either finding an existing maestrano user in your database or creating a new one. Your user model should also have a :provider attribute and a :uid attribute used to identify the source of the user - Maestrano, LinkedIn, AngelList etc..
+
+Assuming the above the method could look like this:
+```ruby
+# Only if you need to set a random password
+require 'digest/sha1'
+
+class User
+
+  ...
+  
+  def self.find_or_create_for_maestrano(sso_hash)
+    user = self.where(provider:'maestrano', uid: sso_hash[:uid]).first
+    
+    unless user
+      user = self.new
+      
+      # Mapping
+      user.provider = 'maestrano'
+      user.uid = sso_hash[:uid]
+      user.name = sso_hash[:info][:first_name]
+      user.surname = sso_hash[:info][:last_name]
+      user.email = sso_hash[:info][:email]
+      # user.country_alpha2 = sso_hash[:info][:country]
+      # user.company = sso_hash[:info][:company_name]
+      # user.password = Digest::SHA1.hexdigest("#{Time.now}-#{rand(100)}")[0..20]
+      # user.password_confirmation = user.password
+      # user.some_other_required_field = 'some-appropriate-default-value'
+      
+      # Save the user
+      user.save
+    end
+    
+    return user
+  end
+  
+  ...
+  
+end
+```
+
+### Group Setup
+The group setup is similar to the user one. The mapping is a little easier though. Your model should also have the :provider and :uid attributes. Also your group model should have a add_member method and also a has_member? method (see controller below)
+
+Assuming a group model called 'Organization', the find_or_create_for_maestrano class method could look like this:
+```ruby
+class Organization
+
+  ...
+  
+  def self.find_or_create_for_maestrano(sso_hash)
+    organization = self.where(provider:'maestrano', uid: sso_hash[:uid]).first
+    
+    unless organization
+      organization = self.new
+      
+      # Mapping
+      organization.provider = 'maestrano'
+      organization.uid = sso_hash[:uid]
+      organization.name = sso_hash[:info][:company_name] || 'Some default'
+      # organization.country_alpha2 = sso_hash[:info][:country]
+      # organization.free_trial_end_at = sso_hash[:info][:free_trial_end_at]
+      
+      # Save the organization
+      organization.save
+    end
+    
+    return organization
+  end
+  
+  ...
+  
+end
+```
+
+### Controller Setup
+Your controller will need to have two actions: init and consume. The init action will initiate the single sign-on request and redirect the user to Maestrano. The consume action will receive the single sign-on response, process it and match/create the user and the group.
+
+The init action is all handled via Maestrano methods and should look like this:
+```ruby
+def init
+  redirect_to Maestrano::Saml::Request.new(params,session).redirect_url
+end
+```
+The params variable should contain the GET parameters of the request. The session variable should be the actual client session.
+
+Based on your application requirements the consume action might look like this:
+```ruby
+def consume
+  # Process the response and extract information
+  saml_response = Maestrano::Saml::Response.new(params[:SAMLResponse])
+  user_hash = Maestrano::SSO::BaseUser.new(saml_response).to_hash
+  group_hash = Maestrano::SSO::BaseGroup.new(saml_response).to_hash
+  membership_hash = Maestrano::SSO::BaseMembership.new(saml_response).to_hash
+  
+  # Find or create the user and the organization
+  user = User.find_or_create_for_maestrano(user_hash)
+  organization = Organization.find_or_create_for_maestrano(group_hash)
+  
+  # Add user to the organization if not there already
+  # Methods below should be coming from your application
+  unless organization.has_member?(user)
+    organization.add_member(user, role: membership_hash[:role])
+  end
+  
+  # Set the Maestrano session (ultimately used for single logout)
+  Maestrano::SSO.set_session(session, user_hash)
+  
+  # Sign the user in and redirect to application root
+  # To be customised depending on how you handle user
+  # sign in and 
+  sign_in(user)
+  redirect_to root_path
+end
+```
