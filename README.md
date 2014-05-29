@@ -18,7 +18,7 @@ If you're looking at integrating Maestrano in your Rails application then you sh
 More details on the [maestrano-rails project page](https://github.com/maestrano/maestrano-rails).
 
 ## Getting Started
-The first step is create an initializer to configure the behaviour of the Maestrano gem - including setting your API key.
+The first step is to create an initializer to configure the behaviour of the Maestrano gem - including setting your API key.
 
 The initializer should look like this:
 ```ruby
