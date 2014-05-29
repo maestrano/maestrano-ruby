@@ -366,28 +366,24 @@ Maestrano::Account::Bill
 List all bills you have created and iterate through the list
 ```ruby
 bills = Maestrano::Account::Bill.all
-
 bills.each { |b| puts b.id }
 ```
 
 Access a single bill by id
 ```ruby
 bill = Maestrano::Account::Bill.retrieve("bill-f1d2s54")
-
 puts b.group_id
 ```
 
 Create a new bill
 ```ruby
 bill = Maestrano::Account::Bill.create(group_id: "cld-3", price_cents: 2000, description: "Product purchase")
-
 puts b.id
 ```
 
 Cancel a bill
 ```ruby
 bill = Maestrano::Account::Bill.retrieve("bill-f1d2s54")
-
 bill.cancel
 ```
 
