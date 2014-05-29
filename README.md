@@ -273,7 +273,7 @@ Maestrano::Account::Bill
 <tr>
 
 <tr>
-<td>id</td>
+<td><b>id</b></td>
 <td>readonly</td>
 <td>string</td>
 <td>-</td>
@@ -282,34 +282,34 @@ Maestrano::Account::Bill
 <tr>
 
 <tr>
-<td>group_id</td>
+<td><b>group_id</b></td>
 <td>read/write</td>
 <td>string</td>
-<td><b>YES</b></td>
+<td><b>Yes</b></td>
 <td>-</td>
 <td>The id of the group you are chargin. E.g: cld-g4f5d2</td>
 <tr>
 
 <tr>
-<td>price_cents</td>
+<td><b>price_cents</b></td>
 <td>read/write</td>
 <td>Integer</td>
-<td><b>YES</b></td>
+<td><b>Yes</b></td>
 <td>-</td>
 <td>The amount in cents to charge to the customer</td>
 <tr>
 
 <tr>
-<td>description</td>
+<td><b>description</b></td>
 <td>read/write</td>
 <td>String</td>
-<td><b>YES</b></td>
+<td><b>Yes</b></td>
 <td>-</td>
 <td>A description of the product billed as it should appear on customer invoice</td>
 <tr>
 
 <tr>
-<td>created_at</td>
+<td><b>created_at</b></td>
 <td>readonly</td>
 <td>Time</td>
 <td>-</td>
@@ -318,7 +318,7 @@ Maestrano::Account::Bill
 <tr>
 
 <tr>
-<td>status</td>
+<td><b>status</b></td>
 <td>readonly</td>
 <td>String</td>
 <td>-</td>
@@ -327,7 +327,7 @@ Maestrano::Account::Bill
 <tr>
 
 <tr>
-<td>currency</td>
+<td><b>currency</b></td>
 <td>read/write</td>
 <td>String</td>
 <td>-</td>
@@ -336,7 +336,7 @@ Maestrano::Account::Bill
 <tr>
 
 <tr>
-<td>units</td>
+<td><b>units</b></td>
 <td>read/write</td>
 <td>Integer</td>
 <td>-</td>
@@ -345,7 +345,7 @@ Maestrano::Account::Bill
 <tr>
 
 <tr>
-<td>period_started_at</td>
+<td><b>period_started_at</b></td>
 <td>read/write</td>
 <td>Time</td>
 <td>-</td>
@@ -354,7 +354,7 @@ Maestrano::Account::Bill
 <tr>
 
 <tr>
-<td>period_ended_at</td>
+<td><b>period_ended_at</b></td>
 <td>read/write</td>
 <td>Time</td>
 <td>-</td>
