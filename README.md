@@ -4,6 +4,11 @@
 
 Maestrano Cloud Integration is currently in closed beta. Want to know more? Send us an email to <contact@maestrano.com>.
 
+***
+* [Getting Setup](#getting-setup)
+* [Getting Started with Rails](#getting-started-with-rails)
+***
+
 ## Getting Setup
 Before integrating with us you will need an API Key. Maestrano Cloud Integration being still in closed beta you will need to contact us beforehand to gain production access.
 
