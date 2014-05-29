@@ -244,3 +244,47 @@ def verify_maestrano_session
   true
 end
 ```
+
+## API
+The maestrano gem also provides bindings to its API (billing typically). Entities can be used in a very active record way.
+
+### Payment API
+Maestrano provides two types of payment:
+* bill, for a single charge
+* recurring bill, for daily/monthly/yearly subscriptions
+ 
+#### Bill
+A bill represents a single charge on a given group.
+
+```ruby
+Maestrano::Account::Bill
+```
+
+##### Attributes
+
+<table>
+<tr>
+<th>Field</th>
+<th>Mode</th>
+<th>Type</th>
+<th>Required/Default</th>
+<th>Description</th>
+<tr>
+
+<tr>
+<td>id</td>
+<td>readonly</td>
+<td>string</td>
+<td>-</td>
+<td>The bill id. E.g: bill-fd52s5df4</td>
+<tr>
+
+<tr>
+<td>group_id</td>
+<td>read/write</td>
+<td>string</td>
+<td>Yes</td>
+<td>The id of the group you are chargin. E.g: cld-g4f5d2</td>
+<tr>
+
+</table>
