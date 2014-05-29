@@ -290,4 +290,76 @@ Maestrano::Account::Bill
 <td>The id of the group you are chargin. E.g: cld-g4f5d2</td>
 <tr>
 
+<tr>
+<td>created_at</td>
+<td>readonly</td>
+<td>Time</td>
+<td>-</td>
+<td>-</td>
+<td>When the the bill was created</td>
+<tr>
+
+<tr>
+<td>price_cents</td>
+<td>read/write</td>
+<td>Integer</td>
+<td>*Yes*</td>
+<td>-</td>
+<td>The amount in cents to charge to the customer</td>
+<tr>
+
+<tr>
+<td>status</td>
+<td>readonly</td>
+<td>String</td>
+<td>-</td>
+<td>-</td>
+<td>Status of the bill. Either 'submitted', 'invoiced' or 'cancelled'.</td>
+<tr>
+
+<tr>
+<td>currency</td>
+<td>read/write</td>
+<td>String</td>
+<td>-</td>
+<td>AUD</td>
+<td>The currency of the amount charged in [ISO 4217 format](http://en.wikipedia.org/wiki/ISO_4217#Active_codes) (3 letters)</td>
+<tr>
+
+<tr>
+<td>units</td>
+<td>read/write</td>
+<td>Integer</td>
+<td>-</td>
+<td>1</td>
+<td>How many units are billed for the amount charged</td>
+<tr>
+
+<tr>
+<td>description</td>
+<td>read/write</td>
+<td>String</td>
+<td>*Yes*</td>
+<td>-</td>
+<td>A description of the product billed as it should appear on customer invoice</td>
+<tr>
+
+<tr>
+<td>period_started_at</td>
+<td>read/write</td>
+<td>Time</td>
+<td>-</td>
+<td>-</td>
+<td>If the bill relates to a specific period then specifies when the period started. Both period_started_at and period_ended_at need to be filled in order to appear on customer invoice.</td>
+<tr>
+
+<tr>
+<td>period_ended_at</td>
+<td>read/write</td>
+<td>Time</td>
+<td>-</td>
+<td>-</td>
+<td>If the bill relates to a specific period then specifies when the period ended. Both period_started_at and period_ended_at need to be filled in order to appear on customer invoice.</td>
+<tr>
+
 </table>
