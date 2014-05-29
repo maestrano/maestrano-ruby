@@ -114,4 +114,80 @@ In order to get setup with single sign-on you will need a user model and a group
 You might wonder why we need a 'group' on top of a user. Well Maestrano works with businesses and as such expects your service to be able to manage groups of users. A group represents 1) a billing entity 2) a collaboration group. During the first single sign-on handshake both a user and a group should be created. Additional users logging in via the same group should then be added to this existing group (see controller setup below)
 
 ### User Setup
-Let's assume that your user model is called 'User'. The best way to get started with SSO is to define a method on this model called find_or_create_for_maestrano
+Let's assume that your user model is called 'User'. The best way to get started with SSO is to define a class method on this model called 'find_or_create_for_maestrano' accepting a hash of attributes - provided by Maestrano - and aiming at either finding an existing maestrano user in your database or creating a new one. Your user model should also have a :provider attribute and a :uid attribute used to identify the source of the user - Maestrano, LinkedIn, AngelList etc..
+
+Assuming the above the method could look like this:
+```ruby
+# Only if you need to set a random password
+require 'digest/sha1'
+
+class User
+
+  ...
+  
+  def self.find_or_create_for_maestrano(sso_hash)
+    user = self.where(provider:'maestrano', uid: sso_hash[:uid]).first
+    
+    unless user
+      user = self.new
+      
+      # Mapping
+      user.provider = 'maestrano'
+      user.uid = sso_hash[:uid]
+      user.name = sso_hash[:info][:first_name]
+      user.surname = sso_hash[:info][:last_name]
+      user.email = sso_hash[:info][:email]
+      # user.country_alpha2 = sso_hash[:info][:country]
+      # user.company = sso_hash[:info][:company_name]
+      # user.password = Digest::SHA1.hexdigest("#{Time.now}-#{rand(100)}")[0..20]
+      # user.password_confirmation = user.password
+      # user.some_other_required_field = 'some-appropriate-default-value'
+      
+      # Save the user
+      user.save
+    end
+    
+    return user
+  end
+  
+  ...
+  
+end
+```
+
+### Group Setup
+The group setup is very similar to the user one. The mapping is a little easier though. Your model should also have the :provider and :uid attributes. 
+
+Assuming a group model called 'Organization', the find_or_create_for_maestrano class method could look like this:
+```ruby
+# Only if you need to set a random password
+require 'digest/sha1'
+
+class Organization
+
+  ...
+  
+  def self.find_or_create_for_maestrano(sso_hash)
+    organization = self.where(provider:'maestrano', uid: sso_hash[:uid]).first
+    
+    unless organization
+      organization = self.new
+      
+      # Mapping
+      organization.provider = 'maestrano'
+      organization.uid = sso_hash[:uid]
+      organization.name = sso_hash[:info][:company_name] || 'Some default'
+      # organization.country_alpha2 = sso_hash[:info][:country]
+      # organization.free_trial_end_at = sso_hash[:info][:free_trial_end_at]
+      
+      # Save the organization
+      organization.save
+    end
+    
+    return organization
+  end
+  
+  ...
+  
+end
+```
