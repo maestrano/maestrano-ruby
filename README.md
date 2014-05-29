@@ -7,6 +7,10 @@ Maestrano Cloud Integration is currently in closed beta. Want to know more? Send
 ***
 * [Getting Setup](#getting-setup)
 * [Getting Started with Rails](#getting-started-with-rails)
+* [Getting Started](#getting-started)
+* [Single Sign-On Setup](#single-sign-on-setup)
+* [API](#api)
+
 ***
 
 ## Getting Setup
