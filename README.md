@@ -267,7 +267,8 @@ Maestrano::Account::Bill
 <th>Field</th>
 <th>Mode</th>
 <th>Type</th>
-<th>Required/Default</th>
+<th>Required</th>
+<th>Default</th>
 <th>Description</th>
 <tr>
 
@@ -276,6 +277,7 @@ Maestrano::Account::Bill
 <td>readonly</td>
 <td>string</td>
 <td>-</td>
+<td>-</td>
 <td>The bill id. E.g: bill-fd52s5df4</td>
 <tr>
 
@@ -283,7 +285,8 @@ Maestrano::Account::Bill
 <td>group_id</td>
 <td>read/write</td>
 <td>string</td>
-<td>Yes</td>
+<td>*Yes*</td>
+<td>-</td>
 <td>The id of the group you are chargin. E.g: cld-g4f5d2</td>
 <tr>
 
