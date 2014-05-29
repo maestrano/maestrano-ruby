@@ -285,9 +285,27 @@ Maestrano::Account::Bill
 <td>group_id</td>
 <td>read/write</td>
 <td>string</td>
-<td>*Yes*</td>
+<td><b>YES</b></td>
 <td>-</td>
 <td>The id of the group you are chargin. E.g: cld-g4f5d2</td>
+<tr>
+
+<tr>
+<td>price_cents</td>
+<td>read/write</td>
+<td>Integer</td>
+<td><b>YES</b></td>
+<td>-</td>
+<td>The amount in cents to charge to the customer</td>
+<tr>
+
+<tr>
+<td>description</td>
+<td>read/write</td>
+<td>String</td>
+<td><b>YES</b></td>
+<td>-</td>
+<td>A description of the product billed as it should appear on customer invoice</td>
 <tr>
 
 <tr>
@@ -297,15 +315,6 @@ Maestrano::Account::Bill
 <td>-</td>
 <td>-</td>
 <td>When the the bill was created</td>
-<tr>
-
-<tr>
-<td>price_cents</td>
-<td>read/write</td>
-<td>Integer</td>
-<td>*Yes*</td>
-<td>-</td>
-<td>The amount in cents to charge to the customer</td>
 <tr>
 
 <tr>
@@ -333,15 +342,6 @@ Maestrano::Account::Bill
 <td>-</td>
 <td>1</td>
 <td>How many units are billed for the amount charged</td>
-<tr>
-
-<tr>
-<td>description</td>
-<td>read/write</td>
-<td>String</td>
-<td>*Yes*</td>
-<td>-</td>
-<td>A description of the product billed as it should appear on customer invoice</td>
 <tr>
 
 <tr>
