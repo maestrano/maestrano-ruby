@@ -20,8 +20,9 @@ module Maestrano
 
       def self.object_classes
         @object_classes ||= {
-          'account_bill' => Maestrano::Account::Bill,
-          'internal_list_object' => Maestrano::API::ListObject
+          'account_bill'           => Maestrano::Account::Bill,
+          'account_recurring_bill' => Maestrano::Account::RecurringBill,
+          'internal_list_object'   => Maestrano::API::ListObject
         }
       end
 

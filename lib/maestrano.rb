@@ -45,6 +45,7 @@ require 'maestrano/api/resource'
 
 # API - Account Entities
 require 'maestrano/account/bill'
+require 'maestrano/account/recurring_bill'
 
 module Maestrano
   

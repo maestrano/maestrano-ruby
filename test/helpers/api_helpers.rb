@@ -50,6 +50,39 @@ module APITestHelper
     }
   end
   
+  def test_account_recurring_bill_content(params={})
+    {
+      object: 'account_recurring_bill',
+      id: 'rbill-1',
+      group_id: 'cld-1',
+      created_at: Time.now.utc.iso8601,
+      price_cents: 2300,
+      status: 'submitted',
+      currency: 'AUD',
+      description: 'Bill for something',
+      start_date: Time.now.utc.iso8601,
+      period: 'Month',
+      frequency: 1,
+      cycles: nil
+    }.merge(params)
+  end
+  
+  def test_account_recurring_bill(params={})
+    {
+      success: true,
+      errors: {},
+      data: test_account_recurring_bill_content(params)
+    }
+  end
+  
+  def test_account_recurring_bill_array
+    {
+      success: true,
+      errors: {},
+      data: [test_account_recurring_bill_content, test_account_recurring_bill_content, test_account_recurring_bill_content],
+    }
+  end
+  
   def test_invalid_api_key_error
     {
       'success' => false,
