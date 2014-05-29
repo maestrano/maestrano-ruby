@@ -246,12 +246,9 @@ end
 ```
 
 ## API
-The maestrano gem also provides bindings to its API (billing typically). Entities can be used in a very active record way.
+The maestrano gem also provides bindings to its REST API allowing to access, create, update or delete various entities under your account (e.g: billing).
 
 ### Payment API
-Maestrano provides two types of payment:
-* bill, for a single charge
-* recurring bill, for daily/monthly/yearly subscriptions
  
 #### Bill
 A bill represents a single charge on a given group.
@@ -363,3 +360,35 @@ Maestrano::Account::Bill
 <tr>
 
 </table>
+
+##### Actions
+
+List all bills you have created and iterate through the list
+```ruby
+bills = Maestrano::Account::Bill.all
+
+bills.each { |b| puts b.id }
+```
+
+Access a single bill by id
+```ruby
+bill = Maestrano::Account::Bill.retrieve("bill-f1d2s54")
+
+puts b.group_id
+```
+
+Create a new bill
+```ruby
+bill = Maestrano::Account::Bill.create(group_id: "cld-3", price_cents: 2000, description: "Product purchase")
+
+puts b.id
+```
+
+Cancel a bill
+```ruby
+bill = Maestrano::Account::Bill.retrieve("bill-f1d2s54")
+
+bill.cancel
+```
+
+
