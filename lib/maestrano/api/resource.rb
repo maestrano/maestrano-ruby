@@ -10,9 +10,9 @@ module Maestrano
           raise NotImplementedError.new('Maestrano::API::Resource is an abstract class.  You should perform actions on its subclasses (Bill, Customer, etc.)')
         end
         if class_name.is_a?(Array)
-          class_name.map { |w| CGI.escape(w.downcase) }.join("/") + 's'
+          class_name.map { |w| CGI.escape(self.underscore(w)) }.join("/") + 's'
         else
-          "#{CGI.escape(class_name.downcase)}s"
+          "#{CGI.escape(self.underscore(class_name))}s"
         end
       end
 
@@ -33,6 +33,14 @@ module Maestrano
         instance = self.new(id, api_key)
         instance.refresh
         instance
+      end
+      
+      def self.underscore(string_val)
+        string_val.gsub(/::/, '/').
+        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+        gsub(/([a-z\d])([A-Z])/,'\1_\2').
+        tr("-", "_").
+        downcase
       end
     end
   end
