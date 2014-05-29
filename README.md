@@ -278,7 +278,7 @@ Maestrano::Account::Bill
 <td>string</td>
 <td>-</td>
 <td>-</td>
-<td>The bill id. E.g: bill-fd52s5df4</td>
+<td>The id of the bill</td>
 <tr>
 
 <tr>
@@ -287,7 +287,7 @@ Maestrano::Account::Bill
 <td>string</td>
 <td><b>Yes</b></td>
 <td>-</td>
-<td>The id of the group you are chargin. E.g: cld-g4f5d2</td>
+<td>The id of the group you are charging</td>
 <tr>
 
 <tr>
@@ -332,7 +332,7 @@ Maestrano::Account::Bill
 <td>String</td>
 <td>-</td>
 <td>AUD</td>
-<td>The currency of the amount charged in [ISO 4217 format](http://en.wikipedia.org/wiki/ISO_4217#Active_codes) (3 letters)</td>
+<td>The currency of the amount charged in <a href="http://en.wikipedia.org/wiki/ISO_4217#Active_codes">ISO 4217 format</a> (3 letter code)</td>
 <tr>
 
 <tr>
