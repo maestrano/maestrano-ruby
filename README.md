@@ -160,9 +160,6 @@ The group setup is very similar to the user one. The mapping is a little easier 
 
 Assuming a group model called 'Organization', the find_or_create_for_maestrano class method could look like this:
 ```ruby
-# Only if you need to set a random password
-require 'digest/sha1'
-
 class Organization
 
   ...
