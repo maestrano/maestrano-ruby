@@ -5,7 +5,7 @@ module Maestrano
     class BillTest < Test::Unit::TestCase
       include APITestHelper
       
-      should "bills should be listable" do
+      should "should be listable" do
         @api_mock.expects(:get).once.returns(test_response(test_account_bill_array))
         c = Maestrano::Account::Bill.all
         assert c.data.kind_of? Array
@@ -14,13 +14,13 @@ module Maestrano
         end
       end
 
-      should "bills should be cancellable" do
+      should "should be cancellable" do
         @api_mock.expects(:delete).once.returns(test_response(test_account_bill))
         c = Maestrano::Account::Bill.construct_from(test_account_bill[:data])
         c.cancel
       end
 
-      should "bills should not be updateable" do
+      should "should not be updateable" do
         assert_raises NoMethodError do
           @api_mock.stubs(:put).returns(test_response(test_account_bill))
           c = Maestrano::Account::Bill.construct_from(test_account_bill[:data])
@@ -29,7 +29,7 @@ module Maestrano
       end
 
 
-      should "create should successfully create a remote bill when passed correct parameters" do
+      should "should successfully create a remote bill when passed correct parameters" do
         @api_mock.expects(:post).with do |url, api_key, params|
           url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills" && api_key.nil? && 
           CGI.parse(params) == {"group_id"=>["cld-1"], "price_cents"=>["23000"], "currency"=>["AUD"], "description"=>["Some bill"]}
