@@ -108,3 +108,10 @@ Maestrano.configure do |config|
 end
 ```
 
+## Single Sign-On Setup
+In order to get setup with single sign-on you will need a user model and a group model. It will also require you to write a controller for the init phase and consume phase of the single sign-on handshake.
+
+You might wonder why we need a 'group' on top of a user. Well Maestrano works with businesses and as such expects your service to be able to manage groups of users. A group represents 1) a billing entity 2) a collaboration group. During the first single sign-on handshake both a user and a group should be created. Additional users logging in via the same group should then be added to this existing group (see controller setup below)
+
+### User Setup
+Let's assume that your user model is called 'User'. The best way to get started with SSO is to define a method on this model called find_or_create_for_maestrano
