@@ -156,7 +156,7 @@ end
 ```
 
 ### Group Setup
-The group setup is very similar to the user one. The mapping is a little easier though. Your model should also have the :provider and :uid attributes. 
+The group setup is similar to the user one. The mapping is a little easier though. Your model should also have the :provider and :uid attributes. Also your group model should have a add_member method and also a has_member? method (see controller below)
 
 Assuming a group model called 'Organization', the find_or_create_for_maestrano class method could look like this:
 ```ruby
@@ -186,5 +186,46 @@ class Organization
   
   ...
   
+end
+```
+
+### Controller Setup
+Your controller will need to have two actions: init and consume. The init action will initiate the single sign-on request and redirect the user to Maestrano. The consume action will receive the single sign-on response, process it and match/create the user and the group.
+
+The init action is all handled via Maestrano methods and should look like this:
+```ruby
+def init
+  redirect_to Maestrano::Saml::Request.new(params,session).redirect_url
+end
+```
+The params variable should contain the GET parameters of the request. The session variable should be the actual client session.
+
+Based on your application requirements the consume action might look like this:
+```ruby
+def consume
+  # Process the response and extract information
+  saml_response = Maestrano::Saml::Response.new(params[:SAMLResponse])
+  user_hash = Maestrano::SSO::BaseUser.new(saml_response).to_hash
+  group_hash = Maestrano::SSO::BaseGroup.new(saml_response).to_hash
+  membership_hash = Maestrano::SSO::BaseMembership.new(saml_response).to_hash
+  
+  # Find or create the user and the organization
+  user = User.find_or_create_for_maestrano(user_hash)
+  organization = Organization.find_or_create_for_maestrano(group_hash)
+  
+  # Add user to the organization if not there already
+  # Methods below should be coming from your application
+  unless organization.has_member?(user)
+    organization.add_member(user, role: membership_hash[:role])
+  end
+  
+  # Set the Maestrano session (ultimately used for single logout)
+  Maestrano::SSO.set_session(session, user_hash)
+  
+  # Sign the user in and redirect to application root
+  # To be customised depending on how you handle user
+  # sign in and 
+  sign_in(user)
+  redirect_to root_path
 end
 ```
