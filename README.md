@@ -364,9 +364,9 @@ Maestrano::Account::Bill
 <tr>
 <td><b>units</b></td>
 <td>read/write</td>
-<td>Integer</td>
+<td>Decimal(10,2)</td>
 <td>-</td>
-<td>1</td>
+<td>1.0</td>
 <td>How many units are billed for the amount charged</td>
 <tr>
 
