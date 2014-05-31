@@ -4,20 +4,47 @@ module Maestrano
   module SSO
     class SessionTest < Test::Unit::TestCase
       setup do
+        @mno_session = {
+          uid: 'usr-1',
+          session: 'g4dfg4fdg8378d6acf45',
+          session_recheck: Time.now.utc.iso8601,
+          group_uid: 'cld-2'
+        }
         @session = {
-          mno_uid: 'usr-1',
-          mno_session: 'g4dfg4fdg8378d6acf45',
-          mno_session_recheck: Time.now.utc.iso8601
+          maestrano: Base64.encode64(@mno_session.to_json)
         }
       end
   
       should "initialize the sso session properly" do
         sso_session = Maestrano::SSO::Session.new(@session)
-        assert_equal sso_session.uid, @session[:mno_uid]
-        assert_equal sso_session.session_token, @session[:mno_session]
-        assert_equal sso_session.recheck, Time.iso8601(@session[:mno_session_recheck])
+        assert_equal sso_session.uid, @mno_session[:uid]
+        assert_equal sso_session.session_token, @mno_session[:session]
+        assert_equal sso_session.recheck, Time.iso8601(@mno_session[:session_recheck])
+        assert_equal sso_session.group_uid, @mno_session[:group_uid]
       end
-  
+      
+      context "from_user_auth_hash" do
+        should "set the session correctly" do
+          sso_session = {}
+          auth = {
+            extra: {
+              session: {
+                uid: 'usr-1',
+                token: '15fg6d',
+                recheck: Time.now,
+                group_uid: 'cld-3'
+              }
+            }
+          }
+          sso_session = Maestrano::SSO::Session.from_user_auth_hash(@session,auth)
+          assert_equal sso_session.uid, auth[:extra][:session][:uid]
+          assert_equal sso_session.session_token, auth[:extra][:session][:token]
+          assert_equal sso_session.recheck, auth[:extra][:session][:recheck].utc.iso8601
+          assert_equal sso_session.group_uid, auth[:extra][:session][:group_uid]
+        end
+      end
+      
+      
       context "remote_check_required?" do
         setup do
           @sso_session = Maestrano::SSO::Session.new(@session)
@@ -87,13 +114,13 @@ module Maestrano
           assert @sso_session.valid?
         end
     
-        should "update session recheck timestamp if remote_check_required? and valid" do
+        should "update maestrano session with recheck timestamp if remote_check_required? and valid" do
           recheck = (@sso_session.recheck + 600)
           @sso_session.recheck = recheck
           @sso_session.stubs(:remote_check_required?).returns(true)
           @sso_session.stubs(:perform_remote_check).returns(true)
           @sso_session.valid?
-          assert_equal @session[:mno_session_recheck], recheck.utc.iso8601
+          assert_equal JSON.parse(Base64.decode64(@session[:maestrano]))['session_recheck'], recheck.utc.iso8601
         end
     
         should "return false if remote_check_required? and invalid" do
