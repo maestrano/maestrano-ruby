@@ -58,6 +58,7 @@ module Maestrano
   def self.configure
     self.config ||= Configuration.new
     yield(config)
+    self.config.api_token = "#{self.config.app_id}:#{self.config.api_key}"
   end
   
   # Get configuration parameter value
@@ -69,12 +70,13 @@ module Maestrano
   end
 
   class Configuration
-    attr_accessor :environment, :api_key, :sso_enabled, 
+    attr_accessor :environment, :app_id, :api_key, :sso_enabled, 
       :app_host, :sso_app_init_path, :sso_app_consume_path, :user_creation_mode,
-      :verify_ssl_certs, :api_version
+      :verify_ssl_certs, :api_version, :api_token
 
     def initialize
       @environment = 'test'
+      @app_id = nil
       @api_key = nil
       @sso_enabled = true
       @app_host = 'http://localhost:3000'

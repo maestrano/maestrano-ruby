@@ -45,5 +45,10 @@ class MaestranoTest < Test::Unit::TestCase
         assert Maestrano.param(parameter) == Maestrano::Configuration::EVT_CONFIG[:production][parameter.to_sym]
       end
     end
+    
+    should "build the api_token based on the app_id and api_key" do
+      Maestrano.configure { |config| config.app_id = "bla"; config.api_key = "blo" }
+      assert_equal "bla:blo", Maestrano.param(:api_token)
+    end
   end
 end
