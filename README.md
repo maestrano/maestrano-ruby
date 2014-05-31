@@ -35,11 +35,12 @@ Maestrano.configure do |config|
   # More details on http://api-sandbox.maestrano.io
   config.environment = 'test' # or 'production'
   
-  # ==> API key
-  # Your application API key which you can retrieve on http://maestrano.com
+  # ==> App ID & API key
+  # Your application App ID and API key which you can retrieve on http://maestrano.com
   # via your cloud partner dashboard.
   # For testing you can retrieve/generate an api_key from the API Sandbox directly 
   # on http://api-sandbox.maestrano.io
+  config.app_id = (config.environment == 'production' ? 'prod_app_id' : 'sandbox_app_id')
   config.api_key = (config.environment == 'production' ? 'prod_api_key' : 'sandbox_api_key')
   
   # ==> Single Sign-On activation
