@@ -61,6 +61,12 @@ module Maestrano
     self.config.api_token = "#{self.config.app_id}:#{self.config.api_key}"
   end
   
+  # Check that app_id and api_key passed
+  # in argument match
+  def self.authenticate(app_id,api_key)
+    self.param(:app_id) == app_id && self.param(:api_key) == api_key
+  end
+  
   # Get configuration parameter value
   # E.g:
   # Maestrano.param('api_key')

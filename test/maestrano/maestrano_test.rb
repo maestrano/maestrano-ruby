@@ -23,11 +23,25 @@ class MaestranoTest < Test::Unit::TestCase
     end
   end
   
-  should "return the specified parameters" do
-    @config.keys.each do |key|
-      assert Maestrano.param(key) == @config[key]
+  context "param" do
+    should "return the specified parameters" do
+      @config.keys.each do |key|
+        assert Maestrano.param(key) == @config[key]
+      end
     end
   end
+  
+  context "authenticate" do
+    should "return true if app_id and api_key match" do
+      assert Maestrano.authenticate(Maestrano.param(:app_id),Maestrano.param(:api_key))
+    end
+    
+    should "return false otherwise" do
+      assert !Maestrano.authenticate(Maestrano.param(:app_id) + 'a',Maestrano.param(:api_key))
+      assert !Maestrano.authenticate(Maestrano.param(:app_id),Maestrano.param(:api_key) + 'a')
+    end
+  end
+  
   
   context "configuration" do
     should "return the right test parameters" do
