@@ -72,10 +72,11 @@ module Maestrano
         }
       }
       Maestrano::SSO.set_session(session,auth)
-      assert_equal session[:mno_uid], auth[:extra][:session][:uid]
-      assert_equal session[:mno_session], auth[:extra][:session][:token]
-      assert_equal session[:mno_session_recheck], auth[:extra][:session][:recheck].utc.iso8601
-      assert_equal session[:mno_group_uid], auth[:extra][:session][:group_uid]
+      decrypt_session = JSON.parse(Base64.decode64(session[:maestrano]))
+      assert_equal decrypt_session['uid'], auth[:extra][:session][:uid]
+      assert_equal decrypt_session['session'], auth[:extra][:session][:token]
+      assert_equal decrypt_session['session_recheck'], auth[:extra][:session][:recheck].utc.iso8601
+      assert_equal decrypt_session['group_uid'], auth[:extra][:session][:group_uid]
     end
   end
 end

@@ -14,7 +14,7 @@ module Maestrano
           instance.session_token = (sso_session[:token] || sso_session['token'])
           instance.group_uid = (sso_session[:group_uid] || sso_session['group_uid'])
           if recheck = (sso_session[:recheck] || sso_session['recheck'])
-            instance.recheck = recheck.utc.iso8601
+            instance.recheck = recheck
           end
         end
         return instance

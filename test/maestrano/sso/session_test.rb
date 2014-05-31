@@ -39,7 +39,7 @@ module Maestrano
           sso_session = Maestrano::SSO::Session.from_user_auth_hash(@session,auth)
           assert_equal sso_session.uid, auth[:extra][:session][:uid]
           assert_equal sso_session.session_token, auth[:extra][:session][:token]
-          assert_equal sso_session.recheck, auth[:extra][:session][:recheck].utc.iso8601
+          assert_equal sso_session.recheck.utc.iso8601, auth[:extra][:session][:recheck].utc.iso8601
           assert_equal sso_session.group_uid, auth[:extra][:session][:group_uid]
         end
       end
