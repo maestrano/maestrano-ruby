@@ -3,6 +3,24 @@
 </p>
 
 Maestrano Cloud Integration is currently in closed beta. Want to know more? Send us an email to <contact@maestrano.com>.
+  
+  
+  
+- - -
+
+1.  [Getting Setup](#getting-setup)
+2.  [Getting Started with Rails](#getting-started-with-rails)
+3.  [Getting Started](#getting-started)
+4. [Single Sign-On Setup](#single-sign-on-setup)
+  * [User Setup](#user-setup)
+  * [Group Setup](#group-setup)
+  * [Controller Setup](#controller-setup)
+  * [Other Controllers](#other-controllers)
+5. [API](#api)
+  * [Bill](#bill)
+  * [Recurring Bill](#recurring-bill)
+
+- - -
 
 ## Getting Setup
 Before integrating with us you will need an API Key. Maestrano Cloud Integration being still in closed beta you will need to contact us beforehand to gain production access.
@@ -18,7 +36,18 @@ If you're looking at integrating Maestrano in your Rails application then you sh
 More details on the [maestrano-rails project page](https://github.com/maestrano/maestrano-rails).
 
 ## Getting Started
-The first step is to create an initializer to configure the behaviour of the Maestrano gem - including setting your API key.
+
+To install the gem run
+```console
+gem install maestrano
+```
+
+Or add it to your Gemfile
+```ruby
+gem 'maestrano'
+```
+
+Once installed the first step is to create an initializer to configure the behaviour of the Maestrano gem - including setting your API key.
 
 The initializer should look like this:
 ```ruby
@@ -245,3 +274,303 @@ def verify_maestrano_session
   true
 end
 ```
+
+## API
+The maestrano gem also provides bindings to its REST API allowing to access, create, update or delete various entities under your account (e.g: billing).
+
+### Payment API
+ 
+#### Bill
+A bill represents a single charge on a given group.
+
+```ruby
+Maestrano::Account::Bill
+```
+
+##### Attributes
+
+<table>
+<tr>
+<th>Field</th>
+<th>Mode</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+<tr>
+
+<tr>
+<td><b>id</b></td>
+<td>readonly</td>
+<td>string</td>
+<td>-</td>
+<td>-</td>
+<td>The id of the bill</td>
+<tr>
+
+<tr>
+<td><b>group_id</b></td>
+<td>read/write</td>
+<td>string</td>
+<td><b>Yes</b></td>
+<td>-</td>
+<td>The id of the group you are charging</td>
+<tr>
+
+<tr>
+<td><b>price_cents</b></td>
+<td>read/write</td>
+<td>Integer</td>
+<td><b>Yes</b></td>
+<td>-</td>
+<td>The amount in cents to charge to the customer</td>
+<tr>
+
+<tr>
+<td><b>description</b></td>
+<td>read/write</td>
+<td>String</td>
+<td><b>Yes</b></td>
+<td>-</td>
+<td>A description of the product billed as it should appear on customer invoice</td>
+<tr>
+
+<tr>
+<td><b>created_at</b></td>
+<td>readonly</td>
+<td>Time</td>
+<td>-</td>
+<td>-</td>
+<td>When the the bill was created</td>
+<tr>
+
+<tr>
+<td><b>status</b></td>
+<td>readonly</td>
+<td>String</td>
+<td>-</td>
+<td>-</td>
+<td>Status of the bill. Either 'submitted', 'invoiced' or 'cancelled'.</td>
+<tr>
+
+<tr>
+<td><b>currency</b></td>
+<td>read/write</td>
+<td>String</td>
+<td>-</td>
+<td>AUD</td>
+<td>The currency of the amount charged in <a href="http://en.wikipedia.org/wiki/ISO_4217#Active_codes">ISO 4217 format</a> (3 letter code)</td>
+<tr>
+
+<tr>
+<td><b>units</b></td>
+<td>read/write</td>
+<td>Decimal(10,2)</td>
+<td>-</td>
+<td>1.0</td>
+<td>How many units are billed for the amount charged</td>
+<tr>
+
+<tr>
+<td><b>period_started_at</b></td>
+<td>read/write</td>
+<td>Time</td>
+<td>-</td>
+<td>-</td>
+<td>If the bill relates to a specific period then specifies when the period started. Both period_started_at and period_ended_at need to be filled in order to appear on customer invoice.</td>
+<tr>
+
+<tr>
+<td><b>period_ended_at</b></td>
+<td>read/write</td>
+<td>Time</td>
+<td>-</td>
+<td>-</td>
+<td>If the bill relates to a specific period then specifies when the period ended. Both period_started_at and period_ended_at need to be filled in order to appear on customer invoice.</td>
+<tr>
+
+</table>
+
+##### Actions
+
+List all bills you have created and iterate through the list
+```ruby
+bills = Maestrano::Account::Bill.all
+bills.each { |b| puts b.id }
+```
+
+Access a single bill by id
+```ruby
+bill = Maestrano::Account::Bill.retrieve("bill-f1d2s54")
+puts bill.group_id
+```
+
+Create a new bill
+```ruby
+bill = Maestrano::Account::Bill.create(group_id: "cld-3", price_cents: 2000, description: "Product purchase")
+puts bill.id
+```
+
+Cancel a bill
+```ruby
+bill = Maestrano::Account::Bill.retrieve("bill-f1d2s54")
+bill.cancel
+```
+
+#### Recurring Bill
+A recurring bill charges a given customer at a regular interval without you having to do anything.
+
+```ruby
+Maestrano::Account::RecurringBill
+```
+
+##### Attributes
+
+<table>
+<tr>
+<th>Field</th>
+<th>Mode</th>
+<th>Type</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+<tr>
+
+<tr>
+<td><b>id</b></td>
+<td>readonly</td>
+<td>string</td>
+<td>-</td>
+<td>-</td>
+<td>The id of the recurring bill</td>
+<tr>
+
+<tr>
+<td><b>group_id</b></td>
+<td>read/write</td>
+<td>string</td>
+<td><b>Yes</b></td>
+<td>-</td>
+<td>The id of the group you are charging</td>
+<tr>
+
+<tr>
+<td><b>price_cents</b></td>
+<td>read/write</td>
+<td>Integer</td>
+<td><b>Yes</b></td>
+<td>-</td>
+<td>The amount in cents to charge to the customer</td>
+<tr>
+
+<tr>
+<td><b>description</b></td>
+<td>read/write</td>
+<td>String</td>
+<td><b>Yes</b></td>
+<td>-</td>
+<td>A description of the product billed as it should appear on customer invoice</td>
+<tr>
+
+<tr>
+<td><b>period</b></td>
+<td>read/write</td>
+<td>String</td>
+<td>-</td>
+<td>Month</td>
+<td>The unit of measure for the billing cycle. Must be one of the following: 'Day', 'Week', 'SemiMonth', 'Month', 'Year'</td>
+<tr>
+
+<tr>
+<td><b>frequency</b></td>
+<td>read/write</td>
+<td>Integer</td>
+<td>-</td>
+<td>1</td>
+<td>The number of billing periods that make up one billing cycle. The combination of billing frequency and billing period must be less than or equal to one year. If the billing period is SemiMonth, the billing frequency must be 1.</td>
+<tr>
+
+<tr>
+<td><b>cycles</b></td>
+<td>read/write</td>
+<td>Integer</td>
+<td>-</td>
+<td>nil</td>
+<td>The number of cycles this bill should be active for. In other words it's the number of times this recurring bill should charge the customer.</td>
+<tr>
+
+<tr>
+<td><b>start_date</b></td>
+<td>read/write</td>
+<td>Time</td>
+<td>-</td>
+<td>Now</td>
+<td>The date when this recurring bill should start billing the customer</td>
+<tr>
+
+<tr>
+<td><b>created_at</b></td>
+<td>readonly</td>
+<td>Time</td>
+<td>-</td>
+<td>-</td>
+<td>When the the bill was created</td>
+<tr>
+
+<tr>
+<td><b>currency</b></td>
+<td>read/write</td>
+<td>String</td>
+<td>-</td>
+<td>AUD</td>
+<td>The currency of the amount charged in <a href="http://en.wikipedia.org/wiki/ISO_4217#Active_codes">ISO 4217 format</a> (3 letter code)</td>
+<tr>
+
+<tr>
+<td><b>status</b></td>
+<td>readonly</td>
+<td>String</td>
+<td>-</td>
+<td>-</td>
+<td>Status of the recurring bill. Either 'pending', 'active', 'expired' or 'cancelled'.</td>
+<tr>
+
+</table>
+
+##### Actions
+
+List all recurring bills you have created and iterate through the list
+```ruby
+rec_bills = Maestrano::Account::RecurringBill.all
+rec_bills.each { |b| puts b.id }
+```
+
+Access a single recurring bill by id
+```ruby
+rec_bill = Maestrano::Account::RecurringBill.retrieve("rbill-f1d2s54")
+puts rec_bill.group_id
+```
+
+Create a new recurring bill
+```ruby
+rec_bill = Maestrano::Account::RecurringBill.create(group_id: "cld-3", price_cents: 2000, description: "Product purchase", period: 'Month', start_date: Time.now)
+puts rec_bill.id
+```
+
+Cancel a recurring bill
+```ruby
+rec_bill = Maestrano::Account::RecurringBill.retrieve("rbill-f1d2s54")
+rec_bill.cancel
+```
+
+
+## Support
+This README is still in the process of being written and improved. As such it might not cover some of the questions you might have.
+
+So if you have any question or need help integrating with us just let us know at support@maestrano.com
+
+## License
+
+MIT License. Copyright 2014 Maestrano Pty Ltd. https://maestrano.com
+
+You are not granted rights or licenses to the trademarks of Maestrano.
