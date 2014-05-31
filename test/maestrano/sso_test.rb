@@ -58,25 +58,36 @@ module Maestrano
       response = Maestrano::SSO.build_response(response_document)
       assert Maestrano::SSO.build_response(response_document) == response
     end
-  
-    should "set the session correctly" do
-      session = {}
-      auth = {
-        extra: {
-          session: {
-            uid: 'usr-1',
-            token: '15fg6d',
-            recheck: Time.now,
-            group_uid: 'cld-3'
+    
+    context "session management" do
+      setup do
+        @session = {}
+        @auth = {
+          extra: {
+            session: {
+              uid: 'usr-1',
+              token: '15fg6d',
+              recheck: Time.now,
+              group_uid: 'cld-3'
+            }
           }
         }
-      }
-      Maestrano::SSO.set_session(session,auth)
-      decrypt_session = JSON.parse(Base64.decode64(session[:maestrano]))
-      assert_equal decrypt_session['uid'], auth[:extra][:session][:uid]
-      assert_equal decrypt_session['session'], auth[:extra][:session][:token]
-      assert_equal decrypt_session['session_recheck'], auth[:extra][:session][:recheck].utc.iso8601
-      assert_equal decrypt_session['group_uid'], auth[:extra][:session][:group_uid]
+      end
+    
+      should "set the session correctly" do
+        Maestrano::SSO.set_session(@session,@auth)
+        decrypt_session = JSON.parse(Base64.decode64(@session[:maestrano]))
+        assert_equal decrypt_session['uid'], @auth[:extra][:session][:uid]
+        assert_equal decrypt_session['session'], @auth[:extra][:session][:token]
+        assert_equal decrypt_session['session_recheck'], @auth[:extra][:session][:recheck].utc.iso8601
+        assert_equal decrypt_session['group_uid'], @auth[:extra][:session][:group_uid]
+      end
+      
+      should "unset the session correctly" do
+        Maestrano::SSO.set_session(@session,@auth)
+        Maestrano::SSO.unset_session(@session)
+        assert @session[:maestrano].nil?
+      end
     end
   end
 end

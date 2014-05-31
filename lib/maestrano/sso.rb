@@ -70,5 +70,9 @@ module Maestrano
     def self.set_session(session, auth)
       Maestrano::SSO::Session.from_user_auth_hash(session,auth).save
     end
+    
+    def self.unset_session(session)
+      session.delete(:maestrano) && session.delete('maestrano')
+    end
   end
 end
