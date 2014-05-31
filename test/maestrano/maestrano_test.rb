@@ -42,6 +42,33 @@ class MaestranoTest < Test::Unit::TestCase
     end
   end
   
+  context "mask_user_uid" do
+    should "return the composite uid if creation_mode is virtual" do
+      Maestrano.configure { |c| c.user_creation_mode = 'virtual' }
+      assert_equal 'usr-1.cld-1', Maestrano.mask_user('usr-1','cld-1')
+    end
+    
+    should "not double up the composite uid" do
+      Maestrano.configure { |c| c.user_creation_mode = 'virtual' }
+      assert_equal 'usr-1.cld-1', Maestrano.mask_user('usr-1.cld-1','cld-1')
+    end
+    
+    should "return the real uid if creation_mode is real" do
+      Maestrano.configure { |c| c.user_creation_mode = 'real' }
+      assert_equal 'usr-1', Maestrano.mask_user('usr-1','cld-1')
+    end
+  end
+  
+  context "unmask_user_uid" do
+    should "return the right uid if composite" do
+      assert_equal 'usr-1', Maestrano.unmask_user('usr-1.cld-1')
+    end
+    
+    should "return the right uid if non composite" do
+      assert_equal 'usr-1', Maestrano.unmask_user('usr-1')
+    end
+  end
+  
   
   context "configuration" do
     should "return the right test parameters" do

@@ -67,6 +67,19 @@ module Maestrano
     self.param(:app_id) == app_id && self.param(:api_key) == api_key
   end
   
+  def self.mask_user(user_uid,group_uid)
+    sanitized_user_uid = self.unmask_user(user_uid)
+    if Maestrano.param('user_creation_mode') == 'virtual'
+      return "#{sanitized_user_uid}.#{group_uid}"
+    else
+      return sanitized_user_uid
+    end
+  end
+  
+  def self.unmask_user(user_uid)
+    user_uid.split(".").first
+  end
+  
   # Get configuration parameter value
   # E.g:
   # Maestrano.param('api_key')
