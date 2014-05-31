@@ -20,7 +20,7 @@ module Maestrano
         m = Marshal.load(Marshal.dump(obj))
         assert_equal 1, m.id
         assert_equal 'Maestrano', m.name
-        assert_equal 'apikey', m.api_key
+        assert_equal 'apikey', m.api_token
         assert_equal date.iso8601, m.some_date.iso8601
       end
     end

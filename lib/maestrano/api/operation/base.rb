@@ -3,7 +3,7 @@ module Maestrano
     module Operation
       module Base
         # class << self
-        #   attr_accessor :api_key, :api_base, :verify_ssl_certs, :api_version
+        #   attr_accessor :api_token, :api_base, :verify_ssl_certs, :api_version
         # end
         
         def self.api_url(url='')
@@ -11,8 +11,8 @@ module Maestrano
         end
         
         # Perform remote request
-        def self.request(method, url, api_key, params={}, headers={})
-          unless api_key ||= Maestrano.param('api_key')
+        def self.request(method, url, api_token, params={}, headers={})
+          unless api_token ||= Maestrano.param('api_token')
             raise Maestrano::API::Error::AuthenticationError.new('No API key provided.')
           end
 
@@ -37,7 +37,7 @@ module Maestrano
             payload = uri_encode(params)
           end
 
-          request_opts.update(:headers => request_headers(api_key).update(headers),
+          request_opts.update(:headers => request_headers(api_token).update(headers),
                               :method => method, :open_timeout => 30,
                               :payload => payload, :url => url, :timeout => 80)
 
@@ -63,7 +63,7 @@ module Maestrano
             handle_restclient_error(e)
           end
 
-          [parse(response), api_key]
+          [parse(response), api_token]
         end
 
         private
@@ -109,10 +109,10 @@ module Maestrano
             map { |k,v| "#{k}=#{Util.url_encode(v)}" }.join('&')
         end
 
-        def self.request_headers(api_key)
+        def self.request_headers(api_token)
           headers = {
             :user_agent => "Maestrano/v1 RubyBindings/#{Maestrano::VERSION}",
-            :authorization => "Basic #{Base64.encode64(api_key + ':')}",
+            :authorization => "Basic #{Base64.encode64(api_token)}",
             :content_type => 'application/x-www-form-urlencoded'
           }
 

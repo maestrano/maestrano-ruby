@@ -15,22 +15,22 @@ module Maestrano
         self.data.each(&blk)
       end
 
-      def retrieve(id, api_key=nil)
-        api_key ||= @api_key
-        response, api_key = Maestrano::API::Operation::Base.request(:get,"#{url}/#{CGI.escape(id)}", api_key)
-        Util.convert_to_maestrano_object(response, api_key)
+      def retrieve(id, api_token=nil)
+        api_token ||= @api_token
+        response, api_token = Maestrano::API::Operation::Base.request(:get,"#{url}/#{CGI.escape(id)}", api_token)
+        Util.convert_to_maestrano_object(response, api_token)
       end
 
-      def create(params={}, api_key=nil)
-        api_key ||= @api_key
-        response, api_key = Maestrano::API::Operation::Base.request(:post, url, api_key, params)
-        Util.convert_to_maestrano_object(response, api_key)
+      def create(params={}, api_token=nil)
+        api_token ||= @api_token
+        response, api_token = Maestrano::API::Operation::Base.request(:post, url, api_token, params)
+        Util.convert_to_maestrano_object(response, api_token)
       end
 
-      def all(params={}, api_key=nil)
-        api_key ||= @api_key
-        response, api_key = Maestrano::API::Operation::Base.request(:get, url, api_key, params)
-        Util.convert_to_maestrano_object(response, api_key)
+      def all(params={}, api_token=nil)
+        api_token ||= @api_token
+        response, api_token = Maestrano::API::Operation::Base.request(:get, url, api_token, params)
+        Util.convert_to_maestrano_object(response, api_token)
       end
     end
   end

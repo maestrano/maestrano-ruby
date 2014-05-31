@@ -26,7 +26,7 @@ module Maestrano
         }
       end
 
-      def self.convert_to_maestrano_object(resp, api_key)
+      def self.convert_to_maestrano_object(resp, api_token)
         case resp
         when Array
           if resp.empty? || !resp.first[:object]
@@ -35,17 +35,17 @@ module Maestrano
             list = convert_to_maestrano_object({
               object: 'internal_list_object', 
               data:[],
-              url: convert_to_maestrano_object(resp.first, api_key).class.url
-            },api_key)
+              url: convert_to_maestrano_object(resp.first, api_token).class.url
+            },api_token)
             
             resp.each do |i|
-              list.data.push(convert_to_maestrano_object(i, api_key))
+              list.data.push(convert_to_maestrano_object(i, api_token))
             end
             list
           end
         when Hash
           # Try converting to a known object class.  If none available, fall back to generic Maestrano::API::Object
-          object_classes.fetch(resp[:object], Maestrano::API::Object).construct_from(resp, api_key)
+          object_classes.fetch(resp[:object], Maestrano::API::Object).construct_from(resp, api_token)
         else
           # Automatically parse iso8601 dates
           if resp =~ /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/

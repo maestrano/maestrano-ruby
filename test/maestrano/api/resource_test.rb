@@ -35,7 +35,7 @@ module Maestrano
       end
 
       should "specifying invalid api credentials should raise an exception" do
-        response = test_response(test_invalid_api_key_error, 401)
+        response = test_response(test_invalid_api_token_error, 401)
         assert_raises Maestrano::API::Error::AuthenticationError do
           @api_mock.expects(:get).once.raises(RestClient::ExceptionWithResponse.new(response, 401))
           Maestrano::Account::Bill.retrieve("failing_bill")
@@ -43,7 +43,7 @@ module Maestrano
       end
 
       should "AuthenticationErrors should have an http status, http body, and JSON body" do
-        response = test_response(test_invalid_api_key_error, 401)
+        response = test_response(test_invalid_api_token_error, 401)
         begin
           @api_mock.expects(:get).once.raises(RestClient::ExceptionWithResponse.new(response, 401))
           Maestrano::Account::Bill.retrieve("failing_bill")
@@ -51,7 +51,7 @@ module Maestrano
           assert_equal(401, e.http_status)
           assert_equal(true, !!e.http_body)
           assert_equal(true, !!e.json_body[:errors])
-          assert_equal(test_invalid_api_key_error['errors'].first.join(" "), e.json_body[:errors].first.join(" "))
+          assert_equal(test_invalid_api_token_error['errors'].first.join(" "), e.json_body[:errors].first.join(" "))
         end
       end
 
@@ -68,7 +68,7 @@ module Maestrano
           
           should "use the per-object credential when creating" do
             Maestrano::API::Operation::Base.expects(:execute_request).with do |opts|
-              opts[:headers][:authorization] == "Basic #{Base64.encode64('sk_test_local:')}"
+              opts[:headers][:authorization] == "Basic #{Base64.encode64('someid:somekey')}"
             end.returns(test_response(test_account_bill))
 
             Maestrano::Account::Bill.create({
@@ -77,7 +77,7 @@ module Maestrano
                 currency: 'AUD',
                 description: 'Some bill'
               },
-              'sk_test_local'
+              'someid:somekey'
             )
           end
         end
@@ -85,7 +85,7 @@ module Maestrano
         context "with a global API key set" do
           should "use the per-object credential when creating" do
             Maestrano::API::Operation::Base.expects(:execute_request).with do |opts|
-              opts[:headers][:authorization] == "Basic #{Base64.encode64('local:')}"
+              opts[:headers][:authorization] == "Basic #{Base64.encode64('someid:somekey')}"
             end.returns(test_response(test_account_bill))
 
             Maestrano::Account::Bill.create({
@@ -94,7 +94,7 @@ module Maestrano
                 currency: 'AUD',
                 description: 'Some bill'
               },
-              'local'
+              'someid:somekey'
             )
           end
         end
@@ -159,7 +159,7 @@ module Maestrano
         end
 
         should "setting a nil value for a param should exclude that param from the GET request" do
-          @api_mock.expects(:get).with do |url, api_key, params|
+          @api_mock.expects(:get).with do |url, api_token, params|
             uri = URI(url)
             query = CGI.parse(uri.query)
             (url =~ %r{^#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills?} &&
@@ -169,9 +169,9 @@ module Maestrano
         end
         
         should "setting a nil value for a param should exclude that param from the POST request" do
-          @api_mock.expects(:post).with do |url, api_key, params|
+          @api_mock.expects(:post).with do |url, api_token, params|
             url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills" &&
-              api_key.nil? &&
+              api_token.nil? &&
               CGI.parse(params) == { 'group_id' => ['cld-1'], 'price_cents' => ['23000'], 'currency' => ['AUD'] }
           end.returns(test_response(test_account_bill))
           Maestrano::Account::Bill.create({
@@ -241,9 +241,9 @@ module Maestrano
         # end
 
         should "updating an object should issue a PUT request with only the changed properties" do
-          @api_mock.expects(:put).with do |url, api_key, params|
+          @api_mock.expects(:put).with do |url, api_token, params|
             url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/bills/bill-1" && 
-            api_key.nil? && CGI.parse(params) == {'description' => ['another_mn']}
+            api_token.nil? && CGI.parse(params) == {'description' => ['another_mn']}
           end.once.returns(test_response(test_account_bill))
           
           c = Maestrano::Account::Bill.construct_from(test_account_bill[:data])

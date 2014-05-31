@@ -3,15 +3,15 @@ module Maestrano
     class Object
       include Enumerable
 
-      attr_accessor :api_key
-      @@permanent_attributes = Set.new([:api_key, :id])
+      attr_accessor :api_token
+      @@permanent_attributes = Set.new([:api_token, :id])
 
       # The default :id method is deprecated and isn't useful to us
       if method_defined?(:id)
         undef :id
       end
 
-      def initialize(id=nil, api_key=nil)
+      def initialize(id=nil, api_token=nil)
         # parameter overloading!
         if id.kind_of?(Hash)
           @retrieve_options = id.dup
@@ -21,7 +21,7 @@ module Maestrano
           @retrieve_options = {}
         end
 
-        @api_key = api_key
+        @api_token = api_token
         @values = {}
         # This really belongs in API::Resource, but not putting it there allows us
         # to have a unified inspect method
@@ -30,9 +30,9 @@ module Maestrano
         @values[:id] = id if id
       end
 
-      def self.construct_from(values, api_key=nil)
-        obj = self.new(values[:id], api_key)
-        obj.refresh_from(values, api_key)
+      def self.construct_from(values, api_token=nil)
+        obj = self.new(values[:id], api_token)
+        obj.refresh_from(values, api_token)
         obj
       end
 
@@ -45,8 +45,8 @@ module Maestrano
         "#<#{self.class}:0x#{self.object_id.to_s(16)}#{id_string}> JSON: " + JSON.pretty_generate(@values)
       end
 
-      def refresh_from(values, api_key, partial=false)
-        @api_key = api_key
+      def refresh_from(values, api_token, partial=false)
+        @api_token = api_token
 
         @previous_metadata = values[:metadata]
         removed = partial ? Set.new : Set.new(@values.keys - values.keys)
@@ -63,7 +63,7 @@ module Maestrano
           @unsaved_values.delete(k)
         end
         values.each do |k, v|
-          @values[k] = Util.convert_to_maestrano_object(v, api_key)
+          @values[k] = Util.convert_to_maestrano_object(v, api_token)
           @transient_values.delete(k)
           @unsaved_values.delete(k)
         end
@@ -102,12 +102,12 @@ module Maestrano
       end
 
       def _dump(level)
-        Marshal.dump([@values, @api_key])
+        Marshal.dump([@values, @api_token])
       end
 
       def self._load(args)
-        values, api_key = Marshal.load(args)
-        construct_from(values, api_key)
+        values, api_token = Marshal.load(args)
+        construct_from(values, api_token)
       end
 
       if RUBY_VERSION < '1.9.2'

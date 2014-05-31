@@ -83,7 +83,7 @@ module APITestHelper
     }
   end
   
-  def test_invalid_api_key_error
+  def test_invalid_api_token_error
     {
       'success' => false,
       'data' => {},
