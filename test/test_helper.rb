@@ -38,6 +38,7 @@ class Test::Unit::TestCase
     @api_mock = mock('api_mock')
     Maestrano::API::Operation::Base.mock_rest_client = @api_mock
     Maestrano.configure do |config|
+      config.app_id = "app-1"
       config.api_key = "g15354F34f3x5z"
       config.environment = 'production'
     end
