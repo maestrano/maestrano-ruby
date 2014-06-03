@@ -532,7 +532,7 @@ Maestrano::Account::RecurringBill
 <td>String</td>
 <td>-</td>
 <td>-</td>
-<td>Status of the recurring bill. Either 'pending', 'active', 'expired' or 'cancelled'.</td>
+<td>Status of the recurring bill. Either 'submitted', 'active', 'expired' or 'cancelled'.</td>
 <tr>
 
 </table>
