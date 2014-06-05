@@ -77,7 +77,7 @@ module Maestrano
   # 'virtual': then the virtual user uid is returned (usr-4d5sfd.cld-g4f5d)
   def self.mask_user(user_uid,group_uid)
     sanitized_user_uid = self.unmask_user(user_uid)
-    if Maestrano.param('user_creation_mode') == 'virtual'
+    if Maestrano.param('sso.creation_mode') == 'virtual'
       return "#{sanitized_user_uid}.#{group_uid}"
     else
       return sanitized_user_uid
@@ -92,7 +92,7 @@ module Maestrano
   
   # Get configuration parameter value
   # E.g:
-  # Maestrano.param('api_key')
+  # Maestrano.param('api.key')
   # Maestrano.param(:api_key)
   def self.param(parameter)
     self.config.param(parameter)

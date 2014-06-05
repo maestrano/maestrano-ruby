@@ -25,7 +25,7 @@ module Maestrano
       end
       
       def to_uid
-        if Maestrano.param('user_creation_mode') == 'real'
+        if Maestrano.param('sso.creation_mode') == 'real'
           return self.uid
         else
           return self.virtual_uid
@@ -33,7 +33,7 @@ module Maestrano
       end
       
       def to_email
-        if Maestrano.param('user_creation_mode') == 'real'
+        if Maestrano.param('sso.creation_mode') == 'real'
           return self.email
         else
           return self.virtual_email

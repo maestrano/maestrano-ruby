@@ -58,7 +58,7 @@ module Maestrano
       context "when specifying per-object credentials" do
         context "with no global API key set" do
           setup do
-            @original_api_key = Maestrano.param('api_key')
+            @original_api_key = Maestrano.param('api.key')
             Maestrano.configure { |c| c.api_key = nil }
           end
           

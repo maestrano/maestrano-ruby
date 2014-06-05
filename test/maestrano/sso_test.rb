@@ -34,13 +34,13 @@ module Maestrano
     end
   
     should "return the right enabled parameter" do
-      assert Maestrano::SSO.enabled? == !!Maestrano.param('sso_enabled')
+      assert Maestrano::SSO.enabled? == !!Maestrano.param('sso.enabled')
     end
   
     should "return the right saml_settings" do
       settings = Maestrano::SSO.saml_settings
       assert settings.assertion_consumer_service_url == Maestrano::SSO.consume_url
-      assert settings.issuer == Maestrano.param('app_id')
+      assert settings.issuer == Maestrano.param('api.id')
       assert settings.idp_sso_target_url == Maestrano::SSO.idp_url
       assert settings.idp_cert_fingerprint == Maestrano.param('sso_x509_fingerprint')
       assert settings.name_identifier_format == Maestrano.param('sso_name_id_format')

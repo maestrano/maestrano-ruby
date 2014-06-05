@@ -7,7 +7,7 @@ module Maestrano
         # end
         
         def self.api_url(url='')
-          Maestrano.param('api_host') + Maestrano.param('api_base') + url
+          Maestrano.param('api.host') + Maestrano.param('api.base') + url
         end
         
         # Perform remote request
@@ -69,7 +69,7 @@ module Maestrano
         private
 
         def self.ssl_preflight_passed?
-          if !Maestrano.param('verify_ssl_certs')
+          if !Maestrano.param('api.verify_ssl_certs')
             #$stderr.puts "WARNING: Running without SSL cert verification. " +
             #  "Execute 'Maestrano.configure { |config| config.verify_ssl_certs = true' } to enable verification."
             return false
@@ -85,12 +85,11 @@ module Maestrano
 
         def self.user_agent
           @uname ||= get_uname
-          lang_version = "#{RUBY_VERSION} p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE})"
 
           {
-            :bindings_version => Maestrano::VERSION,
-            :lang => 'ruby',
-            :lang_version => lang_version,
+            :bindings_version => Maestrano.param('api.version'),
+            :lang => Maestrano.param('api.lang'),
+            :lang_version => Maestrano.param('api.lang_version'),
             :platform => RUBY_PLATFORM,
             :publisher => 'maestrano',
             :uname => @uname
@@ -111,7 +110,7 @@ module Maestrano
 
         def self.request_headers(api_token)
           headers = {
-            :user_agent => "Maestrano/v1 RubyBindings/#{Maestrano::VERSION}",
+            :user_agent => "Maestrano/v1 RubyBindings/#{Maestrano.param('api.version')}",
             :authorization => "Basic #{Base64.encode64(api_token)}",
             :content_type => 'application/x-www-form-urlencoded'
           }

@@ -5,7 +5,7 @@ module Maestrano
     def self.saml_settings
       settings = Maestrano::Saml::Settings.new
       settings.assertion_consumer_service_url = self.consume_url
-      settings.issuer                         = Maestrano.param('app_id')
+      settings.issuer                         = Maestrano.param('api.id')
       settings.idp_sso_target_url             = self.idp_url
       settings.idp_cert_fingerprint           = Maestrano.param('sso_x509_fingerprint')
       settings.name_identifier_format         = Maestrano.param('sso_name_id_format')
@@ -23,18 +23,18 @@ module Maestrano
     end
     
     def self.enabled?
-      !!Maestrano.param('sso_enabled')
+      !!Maestrano.param('sso.enabled')
     end
     
     def self.init_url
-      host = Maestrano.param('app_host')
-      path = Maestrano.param('sso_app_init_path')
+      host = Maestrano.param('sso.idm')
+      path = Maestrano.param('sso.init_path')
       return "#{host}#{path}"
     end
     
     def self.consume_url
-      host = Maestrano.param('app_host')
-      path = Maestrano.param('sso_app_consume_path')
+      host = Maestrano.param('sso.idm')
+      path = Maestrano.param('sso.consume_path')
       return "#{host}#{path}"
     end
     
