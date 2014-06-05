@@ -123,20 +123,20 @@ Maestrano.configure do |config|
   #
   # == mode: 'real'
   # In an ideal world a user should be able to belong to several groups in your application.
-  # In this case you would set the 'user_creation_mode' to 'real' which means that the uid
+  # In this case you would set the 'sso.creation_mode' to 'real' which means that the uid
   # and email we pass to you are the actual user email and maestrano universal id.
   #
   # == mode: 'virtual'
-  # Now let's say that due to technical constraint your application cannot authorize a user
+  # Now let's say that due to technical constraints your application cannot authorize a user
   # to belong to several groups. Well next time John logs in via a different group there will
   # be a problem: the user already exists (based on uid or email) and cannot be assigned 
-  # to a second group. To fix this you can set the 'user_creation_mode' to 'virtual'. In this
+  # to a second group. To fix this you can set the 'sso.creation_mode' to 'virtual'. In this
   # mode users get assigned a truly unique uid and email across groups. So next time John logs
   # in a whole new user account can be created for him without any validation problem. In this
   # mode the email we assign to him looks like "usr-sdf54.cld-45aa2@mail.maestrano.com". But don't
   # worry we take care of forwarding any email you would send to this address
   #
-  # config.sso.creation_mode = 'virtual' # or 'real'
+  # config.sso.creation_mode = 'real' # or 'virtual'
 end
 ```
 
