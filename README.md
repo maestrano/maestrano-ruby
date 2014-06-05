@@ -37,6 +37,8 @@ More details on the [maestrano-rails project page](https://github.com/maestrano/
 
 ## Getting Started
 
+### Installation
+
 To install the gem run
 ```console
 gem install maestrano
@@ -47,6 +49,8 @@ Or add it to your Gemfile
 gem 'maestrano'
 ```
 
+
+### Configuration
 Once installed the first step is to create an initializer to configure the behaviour of the Maestrano gem - including setting your API key.
 
 The initializer should look like this:
@@ -158,6 +162,41 @@ Maestrano.configure do |config|
   #
   # config.webhook.account.groups_path = '/maestrano/account/groups/:id',
   # config.webhook.account.group_users_path = '/maestrano/account/groups/:group_id/users/:id',
+end
+```
+
+### Metadata endpoint
+Your configuration initializer is now all setup and shiny. Great! But need to know about it. Of course
+we could propose a long and boring form on maestrano.com for you to fill all these details (especially the webhooks) but we thought it would be more convenient to fetch that automatically.
+
+For that we expect you to create a metadata endpoint that we can fetch regularly (or when you press 'refresh metadata' in your maestrano cloud partner dashboard). By default we assume that it will be located at
+YOUR_WEBSITE/maestrano/metadata(.json)
+
+Of course if you prefer a different url you can always change that endpoint in your maestrano cloud partner dashboard.
+
+What would the controller action look like? First let's talk about authentication. You don't want that endpoint to be visible to anyone. Maestrano always uses http basic authentication to contact your service remotely. The login/password used for this authentication are your actual api.id and api.key.
+
+So here is an example of controller action for Rails to adapt depending on the framework you're using:
+
+```ruby
+class MaestranoMetaDataController < ApplicationController
+  before_filter :authenticate_maestrano!
+  
+  def metadata
+    render json: Maestrano.to_metadata
+  end
+  
+  private
+    def authenticate_maestrano!
+      authorized = false
+      authenticate_with_http_basic do |app_id, api_token|
+        authorized = Maestrano.authenticate(app_id,api_token)
+      end
+      unless authorized
+        render json: {error: 'Invalid credentials' }, status: :unauthorized
+      end
+      return true
+    end
 end
 ```
 
