@@ -5,13 +5,18 @@ class MaestranoTest < Test::Unit::TestCase
     @config = {
       'environment'       => 'production',
       'app.host'          => 'http://mysuperapp.com',
+      
       'api.id'            => 'app-f54ds4f8',
       'api.key'           => 'someapikey',
+      
       'sso.enabled'       => false,
       'sso.init_path'     => '/mno/sso/init',
       'sso.consume_path'  => '/mno/sso/consume',
       'sso.creation_mode' => 'real',
-      'sso.idm'           => 'http://idp.mysuperapp.com'
+      'sso.idm'           => 'http://idp.mysuperapp.com',
+      
+      'webhook.account.groups_path'      => '/mno/groups/:id',
+      'webhook.account.group_users_path' => '/mno/groups/:group_id/users/:id',
     }
   
     Maestrano.configure do |config|
@@ -26,6 +31,9 @@ class MaestranoTest < Test::Unit::TestCase
       config.sso.init_path = @config['sso.init_path']
       config.sso.consume_path = @config['sso.consume_path']
       config.sso.creation_mode = @config['sso.creation_mode']
+      
+      config.webhook.account.groups_path = @config['webhook.account.groups_path' ]
+      config.webhook.account.group_users_path = @config['webhook.account.group_users_path' ]
     end
   end
   

@@ -133,7 +133,7 @@ module Maestrano
   end
 
   class Configuration
-    attr_accessor :environment, :app, :sso, :api
+    attr_accessor :environment, :app, :sso, :api, :webhook
 
     def initialize
       @environment = 'test'
@@ -161,6 +161,14 @@ module Maestrano
         init_path: '/maestrano/auth/saml/init',
         consume_path: '/maestrano/auth/saml/consume',
         idm: @app.host
+      })
+      
+      # WebHooks Config
+      @webhook = OpenStruct.new({
+        account: OpenStruct.new({
+          groups_path: '/maestrano/account/groups/:id',
+          group_users_path: '/maestrano/account/groups/:group_id/users/:id',
+        })
       })
     end
     
@@ -202,8 +210,10 @@ module Maestrano
     def method_missing(meth, *args, &block)
       if meth.to_s =~ /^((?:sso|app|api|user)_.*)=$/
         new_meth = self.legacy_param_to_new($1) + '='
-        group, prop = new_meth.split('.')
-        self.send(group).send(prop, *args, &block)
+        props = new_meth.split('.')
+        last_prop = props.pop
+        obj = props.inject(self,:send)
+        obj.send(last_prop, *args, &block)
       else
         super
       end
@@ -212,10 +222,11 @@ module Maestrano
     # Get configuration parameter value
     def param(parameter)
       real_param = self.legacy_param_to_new(parameter)
-      group, param = real_param.split('.')
-      
-      if self.respond_to?(real_param) || (self.respond_to?(group) && self.send(group).respond_to?(param))
-        param ? self.send(group).send(param) : self.send(real_param)
+      props = real_param.split('.')
+      if self.respond_to?(real_param) || props.inject(self) { |result,elem| result && result.respond_to?(elem) ? result.send(elem) || elem : false }
+        last_prop = props.pop
+        obj = props.inject(self,:send)
+        obj.send(last_prop)
       elsif EVT_CONFIG[@environment.to_s].has_key?(real_param.to_s)
         EVT_CONFIG[@environment.to_s][real_param.to_s]
       else
