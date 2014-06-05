@@ -67,6 +67,12 @@ module Maestrano
     self.param(:app_id) == app_id && self.param(:api_key) == api_key
   end
   
+  # Take a user uid (either real or virtual)
+  # and a group id and return the user uid that should
+  # be used within the app based on the user_creation_mode
+  # parameter:
+  # 'real': then the real user uid is returned (usr-4d5sfd)
+  # 'virtual': then the virtual user uid is returned (usr-4d5sfd.cld-g4f5d)
   def self.mask_user(user_uid,group_uid)
     sanitized_user_uid = self.unmask_user(user_uid)
     if Maestrano.param('user_creation_mode') == 'virtual'
@@ -76,6 +82,8 @@ module Maestrano
     end
   end
   
+  # Take a user uid (either real or virtual)
+  # and return the real uid part
   def self.unmask_user(user_uid)
     user_uid.split(".").first
   end
