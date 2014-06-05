@@ -10,7 +10,10 @@ Maestrano Cloud Integration is currently in closed beta. Want to know more? Send
 
 1.  [Getting Setup](#getting-setup)
 2.  [Getting Started with Rails](#getting-started-with-rails)
-3.  [Getting Started](#getting-started)
+3. [Getting Started](#getting-started)
+  * [Installation](#installation)
+  * [Configuration](#configuration)
+  * [Metadata Endpoint](#metadata-endpoint)
 4. [Single Sign-On Setup](#single-sign-on-setup)
   * [User Setup](#user-setup)
   * [Group Setup](#group-setup)
@@ -165,7 +168,7 @@ Maestrano.configure do |config|
 end
 ```
 
-### Metadata endpoint
+### Metadata Endpoint
 Your configuration initializer is now all setup and shiny. Great! But need to know about it. Of course
 we could propose a long and boring form on maestrano.com for you to fill all these details (especially the webhooks) but we thought it would be more convenient to fetch that automatically.
 
