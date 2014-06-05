@@ -19,7 +19,10 @@ Maestrano Cloud Integration is currently in closed beta. Want to know more? Send
   * [Group Setup](#group-setup)
   * [Controller Setup](#controller-setup)
   * [Other Controllers](#other-controllers)
-5. [API](#api)
+5. [Account Webhooks](#account-webhooks)
+  * [Groups Controller](#groups-controller-service-cancellation)
+  * [Group Users Controller](#group-users-controller-business-member-removal)
+6. [API](#api)
   * [Bill](#bill)
   * [Recurring Bill](#recurring-bill)
 
@@ -153,7 +156,7 @@ Maestrano.configure do |config|
   # config.sso.creation_mode = 'real' # or 'virtual'
   
   # ==> Account Webhooks
-  # Single sign on has been setup into your app and Maestrano user are now able
+  # Single sign on has been setup into your app and Maestrano users are now able
   # to use your service. Great! Wait what happens when a business (group) decides to 
   # stop using your service? Also what happens when a user gets removed from a business?
   # Well the endpoints below are for Maestrano to be able to notify you of such
@@ -341,7 +344,7 @@ end
 ```
 
 ## Account Webhooks
-Single sign on has been setup into your app and Maestrano user are now able to use your service. Great! Wait what happens when a business (group) decides to stop using your service? Also what happens when a user gets removed from a business? Well the controllers describes in this section are for Maestrano to be able to notify you of such events.
+Single sign on has been setup into your app and Maestrano users are now able to use your service. Great! Wait what happens when a business (group) decides to stop using your service? Also what happens when a user gets removed from a business? Well the controllers describes in this section are for Maestrano to be able to notify you of such events.
 
 ### Groups Controller (service cancellation)
 Sad as it is a business might decide to stop using your service at some point. On Maestrano billing entities are represented by groups (used for collaboration & billing). So when a business decides to stop using your service we will issue a DELETE request to the webhook.account.groups_path endpoint (typically /maestrano/account/groups/:id).
