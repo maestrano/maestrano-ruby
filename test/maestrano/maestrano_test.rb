@@ -36,6 +36,31 @@ class MaestranoTest < Test::Unit::TestCase
       end
     end
     
+    should "build the api_token based on the app_id and api_key" do
+      Maestrano.configure { |config| config.app_id = "bla"; config.api_key = "blo" }
+      assert_equal "bla:blo", Maestrano.param('api.token')
+    end
+  
+    should "assign the sso.idm if explicitly set to nil" do
+      Maestrano.configure { |config| config.sso.idm = nil }
+      assert_equal Maestrano.param('app.host'), Maestrano.param('sso.idm')
+    end
+    
+    should "force assign the api.lang" do
+      Maestrano.configure { |config| config.api.lang = "bla" }
+      assert_equal 'ruby', Maestrano.param('api.lang')
+    end
+    
+    should "force assign the api.lang_version" do
+      Maestrano.configure { |config| config.api.lang_version = "123456" }
+      assert_equal "#{RUBY_VERSION} p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE})", Maestrano.param('api.lang_version')
+    end
+    
+    should "force assign the api.version" do
+      Maestrano.configure { |config| config.api.version = "1245" }
+      assert_equal Maestrano::VERSION, Maestrano.param('api.version')
+    end
+    
     context "with environment params" do
       should "return the right test parameters" do
         Maestrano.configure { |config| config.environment = 'test' }
@@ -51,16 +76,6 @@ class MaestranoTest < Test::Unit::TestCase
         ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate'].each do |parameter|
           assert_equal Maestrano::Configuration::EVT_CONFIG['production'][parameter], Maestrano.param(parameter)
         end
-      end
-    
-      should "build the api_token based on the app_id and api_key" do
-        Maestrano.configure { |config| config.app_id = "bla"; config.api_key = "blo" }
-        assert_equal "bla:blo", Maestrano.param('api.token')
-      end
-    
-      should "assign the sso.idm if explicitly set to nil" do
-        Maestrano.configure { |config| config.sso.idm = nil }
-        assert_equal Maestrano.param('app.host'), Maestrano.param('sso.idm')
       end
     end
   end
@@ -89,6 +104,31 @@ class MaestranoTest < Test::Unit::TestCase
       end
     end
     
+    should "build the api_token based on the app_id and api_key" do
+      Maestrano.configure { |config| config.app_id = "bla"; config.api_key = "blo" }
+      assert_equal "bla:blo", Maestrano.param(:api_token)
+    end
+    
+    should "assign the sso.idm if explicitly set to nil" do
+      Maestrano.configure { |config| config.sso.idm = nil }
+      assert_equal Maestrano.param('app.host'), Maestrano.param('sso.idm')
+    end
+    
+    should "force assign the api.lang" do
+      Maestrano.configure { |config| config.api.lang = "bla" }
+      assert_equal 'ruby', Maestrano.param('api.lang')
+    end
+    
+    should "force assign the api.lang_version" do
+      Maestrano.configure { |config| config.api.lang_version = "123456" }
+      assert_equal "#{RUBY_VERSION} p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE})", Maestrano.param('api.lang_version')
+    end
+    
+    should "force assign the api.version" do
+      Maestrano.configure { |config| config.api.version = "1245" }
+      assert_equal Maestrano::VERSION, Maestrano.param('api.version')
+    end
+    
     should "return the specified parameters" do
       @config.keys.each do |key|
         assert Maestrano.param(key) == @config[key]
@@ -112,11 +152,6 @@ class MaestranoTest < Test::Unit::TestCase
           key = Maestrano::Configuration.new.legacy_param_to_new(parameter)
           assert_equal Maestrano::Configuration::EVT_CONFIG['production'][key], Maestrano.param(parameter)
         end
-      end
-    
-      should "build the api_token based on the app_id and api_key" do
-        Maestrano.configure { |config| config.app_id = "bla"; config.api_key = "blo" }
-        assert_equal "bla:blo", Maestrano.param(:api_token)
       end
     end
   end
@@ -158,4 +193,39 @@ class MaestranoTest < Test::Unit::TestCase
       assert_equal 'usr-1', Maestrano.unmask_user('usr-1')
     end
   end
+  
+  context "to_metadata" do
+    should "should return the right hash" do
+      expected = {
+        'environment'        => @config['environment'],
+        'app' => {
+          'host'             => @config['app.host']
+        },
+        'api' => {
+          'id'               => @config['api.id'],
+          'version'          => Maestrano::VERSION,
+          'verify_ssl_certs' => false,
+          'lang'             => 'ruby',
+          'lang_version'     => "#{RUBY_VERSION} p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE})",
+          'host'             => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['api.host'],
+          'base'             => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['api.base'],
+          
+        },
+        'sso' => {
+          'enabled'          => @config['sso.enabled'],
+          'init_path'        => @config['sso.init_path'],
+          'consume_path'     => @config['sso.consume_path'],
+          'creation_mode'    => @config['sso.creation_mode'],
+          'idm'              => @config['sso.idm'],
+          'idp'              => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['sso.idp'],
+          'name_id_format'   => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['sso.name_id_format'],
+          'x509_fingerprint' => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['sso.x509_fingerprint'],
+          'x509_certificate' => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['sso.x509_certificate'],
+        }
+      }
+      
+      assert_equal expected, Maestrano.to_metadata
+    end
+  end
+  
 end

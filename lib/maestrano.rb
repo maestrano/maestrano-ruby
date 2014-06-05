@@ -59,8 +59,8 @@ module Maestrano
   def self.configure
     self.config ||= Configuration.new
     yield(config)
-    self.config.api.token = "#{self.config.api.id}:#{self.config.api.key}"
-    self.config.sso.idm ||= self.config.app.host
+    self.config.post_initialize
+    return self
   end
   
   # Check that app_id and api_key passed
@@ -101,8 +101,35 @@ module Maestrano
   # Return a hash describing the current
   # Maestrano configuration. The metadata
   # will be remotely fetched by Maestrano
-  def to_metadata
+  # Exclude any info containing an api key
+  def self.to_metadata
+    {
+      'environment'        => self.param('environment'),
+      'app' => {
+        'host'             => self.param('app.host')
+      },
+      'api' => {
+        'id'               => self.param('api.id'),
+        'version'          => self.param('api.version'),
+        'verify_ssl_certs' => self.param('api.verify_ssl_certs'),
+        'lang'             => self.param('api.lang'),
+        'lang_version'     => self.param('api.lang_version'),
+        'host'             => self.param('api.host'),
+        'base'             => self.param('api.base'),
     
+      },
+      'sso' => {
+        'enabled'          => self.param('sso.enabled'),
+        'init_path'        => self.param('sso.init_path'),
+        'consume_path'     => self.param('sso.consume_path'),
+        'creation_mode'    => self.param('sso.creation_mode'),
+        'idm'              => self.param('sso.idm'),
+        'idp'              => self.param('sso.idp'),
+        'name_id_format'   => self.param('sso.name_id_format'),
+        'x509_fingerprint' => self.param('sso.x509_fingerprint'),
+        'x509_certificate' => self.param('sso.x509_certificate'),
+      }
+    }
   end
 
   class Configuration
@@ -123,6 +150,8 @@ module Maestrano
         token: nil,
         version: nil,
         verify_ssl_certs: false,
+        lang: nil, #set in post_initialize
+        lang_version: nil #set in post_initialize
       })
       
       # SSO Config
@@ -133,6 +162,16 @@ module Maestrano
         consume_path: '/maestrano/auth/saml/consume',
         idm: @app.host
       })
+    end
+    
+    # Force or default certain parameters
+    # Used after configure block
+    def post_initialize
+      self.api.token = "#{self.api.id}:#{self.api.key}"
+      self.api.version = Maestrano::VERSION
+      self.api.lang = 'ruby'
+      self.api.lang_version = "#{RUBY_VERSION} p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE})"
+      self.sso.idm ||= self.app.host
     end
     
     # Transform legacy parameters into new parameter
