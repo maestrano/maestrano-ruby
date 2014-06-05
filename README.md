@@ -84,7 +84,7 @@ Maestrano.configure do |config|
   # ==> App ID & API key
   # Your application App ID and API key which you can retrieve on http://maestrano.com
   # via your cloud partner dashboard.
-  # For testing you can retrieve/generate an api_key from the API Sandbox directly 
+  # For testing you can retrieve/generate an api.id and api.key from the API Sandbox directly 
   # on http://api-sandbox.maestrano.io
   #
   config.api.id = (config.environment == 'production' ? 'prod_app_id' : 'sandbox_app_id')
@@ -368,7 +368,7 @@ class MaestranoAccountGroupsController < ApplicationController
     # If you need to perform a final checkout
     # then you can call Maestrano::Account::Bill.create({.. final checkout details ..})
     # --
-    # If Maestrano.param('user_creation_mode') is set to virtual
+    # If Maestrano.param('sso.creation_mode') is set to virtual
     # then you might want to delete/cancel/block all users under
     # that group
     # --
@@ -382,7 +382,7 @@ class MaestranoAccountGroupsController < ApplicationController
     #   description: "Final Payout"
     # })
     # 
-    # if Maestrano.param('user_creation_mode') == 'virtual'
+    # if Maestrano.param('sso.creation_mode') == 'virtual'
     #   organization.members.where(provider:'maestrano').each do |user|
     #   user.destroy
     # end
@@ -421,20 +421,20 @@ class MaestranoAccountGroupUsersController < ApplicationController
   # DELETE /maestrano/account/groups/cld-1
   # Delete an entire group
   def destroy
-    # Set the right uid based on Maestrano.param('user_creation_mode')
+    # Set the right uid based on Maestrano.param('sso.creation_mode')
     user_uid = Maestrano.mask_user(params[:id],params[:group_id]) 
     group_uid = params[:group_id]
     
     # Perform association deletion steps here
     # --
-    # If Maestrano.param('user_creation_mode') is set to virtual
+    # If Maestrano.param('sso.creation_mode') is set to virtual
     # then you might want to just delete/cancel/block the user
     #
     # E.g
     # user = User.find_by_provider_and_uid('maestrano',user_uid)
     # organization = Organization.find_by_provider_and_uid('maestrano',group_uid)
     # 
-    # if Maestrano.param('user_creation_mode') == 'virtual'
+    # if Maestrano.param('sso.creation_mode') == 'virtual'
     #  user.destroy
     # else
     #   organization.remove_user(user)
