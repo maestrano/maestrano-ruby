@@ -337,6 +337,121 @@ def verify_maestrano_session
 end
 ```
 
+## Account Webhooks
+Single sign on has been setup into your app and Maestrano user are now able to use your service. Great! Wait what happens when a business (group) decides to stop using your service? Also what happens when a user gets removed from a business? Well the controllers describes in this section are for Maestrano to be able to notify you of such events.
+
+### Groups Controller (service cancellation)
+Sad as it is a business might decide to stop using your service at some point. On Maestrano billing entities are represented by groups (used for collaboration & billing). So when a business decides to stop using your service we will issue a DELETE request to the webhook.account.groups_path endpoint (typically /maestrano/account/groups/:id).
+
+Maestrano only uses this controller for service cancellation so there is no need to implement any other type of action - ie: GET, PUT/PATCH or POST. The use of other http verbs might come in the future to improve the communication between Maestrano and your service but as of now it is not required.
+
+The controller example below reimplements the authenticate_maestrano! method seen in the [metadata section](#metadata) for completeness. Utimately you should move this method to a helper if you can.
+
+The example below is for Rails and need to be adapted depending on the framework you're using:
+```ruby
+class MaestranoAccountGroupsController < ApplicationController
+  before_filter :authenticate_maestrano!
+  
+  # DELETE /maestrano/account/groups/cld-1
+  # Delete an entire group
+  def destroy
+    group_uid = params[:id]
+    
+    # Perform deletion steps here
+    # --
+    # If you need to perform a final checkout
+    # then you can call Maestrano::Account::Bill.create({.. final checkout details ..})
+    # --
+    # If Maestrano.param('user_creation_mode') is set to virtual
+    # then you might want to delete/cancel/block all users under
+    # that group
+    # --
+    # E.g:
+    # organization = Organization.find_by_provider_and_uid('maestrano',group_uid)
+    #
+    # amount_cents = organization.calculate_total_due_remaining
+    # Maestrano::Account::Bill.create({
+    #   group_id: group_uid, 
+    #   price_cents: amount_cents, 
+    #   description: "Final Payout"
+    # })
+    # 
+    # if Maestrano.param('user_creation_mode') == 'virtual'
+    #   organization.members.where(provider:'maestrano').each do |user|
+    #   user.destroy
+    # end
+    #
+    # organization.destroy
+    # render json: {success: true}, status: :success
+    #
+  end
+  
+  private
+    def authenticate_maestrano!
+      authorized = false
+      authenticate_with_http_basic do |app_id, api_token|
+        authorized = Maestrano.authenticate(app_id,api_token)
+      end
+      unless authorized
+        render json: {error: 'Invalid credentials' }, status: :unauthorized
+      end
+      return true
+    end
+end
+```
+
+### Group Users Controller (business member removal)
+A business might decide at some point to revoke access to your services for one of its member. In such case we will issue a DELETE request to the webhook.account.group_users_path endpoint (typically /maestrano/account/groups/:group_id/users/:id).
+
+Maestrano only uses this controller for user membership cancellation so there is no need to implement any other type of action - ie: GET, PUT/PATCH or POST. The use of other http verbs might come in the future to improve the communication between Maestrano and your service but as of now it is not required.
+
+The controller example below reimplements the authenticate_maestrano! method seen in the [metadata section](#metadata) for completeness. Utimately you should move this method to a helper if you can.
+
+The example below is for Rails and need to be adapted depending on the framework you're using:
+```ruby
+class MaestranoAccountGroupUsersController < ApplicationController
+  before_filter :authenticate_maestrano!
+  
+  # DELETE /maestrano/account/groups/cld-1
+  # Delete an entire group
+  def destroy
+    # Set the right uid based on Maestrano.param('user_creation_mode')
+    user_uid = Maestrano.mask_user(params[:id],params[:group_id]) 
+    group_uid = params[:group_id]
+    
+    # Perform association deletion steps here
+    # --
+    # If Maestrano.param('user_creation_mode') is set to virtual
+    # then you might want to just delete/cancel/block the user
+    #
+    # E.g
+    # user = User.find_by_provider_and_uid('maestrano',user_uid)
+    # organization = Organization.find_by_provider_and_uid('maestrano',group_uid)
+    # 
+    # if Maestrano.param('user_creation_mode') == 'virtual'
+    #  user.destroy
+    # else
+    #   organization.remove_user(user)
+    #   user.block_access! if user.reload.organizations.empty?
+    # end
+    #
+    # render json: {success: true}, status: :success
+  end
+  
+  private
+    def authenticate_maestrano!
+      authorized = false
+      authenticate_with_http_basic do |app_id, api_token|
+        authorized = Maestrano.authenticate(app_id,api_token)
+      end
+      unless authorized
+        render json: {error: 'Invalid credentials' }, status: :unauthorized
+      end
+      return true
+    end
+end
+```
+
 ## API
 The maestrano gem also provides bindings to its REST API allowing to access, create, update or delete various entities under your account (e.g: billing).
 
