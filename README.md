@@ -80,7 +80,7 @@ Maestrano.configure do |config|
   # ==> Single Sign-On activation
   # Enable/Disable single sign-on. When troubleshooting authentication issues
   # you might want to disable SSO temporarily
-  config.sso.enabled = true
+  # config.sso.enabled = true
   
   # ==> Single Sign-On Identity Manager
   # By default we consider that the domain managing user identification
