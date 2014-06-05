@@ -459,7 +459,7 @@ end
 ```
 
 ## API
-The maestrano gem also provides bindings to its REST API allowing to access, create, update or delete various entities under your account (e.g: billing).
+The maestrano gem also provides bindings to its REST API allowing you to access, create, update or delete various entities under your account (e.g: billing).
 
 ### Payment API
  
