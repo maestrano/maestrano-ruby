@@ -64,23 +64,31 @@ Maestrano.configure do |config|
   # More details on http://api-sandbox.maestrano.io
   config.environment = 'test' # or 'production'
   
+  # ==> Application host
+  # This is your application host (e.g: my-app.com) which is ultimately
+  # used to redirect users to the right SAML url during SSO handshake.
+  config.app.host = (config.environment == 'production' ? 'https://my-app.com' : 'http://localhost:3000')
+  
   # ==> App ID & API key
   # Your application App ID and API key which you can retrieve on http://maestrano.com
   # via your cloud partner dashboard.
   # For testing you can retrieve/generate an api_key from the API Sandbox directly 
   # on http://api-sandbox.maestrano.io
-  config.app_id = (config.environment == 'production' ? 'prod_app_id' : 'sandbox_app_id')
-  config.api_key = (config.environment == 'production' ? 'prod_api_key' : 'sandbox_api_key')
+  config.api.id = (config.environment == 'production' ? 'prod_app_id' : 'sandbox_app_id')
+  config.api.key = (config.environment == 'production' ? 'prod_api_key' : 'sandbox_api_key')
   
   # ==> Single Sign-On activation
   # Enable/Disable single sign-on. When troubleshooting authentication issues
   # you might want to disable SSO temporarily
-  config.sso_enabled = true
+  config.sso.enabled = true
   
-  # ==> Application host
-  # This is your application host (e.g: mysuperapp.com) which is ultimately
-  # used to redirect users to the right SAML url during SSO handshake.
-  config.app_host = (config.environment == 'production' ? 'https://my-production-app.com' : 'http://localhost:3000')
+  # ==> Single Sign-On Identity Manager
+  # By default we consider that the domain managing user identification
+  # is the same as your application host (see above config.app.host parameter)
+  # If you have a dedicated domain managing user identification and therefore
+  # responsible for the single sign-on handshake (e.g: https://idp.my-app.com)
+  # then you can specify it below
+  # config.sso.idm = (config.environment == 'production' ? 'https://idp.my-app.com' : 'http://localhost:3000')
   
   # ==> SSO Initialization endpoint
   # This is your application path to the SAML endpoint that allows users to
@@ -92,7 +100,7 @@ Maestrano.configure do |config|
   # The controller for this path is automatically
   # generated when you run 'rake maestrano:install' and is available at
   # <rails_root>/app/controllers/maestrano/auth/saml.rb
-  config.sso_app_init_path = '/maestrano/auth/saml/init'
+  # config.sso.init_path = '/maestrano/auth/saml/init'
   
   # ==> SSO Consumer endpoint
   # This is your application path to the SAML endpoint that allows users to
@@ -101,7 +109,7 @@ Maestrano.configure do |config|
   # The controller for this path is automatically
   # generated when you run 'rake maestrano:install' and is available at
   # <rails_root>/app/controllers/maestrano/auth/saml.rb
-  config.sso_app_consume_path = '/maestrano/auth/saml/consume'
+  # config.sso.consume_path = '/maestrano/auth/saml/consume'
   
   # ==> SSO User creation mode
   # !IMPORTANT
@@ -134,7 +142,7 @@ Maestrano.configure do |config|
   # mode the email we assign to him looks like "usr-sdf54.cld-45aa2@mail.maestrano.com". But don't
   # worry we take care of forwarding any email you would send to this address
   #
-  config.user_creation_mode = 'virtual' # or 'real'
+  # config.sso.creation_mode = 'virtual' # or 'real'
 end
 ```
 
