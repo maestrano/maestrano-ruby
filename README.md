@@ -97,18 +97,12 @@ Maestrano.configure do |config|
   # to Maestrano. Maestrano will then authenticate and authorize the user. Upon
   # authorization the user gets redirected to your application consumer endpoint
   # (see below) for initial setup and/or login.
-  # The controller for this path is automatically
-  # generated when you run 'rake maestrano:install' and is available at
-  # <rails_root>/app/controllers/maestrano/auth/saml.rb
   # config.sso.init_path = '/maestrano/auth/saml/init'
   
   # ==> SSO Consumer endpoint
   # This is your application path to the SAML endpoint that allows users to
   # finalize SSO authentication. During the 'consume' action your application
   # sets users (and associated group) up and/or log them in.
-  # The controller for this path is automatically
-  # generated when you run 'rake maestrano:install' and is available at
-  # <rails_root>/app/controllers/maestrano/auth/saml.rb
   # config.sso.consume_path = '/maestrano/auth/saml/consume'
   
   # ==> SSO User creation mode
