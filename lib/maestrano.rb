@@ -106,39 +106,41 @@ module Maestrano
   # will be remotely fetched by Maestrano
   # Exclude any info containing an api key
   def self.to_metadata
-    {
-      'environment'        => self.param('environment'),
-      'app' => {
-        'host'             => self.param('app.host')
-      },
-      'api' => {
-        'id'               => self.param('api.id'),
-        'version'          => self.param('api.version'),
-        'verify_ssl_certs' => self.param('api.verify_ssl_certs'),
-        'lang'             => self.param('api.lang'),
-        'lang_version'     => self.param('api.lang_version'),
-        'host'             => self.param('api.host'),
-        'base'             => self.param('api.base'),
+    hash = {}
+    hash['environment'] = self.param('environment')
     
-      },
-      'sso' => {
-        'enabled'          => self.param('sso.enabled'),
-        'init_path'        => self.param('sso.init_path'),
-        'consume_path'     => self.param('sso.consume_path'),
-        'creation_mode'    => self.param('sso.creation_mode'),
-        'idm'              => self.param('sso.idm'),
-        'idp'              => self.param('sso.idp'),
-        'name_id_format'   => self.param('sso.name_id_format'),
-        'x509_fingerprint' => self.param('sso.x509_fingerprint'),
-        'x509_certificate' => self.param('sso.x509_certificate'),
-      },
-      'webhook' => {
-        'account' => {
-          'groups_path' => self.param('webhook.account.groups_path'),
-          'group_users_path' => self.param('webhook.account.group_users_path'),
-        }
-      }
-    }
+    config_groups = ['app','api','sso','webhook']
+    blacklist = ['api.key','api.token']
+    
+    config_groups.each do |cgroup_name|
+      cgroup = self.config.send(cgroup_name)
+      
+      attr_list = cgroup.attributes.map(&:to_s)
+      attr_list += Configuration::EVT_CONFIG[hash['environment']].keys.select { |k| k =~ Regexp.new("^#{cgroup_name}\.") }.map { |k| k.gsub(Regexp.new("^#{cgroup_name}\."),'') }
+      attr_list.uniq!
+      
+      attr_list.each do |first_lvl|
+        if cgroup.send(first_lvl).is_a?(OpenStruct)
+          c2group = cgroup.send(first_lvl)
+          c2group.attributes.each do |secnd_lvl|
+            full_param = [cgroup_name,first_lvl,secnd_lvl].join('.')
+            unless blacklist.include?(full_param)
+              hash[cgroup_name.to_s] ||= {}
+              hash[cgroup_name.to_s][first_lvl.to_s] ||= {}
+              hash[cgroup_name.to_s][first_lvl.to_s][secnd_lvl.to_s] = self.param(full_param)
+            end
+          end
+        else
+          full_param = [cgroup_name,first_lvl].join('.')
+          unless blacklist.include?(full_param)
+            hash[cgroup_name.to_s] ||= {}
+            hash[cgroup_name.to_s][first_lvl.to_s] = self.param(full_param)
+          end
+        end
+      end
+    end
+    
+    return hash
   end
 
   class Configuration
