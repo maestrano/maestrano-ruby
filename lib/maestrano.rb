@@ -1,7 +1,10 @@
 # libs
 require 'rest_client'
 require 'json'
+
+# OpenStruct (Extended)
 require 'ostruct'
+require 'maestrano/open_struct'
 
 # Version
 require 'maestrano/version'
@@ -128,6 +131,12 @@ module Maestrano
         'name_id_format'   => self.param('sso.name_id_format'),
         'x509_fingerprint' => self.param('sso.x509_fingerprint'),
         'x509_certificate' => self.param('sso.x509_certificate'),
+      },
+      'webhook' => {
+        'account' => {
+          'groups_path' => self.param('webhook.account.groups_path'),
+          'group_users_path' => self.param('webhook.account.group_users_path'),
+        }
       }
     }
   end
@@ -223,6 +232,8 @@ module Maestrano
     def param(parameter)
       real_param = self.legacy_param_to_new(parameter)
       props = real_param.split('.')
+      
+      # Either respond to param directly or via properties chaining (e.g: webhook.account.groups_path)
       if self.respond_to?(real_param) || props.inject(self) { |result,elem| result && result.respond_to?(elem) ? result.send(elem) || elem : false }
         last_prop = props.pop
         obj = props.inject(self,:send)

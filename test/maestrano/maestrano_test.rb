@@ -229,6 +229,12 @@ class MaestranoTest < Test::Unit::TestCase
           'name_id_format'   => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['sso.name_id_format'],
           'x509_fingerprint' => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['sso.x509_fingerprint'],
           'x509_certificate' => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['sso.x509_certificate'],
+        },
+        'webhook' => {
+          'account' => {
+            'groups_path' => @config['webhook.account.groups_path'],
+            'group_users_path' => @config['webhook.account.group_users_path'],
+          }
         }
       }
       
