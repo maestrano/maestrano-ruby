@@ -335,7 +335,7 @@ If you want your users to benefit from single logout then you should define the 
 ```ruby
 def verify_maestrano_session
   if Maestrano.param(:sso_enabled)
-    if session && session[:mno_uid] && !Maestrano::SSO::Session.new(session).valid?
+    if session && session[:maestrano] && !Maestrano::SSO::Session.new(session).valid?
       redirect_to Maestrano::SSO.init_url
     end
   end
