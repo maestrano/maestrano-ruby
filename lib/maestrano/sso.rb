@@ -1,5 +1,6 @@
 module Maestrano
   module SSO
+    
     # Return the saml_settings based on
     # Maestrano configuration
     def self.saml_settings
@@ -71,9 +72,15 @@ module Maestrano
       Maestrano::SSO::Session.from_user_auth_hash(session,auth).save
     end
     
-    def self.unset_session(session)
+    # Destroy the maestrano session in http session
+    def self.clear_session(session)
       session.delete(:maestrano)
       session.delete('maestrano')
+    end
+    
+    # Metaclass definitions
+    class << self
+      alias_method :unset_session, :clear_session
     end
   end
 end

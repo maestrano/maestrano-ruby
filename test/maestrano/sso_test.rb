@@ -85,14 +85,20 @@ module Maestrano
       
       should "unset the session correctly" do
         Maestrano::SSO.set_session(@session,@auth)
-        Maestrano::SSO.unset_session(@session)
+        Maestrano::SSO.clear_session(@session)
         assert @session[:maestrano].nil?
       end
       
       should "unset the session if key is a string" do
         @session['maestrano'] = "bla"
-        Maestrano::SSO.unset_session(@session)
+        Maestrano::SSO.clear_session(@session)
         assert @session["maestrano"].nil?
+      end
+      
+      should "alias clear_session as unset_session" do
+        Maestrano::SSO.set_session(@session,@auth)
+        Maestrano::SSO.unset_session(@session)
+        assert @session[:maestrano].nil?
       end
     end
   end
