@@ -72,7 +72,8 @@ module Maestrano
     end
     
     def self.unset_session(session)
-      session.delete(:maestrano) && session.delete('maestrano')
+      session.delete(:maestrano)
+      session.delete('maestrano')
     end
   end
 end

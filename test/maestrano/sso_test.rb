@@ -88,6 +88,12 @@ module Maestrano
         Maestrano::SSO.unset_session(@session)
         assert @session[:maestrano].nil?
       end
+      
+      should "unset the session if key is a string" do
+        @session['maestrano'] = "bla"
+        Maestrano::SSO.unset_session(@session)
+        assert @session["maestrano"].nil?
+      end
     end
   end
 end
