@@ -70,9 +70,17 @@ module Maestrano
       # Return true if SLO is disabled (via sso.slo_enabled config
       # param)
       # Return false if no session defined
-      def valid?
+      # ---
+      # opts:
+      # if_session: if true then the session will be
+      # considered valid if the http session is nil or does
+      # not have a maestrano key. Useful when the validity of
+      # a session should be restricted to maestrano users only
+      # within an application
+      def valid?(opts = {})
         return true unless Maestrano.param('sso.slo_enabled')
-        return false unless self.session
+        return true if opts[:if_session] && (!self.session || (!self.session[:maestrano] && !self.session['maestrano']))
+        return false unless self.session 
         
         if self.remote_check_required?
           if perform_remote_check
