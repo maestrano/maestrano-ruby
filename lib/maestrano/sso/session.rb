@@ -22,15 +22,17 @@ module Maestrano
       
       def initialize(session)
         self.session = session
-        begin
-          if mno_session = (self.session[:maestrano] || self.session['maestrano'])
-            decrypted_session = JSON.parse(Base64.decode64(mno_session))
-            self.uid = decrypted_session['uid']
-            self.session_token = decrypted_session['session']
-            self.recheck = Time.iso8601(decrypted_session['session_recheck'])
-            self.group_uid = decrypted_session['group_uid']
+        if (self.session = session)
+          begin
+            if mno_session = (self.session[:maestrano] || self.session['maestrano'])
+              decrypted_session = JSON.parse(Base64.decode64(mno_session))
+              self.uid = decrypted_session['uid']
+              self.session_token = decrypted_session['session']
+              self.recheck = Time.iso8601(decrypted_session['session_recheck'])
+              self.group_uid = decrypted_session['group_uid']
+            end
+          rescue
           end
-        rescue
         end
       end
       
@@ -64,7 +66,14 @@ module Maestrano
         return false
       end
       
+      # Check whether this mno session is valid or not
+      # Return true if SLO is disabled (via sso.slo_enabled config
+      # param)
+      # Return false if no session defined
       def valid?
+        return true unless Maestrano.param('sso.slo_enabled')
+        return false unless self.session
+        
         if self.remote_check_required?
           if perform_remote_check
             self.save

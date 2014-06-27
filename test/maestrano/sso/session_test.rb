@@ -101,6 +101,14 @@ module Maestrano
       context "valid?" do
         setup do
           @sso_session = Maestrano::SSO::Session.new(@session)
+          Maestrano.configure { |c| c.sso.slo_enabled = true }
+        end
+        
+        should "return true if Single Logout is disabled" do
+          Maestrano.configure { |c| c.sso.slo_enabled = false }
+          @sso_session.stubs(:remote_check_required?).returns(true)
+          @sso_session.stubs(:perform_remote_check).returns(false)
+          assert @sso_session.valid?
         end
   
         should "return true if no remote_check_required?" do
@@ -127,6 +135,11 @@ module Maestrano
           @sso_session.stubs(:remote_check_required?).returns(true)
           @sso_session.stubs(:perform_remote_check).returns(false)
           assert !@sso_session.valid?
+        end
+        
+        should "return false if internal session is nil" do
+          sso_session = Maestrano::SSO::Session.new(nil)
+          assert_false @sso_session.valid?
         end
       end
   
