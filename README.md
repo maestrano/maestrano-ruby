@@ -524,7 +524,16 @@ Maestrano::Account::Bill
 <td>Time</td>
 <td>-</td>
 <td>-</td>
-<td>When the the bill was created</td>
+<td>When the bill was created</td>
+<tr>
+  
+<tr>
+<td><b>updated_at</b></td>
+<td>readonly</td>
+<td>Time</td>
+<td>-</td>
+<td>-</td>
+<td>When the bill was last updated</td>
 <tr>
 
 <tr>
@@ -697,7 +706,16 @@ Maestrano::Account::RecurringBill
 <td>Time</td>
 <td>-</td>
 <td>-</td>
-<td>When the the bill was created</td>
+<td>When the recurring bill was created</td>
+<tr>
+  
+<tr>
+<td><b>updated_at</b></td>
+<td>readonly</td>
+<td>Time</td>
+<td>-</td>
+<td>-</td>
+<td>When the recurring bill was last updated</td>
 <tr>
 
 <tr>
@@ -716,6 +734,15 @@ Maestrano::Account::RecurringBill
 <td>-</td>
 <td>-</td>
 <td>Status of the recurring bill. Either 'submitted', 'active', 'expired' or 'cancelled'.</td>
+<tr>
+  
+<tr>
+<td><b>initial_cents</b></td>
+<td>read/write</td>
+<td>Integer</td>
+<td><b>-</b></td>
+<td>0</td>
+<td>Initial non-recurring payment amount - in cents - due immediately upon creating the recurring bill</td>
 <tr>
 
 </table>
