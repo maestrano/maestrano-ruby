@@ -10,6 +10,7 @@ class MaestranoTest < Test::Unit::TestCase
       'api.key'           => 'someapikey',
       
       'sso.enabled'       => false,
+      'sso.slo_enabled'   => false,
       'sso.init_path'     => '/mno/sso/init',
       'sso.consume_path'  => '/mno/sso/consume',
       'sso.creation_mode' => 'real',
@@ -27,6 +28,7 @@ class MaestranoTest < Test::Unit::TestCase
       config.api.key = @config['api.key']
       
       config.sso.enabled = @config['sso.enabled']
+      config.sso.slo_enabled = @config['sso.slo_enabled']
       config.sso.idm = @config['sso.idm']
       config.sso.init_path = @config['sso.init_path']
       config.sso.consume_path = @config['sso.consume_path']
@@ -67,6 +69,11 @@ class MaestranoTest < Test::Unit::TestCase
     should "force assign the api.version" do
       Maestrano.configure { |config| config.api.version = "1245" }
       assert_equal Maestrano::VERSION, Maestrano.param('api.version')
+    end
+    
+    should "force slo_enabled to false if sso is disabled" do
+      Maestrano.configure { |config| config.sso.slo_enabled = true; config.sso.enabled = false }
+      assert_false Maestrano.param('sso.slo_enabled')
     end
     
     context "with environment params" do
@@ -221,6 +228,7 @@ class MaestranoTest < Test::Unit::TestCase
         },
         'sso' => {
           'enabled'          => @config['sso.enabled'],
+          'slo_enabled'      => @config['sso.slo_enabled'],
           'init_path'        => @config['sso.init_path'],
           'consume_path'     => @config['sso.consume_path'],
           'creation_mode'    => @config['sso.creation_mode'],

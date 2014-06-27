@@ -168,6 +168,7 @@ module Maestrano
       # SSO Config
       @sso = OpenStruct.new({
         enabled: true,
+        slo_enabled: true,
         creation_mode: 'virtual',
         init_path: '/maestrano/auth/saml/init',
         consume_path: '/maestrano/auth/saml/consume',
@@ -191,6 +192,7 @@ module Maestrano
       self.api.lang = 'ruby'
       self.api.lang_version = "#{RUBY_VERSION} p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE})"
       self.sso.idm ||= self.app.host
+      self.sso.slo_enabled &&= self.sso.enabled
     end
     
     # Transform legacy parameters into new parameter
