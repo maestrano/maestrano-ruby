@@ -122,6 +122,14 @@ Maestrano.configure do |config|
   #
   # config.sso.consume_path = '/maestrano/auth/saml/consume'
   
+  # ==> Single Logout activation
+  # Enable/Disable single logout. When troubleshooting authentication issues
+  # you might want to disable SLO temporarily.
+  # If set to false then Maestrano::SSO::Session#valid? - which should be
+  # used in a controller before filter to check user session - always return true
+  #
+  # config.sso.slo_enabled = true
+  
   # ==> SSO User creation mode
   # !IMPORTANT
   # On Maestrano users can take several "instances" of your service. You can consider
