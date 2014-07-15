@@ -172,7 +172,7 @@ module Maestrano
         creation_mode: 'virtual',
         init_path: '/maestrano/auth/saml/init',
         consume_path: '/maestrano/auth/saml/consume',
-        idm: @app.host
+        idm: nil
       })
       
       # WebHooks Config

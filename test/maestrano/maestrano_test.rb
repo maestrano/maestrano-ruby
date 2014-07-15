@@ -51,8 +51,9 @@ class MaestranoTest < Test::Unit::TestCase
       assert_equal "bla:blo", Maestrano.param('api.token')
     end
   
-    should "assign the sso.idm if explicitly set to nil" do
-      Maestrano.configure { |config| config.sso.idm = nil }
+    should "assign the sso.idm to app.host if not provided" do
+      Maestrano.config = Maestrano::Configuration.new
+      Maestrano.configure { |config| config.app.host = "https://someapp.com" }
       assert_equal Maestrano.param('app.host'), Maestrano.param('sso.idm')
     end
     
