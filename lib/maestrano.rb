@@ -169,7 +169,7 @@ module Maestrano
       @sso = OpenStruct.new({
         enabled: true,
         slo_enabled: true,
-        creation_mode: 'virtual',
+        creation_mode: 'real',
         init_path: '/maestrano/auth/saml/init',
         consume_path: '/maestrano/auth/saml/consume',
         idm: nil

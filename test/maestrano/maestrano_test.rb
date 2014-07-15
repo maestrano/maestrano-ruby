@@ -46,6 +46,12 @@ class MaestranoTest < Test::Unit::TestCase
       end
     end
     
+    should "set the sso.creation_mode to 'real' by default" do
+      Maestrano.config = Maestrano::Configuration.new
+      Maestrano.configure { |config| config.app.host = "https://someapp.com" }
+      assert_equal 'real', Maestrano.param('sso.creation_mode')
+    end
+    
     should "build the api_token based on the app_id and api_key" do
       Maestrano.configure { |config| config.app_id = "bla"; config.api_key = "blo" }
       assert_equal "bla:blo", Maestrano.param('api.token')
