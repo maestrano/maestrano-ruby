@@ -10,6 +10,64 @@ module APITestHelper
     m
   end
   
+  def test_account_group_content(params={})
+    {
+      object: 'account_group',
+      id: 'cld-4f5d',
+      created_at: Time.now.utc.iso8601,
+      updated_at: Time.now.utc.iso8601,
+      has_credit_card: true,
+      status: 'running',
+    }.merge(params)
+  end
+  
+  def test_account_group(params={})
+    {
+      success: true,
+      errors: {},
+      data: test_account_group_content(params)
+    }
+  end
+  
+  def test_account_group_array
+    {
+      success: true,
+      errors: {},
+      data: [test_account_group_content, test_account_group_content, test_account_group_content],
+    }
+  end
+  
+  def test_account_user_content(params={})
+    {
+      object: 'account_user',
+      id: 'usr-123',
+      name: 'John',
+      surname: 'Doe',
+      email: 'john.doe@maestrano.com',
+      company_name: 'DoeCorp',
+      country: 'AU',
+      sso_session: 'd45sg47f52sd1cz7x5c44czx7czx7',
+      created_at: Time.now.utc.iso8601,
+      updated_at: Time.now.utc.iso8601,
+    }.merge(params)
+  end
+  
+  def test_account_user(params={})
+    {
+      success: true,
+      errors: {},
+      data: test_account_user_content(params)
+    }
+  end
+  
+  def test_account_user_array
+    {
+      success: true,
+      errors: {},
+      data: [test_account_user_content, test_account_user_content, test_account_user_content],
+    }
+  end
+  
   def test_account_bill_content(params={})
     {
       object: 'account_bill',

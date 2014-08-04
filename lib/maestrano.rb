@@ -49,6 +49,8 @@ require 'maestrano/api/list_object'
 require 'maestrano/api/resource'
 
 # API - Account Entities
+require 'maestrano/account/user'
+require 'maestrano/account/group'
 require 'maestrano/account/bill'
 require 'maestrano/account/recurring_bill'
 
