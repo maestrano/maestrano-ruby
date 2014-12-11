@@ -111,7 +111,7 @@ module Maestrano
         def self.request_headers(api_token)
           headers = {
             :user_agent => "Maestrano/v1 RubyBindings/#{Maestrano.param('api.version')}",
-            :authorization => "Basic #{Base64.encode64(api_token)}",
+            :authorization => "Basic #{Base64.strict_encode64(api_token)}",
             :content_type => 'application/x-www-form-urlencoded'
           }
 

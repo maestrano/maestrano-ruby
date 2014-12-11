@@ -68,7 +68,7 @@ module Maestrano
           
           should "use the per-object credential when creating" do
             Maestrano::API::Operation::Base.expects(:execute_request).with do |opts|
-              opts[:headers][:authorization] == "Basic #{Base64.encode64('someid:somekey')}"
+              opts[:headers][:authorization] == "Basic #{Base64.strict_encode64('someid:somekey')}"
             end.returns(test_response(test_account_bill))
 
             Maestrano::Account::Bill.create({
@@ -85,7 +85,7 @@ module Maestrano
         context "with a global API key set" do
           should "use the per-object credential when creating" do
             Maestrano::API::Operation::Base.expects(:execute_request).with do |opts|
-              opts[:headers][:authorization] == "Basic #{Base64.encode64('someid:somekey')}"
+              opts[:headers][:authorization] == "Basic #{Base64.strict_encode64('someid:somekey')}"
             end.returns(test_response(test_account_bill))
 
             Maestrano::Account::Bill.create({
