@@ -72,7 +72,7 @@ module Maestrano
           body = { some: 'data'}
           opts = { foo: 'bar' }
           resp = mock('resp')
-          Maestrano::Connec::Client.expects(:post).with(@client.scoped_path(path),@client.default_options.merge(body: body).merge(opts)).returns(resp)
+          Maestrano::Connec::Client.expects(:post).with(@client.scoped_path(path),@client.default_options.merge(body: body.to_json).merge(opts)).returns(resp)
           assert_equal resp, @client.post(path,body,opts)
         end
       end
@@ -85,7 +85,7 @@ module Maestrano
           body = { some: 'data'}
           opts = { foo: 'bar' }
           resp = mock('resp')
-          Maestrano::Connec::Client.expects(:put).with(@client.scoped_path(path),@client.default_options.merge(body: body).merge(opts)).returns(resp)
+          Maestrano::Connec::Client.expects(:put).with(@client.scoped_path(path),@client.default_options.merge(body: body.to_json).merge(opts)).returns(resp)
           assert_equal resp, @client.put(path,body,opts)
         end
       end

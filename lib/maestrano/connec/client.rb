@@ -43,7 +43,7 @@ module Maestrano
       # E.g: client.post('/organizations', { organizations: { name: 'DoeCorp Inc.' } })
       def post(relative_path, body, options = {})
         self.class.post(self.scoped_path(relative_path),
-          default_options.merge(body: body).merge(options)
+          default_options.merge(body: body.to_json).merge(options)
         )
       end
       
@@ -53,7 +53,7 @@ module Maestrano
       # => client.put('/company', { company: { name: 'DoeCorp Inc.' } })
       def put(relative_path, body, options = {})
         self.class.put(self.scoped_path(relative_path),
-          default_options.merge(body: body).merge(options)
+          default_options.merge(body: body.to_json).merge(options)
         )
       end
     end
