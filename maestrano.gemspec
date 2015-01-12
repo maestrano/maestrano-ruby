@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency('rest-client', '~> 1.4')
   s.add_dependency('mime-types', '~> 1.25')
   s.add_dependency('json', '~> 1.8')
+  s.add_dependency('httparty', '~> 0.13')
   
   s.add_development_dependency('test-unit', '~> 2')
   s.add_development_dependency('mocha', '~> 0.13')
