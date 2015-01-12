@@ -829,7 +829,8 @@ client = Maestrano::Connec::Client.new("cld-f7f5g4")
 
 # Retrieve all organizations (customers and suppliers) created in other applications
 resp = client.get('/organizations')
-puts resp.body # display hash { organizations: [ ... ] }
+resp.body # returns the raw response "{\"organizations\":[ ... ]}"
+resp.parsed_response # returns a ruby hash { "organizations": [ ... ] }
 
 # Create a new organization
 client.post('/organizations', { organizations: { name: "DoeCorp Inc."} })
