@@ -16,8 +16,10 @@ class MaestranoTest < Test::Unit::TestCase
       'sso.creation_mode' => 'real',
       'sso.idm'           => 'http://idp.mysuperapp.com',
       
-      'webhook.account.groups_path'      => '/mno/groups/:id',
-      'webhook.account.group_users_path' => '/mno/groups/:group_id/users/:id',
+      'webhook.account.groups_path'       => '/mno/groups/:id',
+      'webhook.account.group_users_path'  => '/mno/groups/:group_id/users/:id',
+      'webhook.connec.notifications_path' => 'mno/receive',
+      'webhook.connec.subscriptions'      => { organizations: true, people: true }
     }
   
     Maestrano.configure do |config|
@@ -34,8 +36,11 @@ class MaestranoTest < Test::Unit::TestCase
       config.sso.consume_path = @config['sso.consume_path']
       config.sso.creation_mode = @config['sso.creation_mode']
       
-      config.webhook.account.groups_path = @config['webhook.account.groups_path' ]
-      config.webhook.account.group_users_path = @config['webhook.account.group_users_path' ]
+      config.webhook.account.groups_path = @config['webhook.account.groups_path']
+      config.webhook.account.group_users_path = @config['webhook.account.group_users_path']
+      
+      config.webhook.connec.notifications_path = @config['webhook.connec.notifications_path']
+      config.webhook.connec.subscriptions = @config['webhook.connec.subscriptions']
     end
   end
   
@@ -87,7 +92,7 @@ class MaestranoTest < Test::Unit::TestCase
       should "return the right test parameters" do
         Maestrano.configure { |config| config.environment = 'test' }
       
-        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate'].each do |parameter|
+        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate', 'connec.host'].each do |parameter|
           assert_equal Maestrano::Configuration::EVT_CONFIG['test'][parameter], Maestrano.param(parameter)
         end
       end
@@ -95,7 +100,7 @@ class MaestranoTest < Test::Unit::TestCase
       should "return the right production parameters" do
         Maestrano.configure { |config| config.environment = 'production' }
       
-        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate'].each do |parameter|
+        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate','connec.host'].each do |parameter|
           assert_equal Maestrano::Configuration::EVT_CONFIG['production'][parameter], Maestrano.param(parameter)
         end
       end
@@ -249,6 +254,10 @@ class MaestranoTest < Test::Unit::TestCase
           'account' => {
             'groups_path' => @config['webhook.account.groups_path'],
             'group_users_path' => @config['webhook.account.group_users_path'],
+          },
+          'connec' => {
+            'notifications_path' => 'mno/receive',
+            'subscriptions'      => { organizations: true, people: true }
           }
         }
       }
