@@ -190,7 +190,7 @@ Maestrano.configure do |config|
   # You should have a controller matching this path handling the update of your internal entities
   # based on the Connec!™ entities you receive
   #
-  # config.webhook.connec.notifications_path = 'maestrano/connec/webhook'
+  # config.webhook.connec.notifications_path = '/maestrano/connec/notifications'
   #
   # == Subscriptions
   # This is the list of entities (organizations,people,invoices etc.) for which you want to be
