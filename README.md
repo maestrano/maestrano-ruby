@@ -27,6 +27,9 @@ Maestrano Cloud Integration is currently in closed beta. Want to know more? Send
 6. [API](#api)
   * [Bill](#bill)
   * [Recurring Bill](#recurring-bill)
+7. [Connec!™ Data Sharing](#connec-data-sharing)
+  * [Making Requests](#making-requests)
+  * [Webhook Notifications](#webhook-notifications)
 
 - - -
 
