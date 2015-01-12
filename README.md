@@ -823,7 +823,7 @@ Connec!™ also offers the ability to create webhooks on your side to get automa
 
 Connec!™ enables seamless data sharing between the Maestrano applications as well as popular apps such as QuickBooks and Xero. One connector - tens of integrations!
 
-### Interacting with Connec!™
+### Making Requests
 The Maestrano API provides a built-in client - based on HTTParty - for connecting to Connec!™. Things like connection and authentication are automatically managed by the Connec!™ client.
 
 ```ruby
@@ -844,7 +844,7 @@ client.put('/organizations/e32303c1-5102-0132-661e-600308937d74', { organization
 
 The full REST documentation can be found here: http://maestrano.github.io/connec
 
-### Receiving from Connec!™
+### Webhook Notifications
 If you have configured the Maestrano API to receive update notifications (see 'subscriptions' configuration at the top) from Connec!™ then you can expect to receive regular POST requests on the notification_path you have configured.
 
 Notifications are JSON messages containing the list of entities that have recently changed in other systems. You will only receive notifications for entities you have subscribed to.
