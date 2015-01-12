@@ -1,9 +1,10 @@
+require 'httparty'
+
 module Maestrano
   module Connec
     
     class Client
-      include HTTParty
-      base_uri 'localhost:8080'
+      include ::HTTParty
       headers 'Accept' => 'application/vnd.api+json'
       headers 'Content-Type' => 'application/vnd.api+json'
       format :json
@@ -12,22 +13,49 @@ module Maestrano
       
       def initialize(group_id)
         @group_id = group_id
-
+        self.class.base_uri("#{Maestrano.param('connec.host')}#{Maestrano.param('connec.base_path')}")
       end
       
-      # Return the base options including
-      # authentication
-      def options
+      # Return the default options which includes
+      # maestrano authentication
+      def default_options
         {
           basic_auth: { 
-            username: Maestrano.param('api_id'), 
-            password: Maestrano.param('api_key')
+            username: Maestrano.param('api.id'), 
+            password: Maestrano.param('api.key')
           } 
         }
       end
       
-      def 
+      # Return the right path scoped using the customer
+      # group id
+      def scoped_path(relative_path)
+        clean_path = relative_path.gsub(/^\/+/, "").gsub(/\/+$/, "")
+        "/#{@group_id}/#{clean_path}"
+      end
       
+      # E.g: client.get('/organizations')
+      # E.g: client.get('/organizations/123')
+      def get(relative_path, options = {})
+        self.class.get(self.scoped_path(relative_path),default_options.merge(options))
+      end
+      
+      # E.g: client.post('/organizations', { organizations: { name: 'DoeCorp Inc.' } })
+      def post(relative_path, body, options = {})
+        self.class.post(self.scoped_path(relative_path),
+          default_options.merge(body: body).merge(options)
+        )
+      end
+      
+      # E.g for collection: 
+      # => client.put('/organizations/123', { organizations: { name: 'DoeCorp Inc.' } })
+      # E.g for singular resource: 
+      # => client.put('/company', { company: { name: 'DoeCorp Inc.' } })
+      def put(relative_path, body, options = {})
+        self.class.put(self.scoped_path(relative_path),
+          default_options.merge(body: body).merge(options)
+        )
+      end
     end
     
   end

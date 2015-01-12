@@ -92,7 +92,7 @@ class MaestranoTest < Test::Unit::TestCase
       should "return the right test parameters" do
         Maestrano.configure { |config| config.environment = 'test' }
       
-        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate', 'connec.host'].each do |parameter|
+        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate', 'connec.host','connec.base_path'].each do |parameter|
           assert_equal Maestrano::Configuration::EVT_CONFIG['test'][parameter], Maestrano.param(parameter)
         end
       end
@@ -100,7 +100,7 @@ class MaestranoTest < Test::Unit::TestCase
       should "return the right production parameters" do
         Maestrano.configure { |config| config.environment = 'production' }
       
-        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate','connec.host'].each do |parameter|
+        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate','connec.host','connec.base_path'].each do |parameter|
           assert_equal Maestrano::Configuration::EVT_CONFIG['production'][parameter], Maestrano.param(parameter)
         end
       end
