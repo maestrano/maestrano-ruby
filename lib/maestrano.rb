@@ -54,6 +54,9 @@ require 'maestrano/account/group'
 require 'maestrano/account/bill'
 require 'maestrano/account/recurring_bill'
 
+# Connec
+require 'maestrano/connec/client'
+
 module Maestrano
   
   class << self
