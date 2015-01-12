@@ -825,7 +825,7 @@ Connec!™ enables seamless data sharing between the Maestrano applications as w
 
 ### Making Requests
 
-Connec!™ detailed API documentation can be found here: http://maestrano.github.io/connec
+Connec!™ REST API documentation can be found here: http://maestrano.github.io/connec
 
 The Maestrano API provides a built-in client - based on HTTParty - for connecting to Connec!™. Things like connection and authentication are automatically managed by the Connec!™ client.
 
