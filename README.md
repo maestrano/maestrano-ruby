@@ -202,10 +202,10 @@ Maestrano.configure do |config|
   # config.webhook.connec.subscriptions = {
   #   accounts: false,
   #   company: false,
-  #   invoice: false,
-  #   item: false,
-  #   organization: false,
-  #   person: false,
+  #   invoices: false,
+  #   items: false,
+  #   organizations: false,
+  #   people: false,
   #   tax_codes: false,
   #   tax_rates: false
   # }
