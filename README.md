@@ -317,7 +317,11 @@ class Organization
       organization.provider = 'maestrano'
       organization.uid = sso_hash[:uid]
       organization.name = sso_hash[:info][:company_name] || 'Some default'
+      # organization.principal_email = sso_hash[:info][:email]
+      # organization.city = sso_hash[:info][:city]
+      # organization.olson_tz = sso_hash[:info][:timezone]
       # organization.country_alpha2 = sso_hash[:info][:country]
+      # organization.currency_code = sso_hash[:info][:currency]
       # organization.free_trial_end_at = sso_hash[:info][:free_trial_end_at]
       
       # Save the organization
