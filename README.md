@@ -204,14 +204,27 @@ Maestrano.configure do |config|
   # notified upon creation/update in Connec!™
   # 
   # config.webhook.connec.subscriptions = {
-  #   accounts: false,
-  #   company: false,
-  #   invoices: false,
-  #   items: false,
-  #   organizations: false,
-  #   people: false,
-  #   tax_codes: false,
-  #   tax_rates: false
+  #   accounts: true,
+  #   company: true,
+  #   events: false,
+  #   event_orders: false,
+  #   invoices: true,
+  #   items: true,
+  #   journals: false,
+  #   organizations: true,
+  #   payments: false,
+  #   pay_items: false,
+  #   pay_schedules: false,
+  #   pay_stubs: false,
+  #   pay_runs: false,
+  #   people: true,
+  #   projects: false,
+  #   tax_codes: true,
+  #   tax_rates: false,
+  #   time_activities: false,
+  #   time_sheets: false,
+  #   venues: false,
+  #   work_locations: false
   # }
 end
 ```
