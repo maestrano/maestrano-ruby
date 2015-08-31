@@ -5,7 +5,7 @@ module Maestrano
     include SamlTestHelper
   
     setup do
-      Maestrano.config = nil
+      Maestrano.configs = nil
       Maestrano.configure { |config| config.environment = 'production' }
     end
   

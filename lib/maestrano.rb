@@ -60,14 +60,15 @@ require 'maestrano/connec/client'
 module Maestrano
   
   class << self
-    attr_accessor :config
+    attr_accessor :configs
   end
   
   # Maestrano Configuration block
-  def self.configure
-    self.config ||= Configuration.new
-    yield(config)
-    self.config.post_initialize
+  def self.configure(preset='default')
+    self.configs ||= {}
+    self.configs[preset] ||= Configuration.new
+    yield(configs[preset])
+    self.configs[preset].post_initialize
     return self
   end
   
@@ -102,15 +103,15 @@ module Maestrano
   # E.g:
   # Maestrano.param('api.key')
   # Maestrano.param(:api_key)
-  def self.param(parameter)
-    self.config.param(parameter)
+  def self.param(preset='default', parameter)
+    self.configs[preset].param(parameter)
   end
   
   # Return a hash describing the current
   # Maestrano configuration. The metadata
   # will be remotely fetched by Maestrano
   # Exclude any info containing an api key
-  def self.to_metadata
+  def self.to_metadata(preset='default')
     hash = {}
     hash['environment'] = self.param('environment')
     
@@ -118,7 +119,7 @@ module Maestrano
     blacklist = ['api.key','api.token']
     
     config_groups.each do |cgroup_name|
-      cgroup = self.config.send(cgroup_name)
+      cgroup = self.configs[preset].send(cgroup_name)
       
       attr_list = cgroup.attributes.map(&:to_s)
       attr_list += Configuration::EVT_CONFIG[hash['environment']].keys.select { |k| k =~ Regexp.new("^#{cgroup_name}\.") }.map { |k| k.gsub(Regexp.new("^#{cgroup_name}\."),'') }
