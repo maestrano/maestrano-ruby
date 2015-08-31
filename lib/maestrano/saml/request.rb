@@ -7,12 +7,13 @@ require "rexml/xpath"
 
 module Maestrano
   module Saml
-  include REXML
+    include REXML
+    include Preset
     class Request
       attr_accessor :settings, :params, :session
-      
+
       def initialize(params = {}, session = {})
-        self.settings = Maestrano::SSO.saml_settings
+        self.settings = Maestrano::SSO[Maestrano::Saml.preset].saml_settings
         self.params = params
         self.session = session
       end

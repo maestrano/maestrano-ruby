@@ -2,17 +2,15 @@ module Maestrano
   module API
     module Operation
       module Base
-        # class << self
-        #   attr_accessor :api_token, :api_base, :verify_ssl_certs, :api_version
-        # end
-        
+        include Preset
+
         def self.api_url(url='')
-          Maestrano.param('api.host') + Maestrano.param('api.base') + url
+          Maestrano[Maestrano::API::Operation::Base.preset].param('api.host') + Maestrano[Maestrano::API::Operation::Base.preset].param('api.base') + url
         end
         
         # Perform remote request
         def self.request(method, url, api_token, params={}, headers={})
-          unless api_token ||= Maestrano.param('api_token')
+          unless api_token ||= Maestrano[Maestrano::API::Operation::Base.preset].param('api_token')
             raise Maestrano::API::Error::AuthenticationError.new('No API key provided.')
           end
 
@@ -21,7 +19,7 @@ module Maestrano
           if self.ssl_preflight_passed?
             request_opts.update(
               verify_ssl: OpenSSL::SSL::VERIFY_PEER,
-              ssl_ca_file: Maestrano.param('ssl_bundle_path')
+              ssl_ca_file: Maestrano[Maestrano::API::Operation::Base.preset].param('ssl_bundle_path')
             )
           end
 
@@ -69,13 +67,13 @@ module Maestrano
         private
 
         def self.ssl_preflight_passed?
-          if !Maestrano.param('api.verify_ssl_certs')
+          if !Maestrano[Maestrano::API::Operation::Base.preset].param('api.verify_ssl_certs')
             #$stderr.puts "WARNING: Running without SSL cert verification. " +
             #  "Execute 'Maestrano.configure { |config| config.verify_ssl_certs = true' } to enable verification."
             return false
-          elsif !Util.file_readable(Maestrano.param('ssl_bundle_path'))
+          elsif !Util.file_readable(Maestrano[Maestrano::API::Operation::Base.preset].param('ssl_bundle_path'))
             $stderr.puts "WARNING: Running without SSL cert verification " +
-              "because #{Maestrano.param('ssl_bundle_path')} isn't readable"
+              "because #{Maestrano[Maestrano::API::Operation::Base.preset].param('ssl_bundle_path')} isn't readable"
 
             return false
           end
@@ -87,9 +85,9 @@ module Maestrano
           @uname ||= get_uname
 
           {
-            :bindings_version => Maestrano.param('api.version'),
-            :lang => Maestrano.param('api.lang'),
-            :lang_version => Maestrano.param('api.lang_version'),
+            :bindings_version => Maestrano[Maestrano::API::Operation::Base.preset].param('api.version'),
+            :lang => Maestrano[Maestrano::API::Operation::Base.preset].param('api.lang'),
+            :lang_version => Maestrano[Maestrano::API::Operation::Base.preset].param('api.lang_version'),
             :platform => RUBY_PLATFORM,
             :publisher => 'maestrano',
             :uname => @uname
@@ -110,12 +108,12 @@ module Maestrano
 
         def self.request_headers(api_token)
           headers = {
-            :user_agent => "Maestrano/v1 RubyBindings/#{Maestrano.param('api.version')}",
+            :user_agent => "Maestrano/v1 RubyBindings/#{Maestrano[Maestrano::API::Operation::Base.preset].param('api.version')}",
             :authorization => "Basic #{Base64.strict_encode64(api_token)}",
             :content_type => 'application/x-www-form-urlencoded'
           }
 
-          api_version = Maestrano.param('api_version')
+          api_version = Maestrano[Maestrano::API::Operation::Base.preset].param('api_version')
           headers[:maestrano_version] = api_version if api_version
 
           begin

@@ -1,5 +1,6 @@
 module Maestrano
   module SSO
+    include Preset
     class Session
       attr_accessor :session, :uid, :session_token, :recheck, :group_uid
       
@@ -49,7 +50,7 @@ module Maestrano
       # false otherwise
       def perform_remote_check
         # Get remote session info
-        url = Maestrano::SSO.session_check_url(self.uid, self.session_token)
+        url = Maestrano::SSO[Maestrano::SSO.preset].session_check_url(self.uid, self.session_token)
         begin
           response = RestClient.get(url)
           response = JSON.parse(response)
@@ -78,7 +79,7 @@ module Maestrano
       # a session should be restricted to maestrano users only
       # within an application
       def valid?(opts = {})
-        return true unless Maestrano.param('sso.slo_enabled')
+        return true unless Maestrano[Maestrano::SSO.preset].param('sso.slo_enabled')
         return true if opts[:if_session] && (!self.session || (!self.session[:maestrano] && !self.session['maestrano']))
         return false unless self.session 
         

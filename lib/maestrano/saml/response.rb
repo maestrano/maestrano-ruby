@@ -4,7 +4,7 @@ require "nokogiri"
 # Only supports SAML 2.0
 module Maestrano
   module Saml
-
+    include Preset
     class Response
       ASSERTION = "urn:oasis:names:tc:SAML:2.0:assertion"
       PROTOCOL  = "urn:oasis:names:tc:SAML:2.0:protocol"
@@ -17,12 +17,21 @@ module Maestrano
       attr_reader :response
       attr_reader :document
 
+      def self.[](preset)
+        define_singleton_method(:preset) { preset }
+        self
+      end
+
+      def self.preset
+        'default'
+      end
+
       def initialize(response, options = {})
         raise ArgumentError.new("Response cannot be nil") if response.nil?
         @options  = options
         @response = (response =~ /^</) ? response : Base64.decode64(response)
         @document = Maestrano::XMLSecurity::SignedDocument.new(@response)
-        @settings = Maestrano::SSO.saml_settings
+        @settings = Maestrano::SSO[Maestrano::Saml.preset].saml_settings
       end
 
       def is_valid?

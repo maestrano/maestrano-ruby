@@ -9,6 +9,9 @@ require 'maestrano/open_struct'
 # Version
 require 'maestrano/version'
 
+# Multiple providers support
+require 'maestrano/preset'
+
 # XMLSecurity
 require 'maestrano/xml_security/signed_document'
 
@@ -58,13 +61,14 @@ require 'maestrano/account/recurring_bill'
 require 'maestrano/connec/client'
 
 module Maestrano
+  include Preset
   
   class << self
     attr_accessor :configs
   end
   
   # Maestrano Configuration block
-  def self.configure(preset='default')
+  def self.configure
     self.configs ||= {}
     self.configs[preset] ||= Configuration.new
     yield(configs[preset])
@@ -86,7 +90,7 @@ module Maestrano
   # 'virtual': then the virtual user uid is returned (usr-4d5sfd.cld-g4f5d)
   def self.mask_user(user_uid,group_uid)
     sanitized_user_uid = self.unmask_user(user_uid)
-    if Maestrano.param('sso.creation_mode') == 'virtual'
+    if Maestrano[preset].param('sso.creation_mode') == 'virtual'
       return "#{sanitized_user_uid}.#{group_uid}"
     else
       return sanitized_user_uid
@@ -103,15 +107,16 @@ module Maestrano
   # E.g:
   # Maestrano.param('api.key')
   # Maestrano.param(:api_key)
-  def self.param(preset='default', parameter)
-    self.configs[preset].param(parameter)
+  # Maestrano['preset'].param('api.key')
+  def self.param(parameter)
+    (self.configs[preset] || Configuration.new).param(parameter)
   end
   
   # Return a hash describing the current
   # Maestrano configuration. The metadata
   # will be remotely fetched by Maestrano
   # Exclude any info containing an api key
-  def self.to_metadata(preset='default')
+  def self.to_metadata
     hash = {}
     hash['environment'] = self.param('environment')
     
@@ -150,7 +155,7 @@ module Maestrano
   end
 
   class Configuration
-    attr_accessor :environment, :app, :sso, :api, :webhook
+    attr_accessor :environment, :app, :sso, :api, :webhook#, :connec
 
     def initialize
       @environment = 'test'
@@ -192,6 +197,16 @@ module Maestrano
           subscriptions: {}
         })
       })
+
+      # Connec! Config
+      # @connec = OpenStruct.new({
+      #   enabled: true,
+      #   host: 'https://api-connec-uat.maestrano.io',
+      #   base_path: '/api',
+      #   v2_path: '/v2',
+      #   reports_path: '/reports',
+      #   timeout: 180
+      # })
     end
     
     # Force or default certain parameters
@@ -278,7 +293,7 @@ module Maestrano
         'api.host'             => 'http://api-sandbox.maestrano.io',
         'api.base'             => '/api/v1/',
         'connec.enabled'       => true,
-        'connec.host'          => 'http://connec.maestrano.io',
+        'connec.host'          => 'http://api-sandbox.maestrano.io',
         'connec.base_path'     => '/connec/api',
         'connec.v2_path'       => '/v2',
         'connec.reports_path'  => '/reports',

@@ -1,15 +1,16 @@
 module Maestrano
   module SSO
+    include Preset
     
     # Return the saml_settings based on
     # Maestrano configuration
     def self.saml_settings
       settings = Maestrano::Saml::Settings.new
       settings.assertion_consumer_service_url = self.consume_url
-      settings.issuer                         = Maestrano.param('api.id')
+      settings.issuer                         = Maestrano[preset].param('api.id')
       settings.idp_sso_target_url             = self.idp_url
-      settings.idp_cert_fingerprint           = Maestrano.param('sso_x509_fingerprint')
-      settings.name_identifier_format         = Maestrano.param('sso_name_id_format')
+      settings.idp_cert_fingerprint           = Maestrano[preset].param('sso_x509_fingerprint')
+      settings.name_identifier_format         = Maestrano[preset].param('sso_name_id_format')
       settings
     end
     
@@ -24,43 +25,43 @@ module Maestrano
     end
     
     def self.enabled?
-      !!Maestrano.param('sso.enabled')
+      !!Maestrano[preset].param('sso.enabled')
     end
     
     def self.init_url
-      host = Maestrano.param('sso.idm')
-      path = Maestrano.param('sso.init_path')
+      host = Maestrano[preset].param('sso.idm')
+      path = Maestrano[preset].param('sso.init_path')
       return "#{host}#{path}"
     end
     
     def self.consume_url
-      host = Maestrano.param('sso.idm')
-      path = Maestrano.param('sso.consume_path')
+      host = Maestrano[preset].param('sso.idm')
+      path = Maestrano[preset].param('sso.consume_path')
       return "#{host}#{path}"
     end
     
     def self.logout_url
-      host = Maestrano.param('api_host')
+      host = Maestrano[preset].param('api_host')
       path = '/app_logout'
       return "#{host}#{path}"
     end
     
     def self.unauthorized_url
-      host = Maestrano.param('api_host')
+      host = Maestrano[preset].param('api_host')
       path = '/app_access_unauthorized'
       return "#{host}#{path}";
     end
     
     def self.idp_url
-      host = Maestrano.param('api_host')
-      api_base = Maestrano.param('api_base')
+      host = Maestrano[preset].param('api_host')
+      api_base = Maestrano[preset].param('api_base')
       endpoint = 'auth/saml'
       return "#{host}#{api_base}#{endpoint}"
     end
     
     def self.session_check_url(user_uid,sso_session) 
-      host = Maestrano.param('api_host')
-      api_base = Maestrano.param('api_base')
+      host = Maestrano[preset].param('api_host')
+      api_base = Maestrano[preset].param('api_base')
       endpoint = 'auth/saml'
       return URI.escape("#{host}#{api_base}#{endpoint}/#{user_uid}?session=#{sso_session}")
     end
