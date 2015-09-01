@@ -1,7 +1,7 @@
 module Maestrano
   module SSO
-    include Preset
     class BaseUser
+      include Preset
       attr_accessor :local_id
       attr_reader :sso_session,:sso_session_recheck,
         :group_uid,:group_role,:uid,:virtual_uid,:email,
@@ -27,7 +27,7 @@ module Maestrano
       end
       
       def to_uid
-        if Maestrano[Maestrano::SSO.preset].param('sso.creation_mode') == 'real'
+        if Maestrano[self.class.preset].param('sso.creation_mode') == 'real'
           return self.uid
         else
           return self.virtual_uid
@@ -35,7 +35,7 @@ module Maestrano
       end
       
       def to_email
-        if Maestrano[Maestrano::SSO.preset].param('sso.creation_mode') == 'real'
+        if Maestrano[self.class.preset].param('sso.creation_mode') == 'real'
           return self.email
         else
           return self.virtual_email

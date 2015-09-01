@@ -16,12 +16,12 @@ module Maestrano
     
     # Build a new SAML Request
     def self.build_request(get_params = {})
-      Maestrano::Saml::Request.new(get_params)
+      Maestrano::Saml::Request[preset].new(get_params)
     end
     
     # Build a new SAML response
     def self.build_response(saml_post_param)
-      Maestrano::Saml::Response.new(saml_post_param)
+      Maestrano::Saml::Response[preset].new(saml_post_param)
     end
     
     def self.enabled?
@@ -70,7 +70,7 @@ module Maestrano
     # Takes the BaseUser hash representation and current session
     # in arguments
     def self.set_session(session, auth)
-      Maestrano::SSO::Session.from_user_auth_hash(session,auth).save
+      Maestrano::SSO::Session[preset].from_user_auth_hash(session,auth).save
     end
     
     # Destroy the maestrano session in http session

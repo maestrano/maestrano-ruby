@@ -155,6 +155,67 @@ module Maestrano
           assert_false @sso_session.valid?
         end
       end
+
+      context 'with preset' do
+        context "valid?" do
+          setup do
+            @preset = 'my-preset'
+            @sso_session = Maestrano::SSO::Session[@preset].new(@session)
+            Maestrano[@preset].configure { |c| c.sso.slo_enabled = true }
+          end
+          
+          should "return true if Single Logout is disabled" do
+            Maestrano[@preset].configure { |c| c.sso.slo_enabled = false }
+            @sso_session.stubs(:remote_check_required?).returns(true)
+            @sso_session.stubs(:perform_remote_check).returns(false)
+            assert @sso_session.valid?
+          end
+
+          should "return true if_session is enabled and session is nil" do
+            sso_session = Maestrano::SSO::Session[@preset].new(nil)
+            assert sso_session.valid?(if_session: true)
+          end
+          
+          should "return true if_session is enabled and session is empty" do
+            sso_session = Maestrano::SSO::Session[@preset].new({})
+            assert sso_session.valid?(if_session: true)
+          end
+    
+          should "return true if no remote_check_required?" do
+            @sso_session.stubs(:remote_check_required?).returns(false)
+            assert @sso_session.valid?
+            assert @sso_session.valid?(if_session: true)
+          end
+      
+          should "return true if remote_check_required? and valid" do
+            @sso_session.stubs(:remote_check_required?).returns(true)
+            @sso_session.stubs(:perform_remote_check).returns(true)
+            assert @sso_session.valid?
+            assert @sso_session.valid?(if_session: true)
+          end
+      
+          should "update maestrano session with recheck timestamp if remote_check_required? and valid" do
+            recheck = (@sso_session.recheck + 600)
+            @sso_session.recheck = recheck
+            @sso_session.stubs(:remote_check_required?).returns(true)
+            @sso_session.stubs(:perform_remote_check).returns(true)
+            @sso_session.valid?
+            assert_equal JSON.parse(Base64.decode64(@session[:maestrano]))['session_recheck'], recheck.utc.iso8601
+          end
+      
+          should "return false if remote_check_required? and invalid" do
+            @sso_session.stubs(:remote_check_required?).returns(true)
+            @sso_session.stubs(:perform_remote_check).returns(false)
+            assert_false @sso_session.valid?
+            assert_false @sso_session.valid?(if_session: true)
+          end
+          
+          should "return false if internal session is nil" do
+            sso_session = Maestrano::SSO::Session[@preset].new(nil)
+            assert_false @sso_session.valid?
+          end
+        end
+      end
   
     end
   end

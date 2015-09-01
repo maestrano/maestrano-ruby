@@ -390,7 +390,7 @@ Based on your application requirements the consume action might look like this:
 ```ruby
 def consume
   # Process the response and extract information
-  saml_response = Maestrano::Saml['my-preset']::Response.new(params[:SAMLResponse])
+  saml_response = Maestrano::Saml::Response['my-preset'].new(params[:SAMLResponse])
   user_hash = Maestrano::SSO::BaseUser.new(saml_response).to_hash
   group_hash = Maestrano::SSO::BaseGroup.new(saml_response).to_hash
   membership_hash = Maestrano::SSO::BaseMembership.new(saml_response).to_hash
@@ -697,6 +697,14 @@ bill = Maestrano::Account::Bill.retrieve("bill-f1d2s54")
 bill.cancel
 ```
 
+##### Using presets
+
+All actions can be performed with presets, for instance to list all bills with presets
+```ruby
+bills = Maestrano::Account::Bill['my-preset'].all
+bills.each { |b| puts b.id }
+```
+
 #### Recurring Bill
 A recurring bill charges a given customer at a regular interval without you having to do anything.
 
@@ -861,6 +869,13 @@ rec_bill = Maestrano::Account::RecurringBill.retrieve("rbill-f1d2s54")
 rec_bill.cancel
 ```
 
+##### Using presets
+
+All actions can be performed with presets, for instance to list all recurring bills with presets
+```ruby
+rec_bills = Maestrano::Account::RecurringBill['my-preset'].all
+rec_bills.each { |b| puts b.id }
+```
 
 ### Membership API
  
@@ -967,6 +982,13 @@ users = Maestrano::Account::User.all;
 Access a single user by id
 ```ruby
 user = Maestrano::Account::User.retrieve("usr-f1d2s54");
+```
+
+##### Using presets
+
+All actions can be performed with presets, for instance to list all users with presets
+```ruby
+users = Maestrano::Account::User['my-preset'].all
 ```
 
 #### Group
@@ -1104,6 +1126,12 @@ Access a single group by id
 group = Maestrano::Account::Group.retrieve("usr-f1d2s54");
 ```
 
+##### Using presets
+
+All actions can be performed with presets, for instance to list all groups with presets
+```ruby
+groups = Maestrano::Account::Group['my-preset'].all
+```
 
 ## Connec!™ Data Sharing
 Maestrano offers the capability to share actual business data between applications via its data sharing platform Connec!™.
@@ -1135,6 +1163,10 @@ client.post('/organizations', { organizations: { name: "DoeCorp Inc."} })
 
 # Update an organization
 client.put('/organizations/e32303c1-5102-0132-661e-600308937d74', { organizations: { is_customer: true} })
+
+# With presets
+client_presets = Maestrano::Connec::Client['my-preset'].new("cld-f7f5g4")
+client_presets.get('/organizations')
 ```
 
 
