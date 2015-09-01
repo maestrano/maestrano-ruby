@@ -1,6 +1,7 @@
 module Maestrano
   module API
     class Object
+      include Preset
       include Enumerable
 
       attr_accessor :api_token

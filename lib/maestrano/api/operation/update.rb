@@ -12,7 +12,7 @@ module Maestrano
           if values.length > 0
             values.delete(:id)
 
-            response, api_token = Maestrano::API::Operation::Base.request(:put, url, @api_token, values)
+            response, api_token = Maestrano::API::Operation::Base[self.class.preset].request(:put, url, @api_token, values)
             refresh_from(response, api_token)
           end
           self

@@ -17,15 +17,6 @@ module Maestrano
       attr_reader :response
       attr_reader :document
 
-      def self.[](preset)
-        define_singleton_method(:preset) { preset }
-        self
-      end
-
-      def self.preset
-        'default'
-      end
-
       def initialize(response, options = {})
         raise ArgumentError.new("Response cannot be nil") if response.nil?
         @options  = options

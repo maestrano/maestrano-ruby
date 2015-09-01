@@ -117,10 +117,10 @@ class MaestranoTest < Test::Unit::TestCase
 
       @config = {
         'environment'       => 'production',
-        'app.host'          => 'http://myotherapp.com',
+        'app.host'          => 'http://mysuperapp.com',
         
-        'api.id'            => 'app-553941',
-        'api.key'           => 'otherapikey',
+        'api.id'            => 'app-f54ds4f8',
+        'api.key'           => 'someapikey',
 
         'connec.enabled'    => true,
         
@@ -129,15 +129,23 @@ class MaestranoTest < Test::Unit::TestCase
         'sso.init_path'     => '/mno/sso/init',
         'sso.consume_path'  => '/mno/sso/consume',
         'sso.creation_mode' => 'real',
-        'sso.idm'           => 'http://idp.myotherapp.com',
+        'sso.idm'           => 'http://idp.mysuperapp.com',
         
         'webhook.account.groups_path'       => '/mno/groups/:id',
         'webhook.account.group_users_path'  => '/mno/groups/:group_id/users/:id',
         'webhook.connec.notifications_path' => 'mno/receive',
         'webhook.connec.subscriptions'      => { organizations: true, people: true }
       }
-    
-      Maestrano[@preset].configure do |config|
+
+      @preset_config = {
+        'environment'       => 'production',
+        'app.host'          => 'http://myotherapp.com',
+        
+        'api.id'            => 'app-553941',
+        'api.key'           => 'otherapikey',
+      }
+
+      Maestrano.configure do |config|
         config.environment = @config['environment']
         config.app.host = @config['app.host']
         
@@ -159,11 +167,19 @@ class MaestranoTest < Test::Unit::TestCase
         config.webhook.connec.notifications_path = @config['webhook.connec.notifications_path']
         config.webhook.connec.subscriptions = @config['webhook.connec.subscriptions']
       end
+    
+      Maestrano[@preset].configure do |config|
+        config.environment = @preset_config['environment']
+        config.app.host = @preset_config['app.host']
+        
+        config.api.id = @preset_config['api.id']
+        config.api.key = @preset_config['api.key']
+      end
     end
 
     should "return the specified parameters" do
-      @config.keys.each do |key|
-        assert_equal @config[key], Maestrano[@preset].param(key)
+      @preset_config.keys.each do |key|
+        assert_equal @preset_config[key], Maestrano[@preset].param(key)
       end
     end
     

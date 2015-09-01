@@ -206,11 +206,13 @@ Maestrano.configure do |config|
   # config.webhook.connec.subscriptions = {
   #   accounts: true,
   #   company: true,
+  #   employees: false,
   #   events: false,
   #   event_orders: false,
   #   invoices: true,
   #   items: true,
   #   journals: false,
+  #   opportunities: true,
   #   organizations: true,
   #   payments: false,
   #   pay_items: false,
@@ -219,13 +221,32 @@ Maestrano.configure do |config|
   #   pay_runs: false,
   #   people: true,
   #   projects: false,
+  #   purchase_orders: false,
+  #   quotes: false,
+  #   sales_orders: false,
   #   tax_codes: true,
   #   tax_rates: false,
   #   time_activities: false,
   #   time_sheets: false,
   #   venues: false,
+  #   warehouses: false,
   #   work_locations: false
   # }
+end
+```
+
+If you need to support multiple marketplace providers, you can define configuration presets and switch between these at runtime:
+```ruby
+Maestrano['my-preset1'].configure do |config|
+  config.environment = 'production'
+  config.app.host = 'https://my-custom-provider1.com'
+  ...
+end
+
+Maestrano['my-preset2'].configure do |config|
+  config.environment = 'production'
+  config.app.host = 'https://my-custom-provider2.com'
+  ...
 end
 ```
 
@@ -248,6 +269,8 @@ class MaestranoMetaDataController < ApplicationController
   
   def metadata
     render json: Maestrano.to_metadata
+    # Or using presets
+    # render json: Maestrano['my-preset'].to_metadata
   end
   
   private
@@ -367,7 +390,7 @@ Based on your application requirements the consume action might look like this:
 ```ruby
 def consume
   # Process the response and extract information
-  saml_response = Maestrano::Saml::Response.new(params[:SAMLResponse])
+  saml_response = Maestrano::Saml['my-preset']::Response.new(params[:SAMLResponse])
   user_hash = Maestrano::SSO::BaseUser.new(saml_response).to_hash
   group_hash = Maestrano::SSO::BaseGroup.new(saml_response).to_hash
   membership_hash = Maestrano::SSO::BaseMembership.new(saml_response).to_hash
@@ -399,9 +422,9 @@ If you want your users to benefit from single logout then you should define the 
 
 ```ruby
 def verify_maestrano_session
-  if Maestrano.param(:sso_enabled)
-    if session && session[:maestrano] && !Maestrano::SSO::Session.new(session).valid?
-      redirect_to Maestrano::SSO.init_url
+  if Maestrano['my-preset'].param(:sso_enabled)
+    if session && session[:maestrano] && !Maestrano::SSO['my-preset']::Session.new(session).valid?
+      redirect_to Maestrano::SSO['my-preset'].init_url
     end
   end
   true
