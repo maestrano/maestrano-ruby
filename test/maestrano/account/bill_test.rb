@@ -48,12 +48,18 @@ module Maestrano
       context 'with presets' do
         setup do
           @preset = 'mypreset'
+          Maestrano.configure do |config|
+            config.environment = 'production'
+            config.api.host = 'https://maestrano.com'
+            config.api.base = '/api'
+          end
           Maestrano[@preset].configure do |config|
             config.environment = 'production'
             config.api.host = 'https://myprovider.com'
             config.api.base = '/myapi'
           end
         end
+
         should "should successfully create a remote bill when passed correct parameters" do
           @api_mock.expects(:post).with do |url, api_token, params|
             url == "#{Maestrano[@preset].param('api.host')}#{Maestrano[@preset].param('api.base')}account/bills" && api_token.nil? && 
@@ -67,6 +73,15 @@ module Maestrano
             description: 'Some bill'
           })
           assert bill.id
+        end
+
+        should "should successfully list remote bills" do
+          @api_mock.expects(:get).with do |url, api_token|
+            url == "#{Maestrano[@preset].param('api.host')}#{Maestrano[@preset].param('api.base')}account/bills" && api_token.nil?
+          end.once.returns(test_response(test_account_bill_array))
+
+          bills = Maestrano::Account::Bill[@preset].all
+          assert bills
         end
       end
     end
