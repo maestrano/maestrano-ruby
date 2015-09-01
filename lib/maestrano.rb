@@ -155,7 +155,7 @@ module Maestrano
   end
 
   class Configuration
-    attr_accessor :environment, :app, :sso, :api, :webhook#, :connec
+    attr_accessor :environment, :app, :sso, :api, :webhook, :connec
 
     def initialize
       @environment = 'test'
@@ -199,14 +199,9 @@ module Maestrano
       })
 
       # Connec! Config
-      # @connec = OpenStruct.new({
-      #   enabled: true,
-      #   host: 'https://api-connec-uat.maestrano.io',
-      #   base_path: '/api',
-      #   v2_path: '/v2',
-      #   reports_path: '/reports',
-      #   timeout: 180
-      # })
+      @connec = OpenStruct.new({
+        enabled: true
+      })
     end
     
     # Force or default certain parameters
