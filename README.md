@@ -1198,6 +1198,6 @@ So if you have any question or need help integrating with us just let us know at
 
 ## License
 
-MIT License. Copyright 2014 Maestrano Pty Ltd. https://maestrano.com
+MIT License. Copyright 2015 Maestrano Pty Ltd. https://maestrano.com
 
 You are not granted rights or licenses to the trademarks of Maestrano.
