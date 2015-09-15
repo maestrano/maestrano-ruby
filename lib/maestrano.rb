@@ -9,6 +9,9 @@ require 'maestrano/open_struct'
 # Version
 require 'maestrano/version'
 
+# Multiple providers support
+require 'maestrano/preset'
+
 # XMLSecurity
 require 'maestrano/xml_security/signed_document'
 
@@ -58,16 +61,18 @@ require 'maestrano/account/recurring_bill'
 require 'maestrano/connec/client'
 
 module Maestrano
+  include Preset
   
   class << self
-    attr_accessor :config
+    attr_accessor :configs
   end
   
   # Maestrano Configuration block
   def self.configure
-    self.config ||= Configuration.new
-    yield(config)
-    self.config.post_initialize
+    self.configs ||= {}
+    self.configs[preset] ||= Configuration.new
+    yield(configs[preset])
+    self.configs[preset].post_initialize
     return self
   end
   
@@ -85,7 +90,7 @@ module Maestrano
   # 'virtual': then the virtual user uid is returned (usr-4d5sfd.cld-g4f5d)
   def self.mask_user(user_uid,group_uid)
     sanitized_user_uid = self.unmask_user(user_uid)
-    if Maestrano.param('sso.creation_mode') == 'virtual'
+    if Maestrano[preset].param('sso.creation_mode') == 'virtual'
       return "#{sanitized_user_uid}.#{group_uid}"
     else
       return sanitized_user_uid
@@ -102,8 +107,9 @@ module Maestrano
   # E.g:
   # Maestrano.param('api.key')
   # Maestrano.param(:api_key)
+  # Maestrano['preset'].param('api.key')
   def self.param(parameter)
-    self.config.param(parameter)
+    (self.configs[preset] || Configuration.new).param(parameter)
   end
   
   # Return a hash describing the current
@@ -118,7 +124,7 @@ module Maestrano
     blacklist = ['api.key','api.token']
     
     config_groups.each do |cgroup_name|
-      cgroup = self.config.send(cgroup_name)
+      cgroup = self.configs[preset].send(cgroup_name)
       
       attr_list = cgroup.attributes.map(&:to_s)
       attr_list += Configuration::EVT_CONFIG[hash['environment']].keys.select { |k| k =~ Regexp.new("^#{cgroup_name}\.") }.map { |k| k.gsub(Regexp.new("^#{cgroup_name}\."),'') }
@@ -149,7 +155,7 @@ module Maestrano
   end
 
   class Configuration
-    attr_accessor :environment, :app, :sso, :api, :webhook
+    attr_accessor :environment, :app, :sso, :api, :webhook, :connec
 
     def initialize
       @environment = 'test'
@@ -190,6 +196,11 @@ module Maestrano
           notifications_path: '/maestrano/connec/notifications',
           subscriptions: {}
         })
+      })
+
+      # Connec! Config
+      @connec = OpenStruct.new({
+        enabled: true
       })
     end
     
@@ -259,9 +270,29 @@ module Maestrano
     end
     
     EVT_CONFIG = {
+      'local' => {
+        'api.host'             => 'http://application.maestrano.io',
+        'api.base'             => '/api/v1/',
+        'connec.enabled'       => true,
+        'connec.host'          => 'http://connec.maestrano.io',
+        'connec.base_path'     => '/api',
+        'connec.v2_path'       => '/v2',
+        'connec.reports_path'  => '/reports',
+        'connec.timeout'       => 60,
+        'sso.idp'              => 'http://application.maestrano.io',
+        'sso.name_id_format'   => Maestrano::Saml::Settings::NAMEID_PERSISTENT,
+        'sso.x509_fingerprint' => '01:06:15:89:25:7d:78:12:28:a6:69:c7:de:63:ed:74:21:f9:f5:36',
+        'sso.x509_certificate' => "-----BEGIN CERTIFICATE-----\nMIIDezCCAuSgAwIBAgIJAOehBr+YIrhjMA0GCSqGSIb3DQEBBQUAMIGGMQswCQYD\nVQQGEwJBVTEMMAoGA1UECBMDTlNXMQ8wDQYDVQQHEwZTeWRuZXkxGjAYBgNVBAoT\nEU1hZXN0cmFubyBQdHkgTHRkMRYwFAYDVQQDEw1tYWVzdHJhbm8uY29tMSQwIgYJ\nKoZIhvcNAQkBFhVzdXBwb3J0QG1hZXN0cmFuby5jb20wHhcNMTQwMTA0MDUyMjM5\nWhcNMzMxMjMwMDUyMjM5WjCBhjELMAkGA1UEBhMCQVUxDDAKBgNVBAgTA05TVzEP\nMA0GA1UEBxMGU3lkbmV5MRowGAYDVQQKExFNYWVzdHJhbm8gUHR5IEx0ZDEWMBQG\nA1UEAxMNbWFlc3RyYW5vLmNvbTEkMCIGCSqGSIb3DQEJARYVc3VwcG9ydEBtYWVz\ndHJhbm8uY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDVkIqo5t5Paflu\nP2zbSbzxn29n6HxKnTcsubycLBEs0jkTkdG7seF1LPqnXl8jFM9NGPiBFkiaR15I\n5w482IW6mC7s8T2CbZEL3qqQEAzztEPnxQg0twswyIZWNyuHYzf9fw0AnohBhGu2\n28EZWaezzT2F333FOVGSsTn1+u6tFwIDAQABo4HuMIHrMB0GA1UdDgQWBBSvrNxo\neHDm9nhKnkdpe0lZjYD1GzCBuwYDVR0jBIGzMIGwgBSvrNxoeHDm9nhKnkdpe0lZ\njYD1G6GBjKSBiTCBhjELMAkGA1UEBhMCQVUxDDAKBgNVBAgTA05TVzEPMA0GA1UE\nBxMGU3lkbmV5MRowGAYDVQQKExFNYWVzdHJhbm8gUHR5IEx0ZDEWMBQGA1UEAxMN\nbWFlc3RyYW5vLmNvbTEkMCIGCSqGSIb3DQEJARYVc3VwcG9ydEBtYWVzdHJhbm8u\nY29tggkA56EGv5giuGMwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQUFAAOBgQCc\nMPgV0CpumKRMulOeZwdpnyLQI/NTr3VVHhDDxxCzcB0zlZ2xyDACGnIG2cQJJxfc\n2GcsFnb0BMw48K6TEhAaV92Q7bt1/TYRvprvhxUNMX2N8PHaYELFG2nWfQ4vqxES\nRkjkjqy+H7vir/MOF3rlFjiv5twAbDKYHXDT7v1YCg==\n-----END CERTIFICATE-----"
+      },
       'test' => {
         'api.host'             => 'http://api-sandbox.maestrano.io',
         'api.base'             => '/api/v1/',
+        'connec.enabled'       => true,
+        'connec.host'          => 'http://api-sandbox.maestrano.io',
+        'connec.base_path'     => '/connec/api',
+        'connec.v2_path'       => '/v2',
+        'connec.reports_path'  => '/reports',
+        'connec.timeout'       => 60,
         'sso.idp'              => 'https://maestrano.com',
         'sso.name_id_format'   => Maestrano::Saml::Settings::NAMEID_PERSISTENT,
         'sso.x509_fingerprint' => '01:06:15:89:25:7d:78:12:28:a6:69:c7:de:63:ed:74:21:f9:f5:36',
@@ -269,9 +300,29 @@ module Maestrano
         'connec.host'          => 'http://api-sandbox.maestrano.io',
         'connec.base_path'     => '/connec/api/v2'
       },
+      'uat' => {
+        'api.host'             => 'https://uat.maestrano.io',
+        'api.base'             => '/api/v1/',
+        'connec.enabled'       => true,
+        'connec.host'          => 'https://api-connec-uat.maestrano.io',
+        'connec.base_path'     => '/api',
+        'connec.v2_path'       => '/v2',
+        'connec.reports_path'  => '/reports',
+        'connec.timeout'       => 180,
+        'sso.idp'              => 'https://uat.maestrano.io',
+        'sso.name_id_format'   => Maestrano::Saml::Settings::NAMEID_PERSISTENT,
+        'sso.x509_fingerprint' => '8a:1e:2e:76:c4:67:80:68:6c:81:18:f7:d3:29:5d:77:f8:79:54:2f',
+        'sso.x509_certificate' => "-----BEGIN CERTIFICATE-----\nMIIDezCCAuSgAwIBAgIJAMzy+weDPp7qMA0GCSqGSIb3DQEBBQUAMIGGMQswCQYD\nVQQGEwJBVTEMMAoGA1UECBMDTlNXMQ8wDQYDVQQHEwZTeWRuZXkxGjAYBgNVBAoT\nEU1hZXN0cmFubyBQdHkgTHRkMRYwFAYDVQQDEw1tYWVzdHJhbm8uY29tMSQwIgYJ\nKoZIhvcNAQkBFhVzdXBwb3J0QG1hZXN0cmFuby5jb20wHhcNMTQwMTA0MDUyMzE0\nWhcNMzMxMjMwMDUyMzE0WjCBhjELMAkGA1UEBhMCQVUxDDAKBgNVBAgTA05TVzEP\nMA0GA1UEBxMGU3lkbmV5MRowGAYDVQQKExFNYWVzdHJhbm8gUHR5IEx0ZDEWMBQG\nA1UEAxMNbWFlc3RyYW5vLmNvbTEkMCIGCSqGSIb3DQEJARYVc3VwcG9ydEBtYWVz\ndHJhbm8uY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+2uyQeAOc/iro\nhCyT33RkkWfTGeJ8E/mu9F5ORWoCZ/h2J+QDuzuc69Rf1LoO4wZVQ8LBeWOqMBYz\notYFUIPlPfIBXDNL/stHkpg28WLDpoJM+46WpTAgp89YKgwdAoYODHiUOcO/uXOO\n2i9Ekoa+kxbvBzDJf7uuR/io6GERXwIDAQABo4HuMIHrMB0GA1UdDgQWBBTGRDBT\nie5+fHkB0+SZ5g3WY/D2RTCBuwYDVR0jBIGzMIGwgBTGRDBTie5+fHkB0+SZ5g3W\nY/D2RaGBjKSBiTCBhjELMAkGA1UEBhMCQVUxDDAKBgNVBAgTA05TVzEPMA0GA1UE\nBxMGU3lkbmV5MRowGAYDVQQKExFNYWVzdHJhbm8gUHR5IEx0ZDEWMBQGA1UEAxMN\nbWFlc3RyYW5vLmNvbTEkMCIGCSqGSIb3DQEJARYVc3VwcG9ydEBtYWVzdHJhbm8u\nY29tggkAzPL7B4M+nuowDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQUFAAOBgQAw\nRxg3rZrML//xbsS3FFXguzXiiNQAvA4KrMWhGh3jVrtzAlN1/okFNy6zuN8gzdKD\nYw2n0c/u3cSpUutIVZOkwQuPCMC1hoP7Ilat6icVewNcHayLBxKgRxpBhr5Sc4av\n3HOW5Bi/eyC7IjeBTbTnpziApEC7uUsBou2rlKmTGw==\n-----END CERTIFICATE-----"
+      },
       'production' => {
         'api.host'             => 'https://maestrano.com',
         'api.base'             => '/api/v1/',
+        'connec.enabled'       => true,
+        'connec.host'          => 'https://api-connec.maestrano.io',
+        'connec.base_path'     => '/api',
+        'connec.v2_path'       => '/v2',
+        'connec.reports_path'  => '/reports',
+        'connec.timeout'       => 180,
         'sso.idp'              => 'https://maestrano.com',
         'sso.name_id_format'   => Maestrano::Saml::Settings::NAMEID_PERSISTENT,
         'sso.x509_fingerprint' => '2f:57:71:e4:40:19:57:37:a6:2c:f0:c5:82:52:2f:2e:41:b7:9d:7e',

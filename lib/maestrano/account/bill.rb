@@ -5,7 +5,7 @@ module Maestrano
       include Maestrano::API::Operation::Create
 
       def cancel
-        response, api_token = Maestrano::API::Operation::Base.request(:delete, url, @api_token)
+        response, api_token = Maestrano::API::Operation::Base[self.class.preset].request(:delete, url, @api_token)
         refresh_from(response, api_token)
         self
       end

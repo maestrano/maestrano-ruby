@@ -8,6 +8,8 @@ class MaestranoTest < Test::Unit::TestCase
       
       'api.id'            => 'app-f54ds4f8',
       'api.key'           => 'someapikey',
+
+      'connec.enabled'    => true,
       
       'sso.enabled'       => false,
       'sso.slo_enabled'   => false,
@@ -28,6 +30,8 @@ class MaestranoTest < Test::Unit::TestCase
       
       config.api.id = @config['api.id']
       config.api.key = @config['api.key']
+
+      config.connec.enabled = @config['connec.enabled']
       
       config.sso.enabled = @config['sso.enabled']
       config.sso.slo_enabled = @config['sso.slo_enabled']
@@ -52,7 +56,7 @@ class MaestranoTest < Test::Unit::TestCase
     end
     
     should "set the sso.creation_mode to 'real' by default" do
-      Maestrano.config = Maestrano::Configuration.new
+      Maestrano.configs = {'default' => Maestrano::Configuration.new }
       Maestrano.configure { |config| config.app.host = "https://someapp.com" }
       assert_equal 'real', Maestrano.param('sso.creation_mode')
     end
@@ -63,7 +67,7 @@ class MaestranoTest < Test::Unit::TestCase
     end
   
     should "assign the sso.idm to app.host if not provided" do
-      Maestrano.config = Maestrano::Configuration.new
+      Maestrano.configs = {'default' => Maestrano::Configuration.new }
       Maestrano.configure { |config| config.app.host = "https://someapp.com" }
       assert_equal Maestrano.param('app.host'), Maestrano.param('sso.idm')
     end
@@ -92,7 +96,7 @@ class MaestranoTest < Test::Unit::TestCase
       should "return the right test parameters" do
         Maestrano.configure { |config| config.environment = 'test' }
       
-        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate', 'connec.host','connec.base_path'].each do |parameter|
+        ['api.host', 'api.base', 'sso.idp', 'sso.name_id_format', 'sso.x509_certificate', 'connec.host', 'connec.base_path'].each do |parameter|
           assert_equal Maestrano::Configuration::EVT_CONFIG['test'][parameter], Maestrano.param(parameter)
         end
       end
@@ -100,13 +104,146 @@ class MaestranoTest < Test::Unit::TestCase
       should "return the right production parameters" do
         Maestrano.configure { |config| config.environment = 'production' }
       
-        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate','connec.host','connec.base_path'].each do |parameter|
+        ['api.host', 'api.base', 'sso.idp', 'sso.name_id_format', 'sso.x509_certificate', 'connec.host', 'connec.base_path'].each do |parameter|
           assert_equal Maestrano::Configuration::EVT_CONFIG['production'][parameter], Maestrano.param(parameter)
         end
       end
     end
   end
+
+  context "new style configuration with presets" do
+    setup do
+      @preset = 'mypreset'
+
+      @config = {
+        'environment'       => 'production',
+        'app.host'          => 'http://mysuperapp.com',
+        
+        'api.id'            => 'app-f54ds4f8',
+        'api.key'           => 'someapikey',
+
+        'connec.enabled'    => true,
+        
+        'sso.enabled'       => false,
+        'sso.slo_enabled'   => false,
+        'sso.init_path'     => '/mno/sso/init',
+        'sso.consume_path'  => '/mno/sso/consume',
+        'sso.creation_mode' => 'real',
+        'sso.idm'           => 'http://idp.mysuperapp.com',
+        
+        'webhook.account.groups_path'       => '/mno/groups/:id',
+        'webhook.account.group_users_path'  => '/mno/groups/:group_id/users/:id',
+        'webhook.connec.notifications_path' => 'mno/receive',
+        'webhook.connec.subscriptions'      => { organizations: true, people: true }
+      }
+
+      @preset_config = {
+        'environment'       => 'production',
+        'app.host'          => 'http://myotherapp.com',
+        
+        'api.id'            => 'app-553941',
+        'api.key'           => 'otherapikey',
+      }
+
+      Maestrano.configure do |config|
+        config.environment = @config['environment']
+        config.app.host = @config['app.host']
+        
+        config.api.id = @config['api.id']
+        config.api.key = @config['api.key']
+
+        config.connec.enabled = @config['connec.enabled']
+        
+        config.sso.enabled = @config['sso.enabled']
+        config.sso.slo_enabled = @config['sso.slo_enabled']
+        config.sso.idm = @config['sso.idm']
+        config.sso.init_path = @config['sso.init_path']
+        config.sso.consume_path = @config['sso.consume_path']
+        config.sso.creation_mode = @config['sso.creation_mode']
+        
+        config.webhook.account.groups_path = @config['webhook.account.groups_path']
+        config.webhook.account.group_users_path = @config['webhook.account.group_users_path']
+        
+        config.webhook.connec.notifications_path = @config['webhook.connec.notifications_path']
+        config.webhook.connec.subscriptions = @config['webhook.connec.subscriptions']
+      end
+    
+      Maestrano[@preset].configure do |config|
+        config.environment = @preset_config['environment']
+        config.app.host = @preset_config['app.host']
+        
+        config.api.id = @preset_config['api.id']
+        config.api.key = @preset_config['api.key']
+      end
+    end
+
+    should "return the specified parameters" do
+      @preset_config.keys.each do |key|
+        assert_equal @preset_config[key], Maestrano[@preset].param(key)
+      end
+    end
+    
+    should "set the sso.creation_mode to 'real' by default" do
+      Maestrano.configs = {@preset => Maestrano::Configuration.new }
+      Maestrano[@preset].configure { |config| config.app.host = "https://someapp.com" }
+      assert_equal 'real', Maestrano[@preset].param('sso.creation_mode')
+    end
+    
+    should "build the api_token based on the app_id and api_key" do
+      Maestrano[@preset].configure { |config| config.app_id = "bla"; config.api_key = "blo" }
+      assert_equal "bla:blo", Maestrano[@preset].param('api.token')
+    end
   
+    should "assign the sso.idm to app.host if not provided" do
+      Maestrano.configs = {@preset => Maestrano::Configuration.new }
+      Maestrano[@preset].configure { |config| config.app.host = "https://someapp.com" }
+      assert_equal Maestrano[@preset].param('app.host'), Maestrano[@preset].param('sso.idm')
+    end
+    
+    should "force assign the api.lang" do
+      Maestrano[@preset].configure { |config| config.api.lang = "bla" }
+      assert_equal 'ruby', Maestrano[@preset].param('api.lang')
+    end
+    
+    should "force assign the api.lang_version" do
+      Maestrano[@preset].configure { |config| config.api.lang_version = "123456" }
+      assert_equal "#{RUBY_VERSION} p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE})", Maestrano[@preset].param('api.lang_version')
+    end
+    
+    should "force assign the api.version" do
+      Maestrano[@preset].configure { |config| config.api.version = "1245" }
+      assert_equal Maestrano::VERSION, Maestrano[@preset].param('api.version')
+    end
+    
+    should "force slo_enabled to false if sso is disabled" do
+      Maestrano[@preset].configure { |config| config.sso.slo_enabled = true; config.sso.enabled = false }
+      assert_false Maestrano[@preset].param('sso.slo_enabled')
+    end
+
+    should "allow overwritting connec configuration" do
+      Maestrano[@preset].configure { |config| config.connec.host = 'http://mydataserver.org'; config.connec.base_path = '/data' }
+      assert_equal 'http://mydataserver.org', Maestrano[@preset].param('connec.host')
+      assert_equal '/data', Maestrano[@preset].param('connec.base_path')
+    end
+    
+    context "with environment params" do
+      should "return the right test parameters" do
+        Maestrano[@preset].configure { |config| config.environment = 'test' }
+      
+        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate', 'connec.host','connec.base_path'].each do |parameter|
+          assert_equal Maestrano::Configuration::EVT_CONFIG['test'][parameter], Maestrano[@preset].param(parameter)
+        end
+      end
+    
+      should "return the right production parameters" do
+        Maestrano[@preset].configure { |config| config.environment = 'production' }
+      
+        ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate','connec.host','connec.base_path'].each do |parameter|
+          assert_equal Maestrano::Configuration::EVT_CONFIG['production'][parameter], Maestrano[@preset].param(parameter)
+        end
+      end
+    end
+  end  
   
   context "old style configuration" do
     setup do

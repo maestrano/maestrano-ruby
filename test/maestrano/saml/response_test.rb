@@ -156,6 +156,89 @@ module Maestrano
           end
         end
 
+        context 'with presets' do
+          context "#is_valid?" do
+            setup do
+              @preset = 'mypreset'
+
+              @config = {
+                'environment'       => 'production',
+                'app.host'          => 'http://mysuperapp.com',
+    
+                'sso.enabled'       => false,
+                'sso.slo_enabled'   => false,
+                'sso.init_path'     => '/mno/sso/init',
+                'sso.consume_path'  => '/mno/sso/consume',
+                'sso.creation_mode' => 'real',
+                'sso.idm'           => 'http://idp.mysuperapp.com'
+              }
+
+              @preset_config = {
+                'environment'       => 'production',
+                'app.host'          => 'http://myotherapp.com',
+
+                'sso.enabled'       => false,
+                'sso.slo_enabled'   => false,
+                'sso.init_path'     => '/mno/sso/init',
+                'sso.consume_path'  => '/mno/sso/consume',
+                'sso.creation_mode' => 'real',
+                'sso.idm'           => 'http://idp.myotherapp.com',
+                'sso.x509_fingerprint' => signature_fingerprint_1
+              }
+
+              Maestrano.configure do |config|
+                config.environment = @config['environment']
+                config.app.host = @config['app.host']
+                
+                config.sso.enabled = @config['sso.enabled']
+                config.sso.slo_enabled = @config['sso.slo_enabled']
+                config.sso.idm = @config['sso.idm']
+                config.sso.init_path = @config['sso.init_path']
+                config.sso.consume_path = @config['sso.consume_path']
+                config.sso.creation_mode = @config['sso.creation_mode']
+              end
+            
+              Maestrano[@preset].configure do |config|
+                config.environment = @preset_config['environment']
+                config.app.host = @preset_config['app.host']
+                
+                config.sso.enabled = @preset_config['sso.enabled']
+                config.sso.slo_enabled = @preset_config['sso.slo_enabled']
+                config.sso.idm = @preset_config['sso.idm']
+                config.sso.init_path = @preset_config['sso.init_path']
+                config.sso.consume_path = @preset_config['sso.consume_path']
+                config.sso.creation_mode = @preset_config['sso.creation_mode']
+
+                config.sso.x509_fingerprint = @preset_config['sso.x509_fingerprint']
+              end
+            end
+
+            should "return true when using certificate instead of fingerprint" do
+              response = Maestrano::Saml::Response[@preset].new(response_document_4)
+              response.stubs(:conditions).returns(nil)
+              assert response.is_valid?
+            end
+
+            should "not allow signature wrapping attack" do
+              response = Maestrano::Saml::Response[@preset].new(response_document_4)
+              response.stubs(:conditions).returns(nil)
+              assert response.is_valid?
+              assert response.name_id == "test@onelogin.com"
+            end
+
+            should "support dynamic namespace resolution on signature elements" do
+              Maestrano[@preset].configure do |config|
+                config.sso.x509_fingerprint = "28:74:9B:E8:1F:E8:10:9C:A8:7C:A9:C3:E3:C5:01:6C:92:1C:B4:BA"
+              end
+
+              response = Maestrano::Saml::Response[@preset].new(fixture("no_signature_ns.xml"))
+              response.stubs(:conditions).returns(nil)
+              Maestrano::XMLSecurity::SignedDocument.any_instance.expects(:validate_signature).returns(true)
+              assert response.validate!
+            end
+          end
+        end
+
         context "#name_id" do
           should "extract the value of the name id element" do
             response = Maestrano::Saml::Response.new(response_document)

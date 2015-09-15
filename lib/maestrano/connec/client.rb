@@ -2,8 +2,8 @@ require 'httparty'
 
 module Maestrano
   module Connec
-    
     class Client
+      include Preset
       include ::HTTParty
       headers 'Accept' => 'application/vnd.api+json'
       headers 'Content-Type' => 'application/vnd.api+json'
@@ -13,7 +13,7 @@ module Maestrano
       
       def initialize(group_id)
         @group_id = group_id
-        self.class.base_uri("#{Maestrano.param('connec.host')}#{Maestrano.param('connec.base_path')}")
+        self.class.base_uri("#{Maestrano[self.class.preset].param('connec.host')}#{Maestrano[self.class.preset].param('connec.base_path')}")
       end
       
       # Return the default options which includes
@@ -21,9 +21,10 @@ module Maestrano
       def default_options
         {
           basic_auth: { 
-            username: Maestrano.param('api.id'), 
-            password: Maestrano.param('api.key')
-          } 
+            username: Maestrano[self.class.preset].param('api.id'), 
+            password: Maestrano[self.class.preset].param('api.key')
+          },
+          timeout: Maestrano[self.class.preset].param('connec.timeout')
         }
       end
       

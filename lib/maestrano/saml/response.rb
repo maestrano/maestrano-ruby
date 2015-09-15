@@ -4,8 +4,9 @@ require "nokogiri"
 # Only supports SAML 2.0
 module Maestrano
   module Saml
-
     class Response
+      include Preset
+
       ASSERTION = "urn:oasis:names:tc:SAML:2.0:assertion"
       PROTOCOL  = "urn:oasis:names:tc:SAML:2.0:protocol"
       DSIG      = "http://www.w3.org/2000/09/xmldsig#"
@@ -22,7 +23,7 @@ module Maestrano
         @options  = options
         @response = (response =~ /^</) ? response : Base64.decode64(response)
         @document = Maestrano::XMLSecurity::SignedDocument.new(@response)
-        @settings = Maestrano::SSO.saml_settings
+        @settings = Maestrano::SSO[self.class.preset].saml_settings
       end
 
       def is_valid?

@@ -206,11 +206,13 @@ Maestrano.configure do |config|
   # config.webhook.connec.subscriptions = {
   #   accounts: true,
   #   company: true,
+  #   employees: false,
   #   events: false,
   #   event_orders: false,
   #   invoices: true,
   #   items: true,
   #   journals: false,
+  #   opportunities: true,
   #   organizations: true,
   #   payments: false,
   #   pay_items: false,
@@ -219,13 +221,32 @@ Maestrano.configure do |config|
   #   pay_runs: false,
   #   people: true,
   #   projects: false,
+  #   purchase_orders: false,
+  #   quotes: false,
+  #   sales_orders: false,
   #   tax_codes: true,
   #   tax_rates: false,
   #   time_activities: false,
   #   time_sheets: false,
   #   venues: false,
+  #   warehouses: false,
   #   work_locations: false
   # }
+end
+```
+
+If you need to support multiple marketplace providers, you can define configuration presets and switch between these at runtime:
+```ruby
+Maestrano['my-preset1'].configure do |config|
+  config.environment = 'production'
+  config.app.host = 'https://my-custom-provider1.com'
+  ...
+end
+
+Maestrano['my-preset2'].configure do |config|
+  config.environment = 'production'
+  config.app.host = 'https://my-custom-provider2.com'
+  ...
 end
 ```
 
@@ -248,6 +269,8 @@ class MaestranoMetaDataController < ApplicationController
   
   def metadata
     render json: Maestrano.to_metadata
+    # Or using presets
+    # render json: Maestrano['my-preset'].to_metadata
   end
   
   private
@@ -367,7 +390,7 @@ Based on your application requirements the consume action might look like this:
 ```ruby
 def consume
   # Process the response and extract information
-  saml_response = Maestrano::Saml::Response.new(params[:SAMLResponse])
+  saml_response = Maestrano::Saml::Response['my-preset'].new(params[:SAMLResponse])
   user_hash = Maestrano::SSO::BaseUser.new(saml_response).to_hash
   group_hash = Maestrano::SSO::BaseGroup.new(saml_response).to_hash
   membership_hash = Maestrano::SSO::BaseMembership.new(saml_response).to_hash
@@ -399,9 +422,9 @@ If you want your users to benefit from single logout then you should define the 
 
 ```ruby
 def verify_maestrano_session
-  if Maestrano.param(:sso_enabled)
-    if session && session[:maestrano] && !Maestrano::SSO::Session.new(session).valid?
-      redirect_to Maestrano::SSO.init_url
+  if Maestrano['my-preset'].param(:sso_enabled)
+    if session && session[:maestrano] && !Maestrano::SSO['my-preset']::Session.new(session).valid?
+      redirect_to Maestrano::SSO['my-preset'].init_url
     end
   end
   true
@@ -674,6 +697,14 @@ bill = Maestrano::Account::Bill.retrieve("bill-f1d2s54")
 bill.cancel
 ```
 
+##### Using presets
+
+All actions can be performed with presets, for instance to list all bills with presets
+```ruby
+bills = Maestrano::Account::Bill['my-preset'].all
+bills.each { |b| puts b.id }
+```
+
 #### Recurring Bill
 A recurring bill charges a given customer at a regular interval without you having to do anything.
 
@@ -838,6 +869,13 @@ rec_bill = Maestrano::Account::RecurringBill.retrieve("rbill-f1d2s54")
 rec_bill.cancel
 ```
 
+##### Using presets
+
+All actions can be performed with presets, for instance to list all recurring bills with presets
+```ruby
+rec_bills = Maestrano::Account::RecurringBill['my-preset'].all
+rec_bills.each { |b| puts b.id }
+```
 
 ### Membership API
  
@@ -944,6 +982,13 @@ users = Maestrano::Account::User.all;
 Access a single user by id
 ```ruby
 user = Maestrano::Account::User.retrieve("usr-f1d2s54");
+```
+
+##### Using presets
+
+All actions can be performed with presets, for instance to list all users with presets
+```ruby
+users = Maestrano::Account::User['my-preset'].all
 ```
 
 #### Group
@@ -1081,6 +1126,12 @@ Access a single group by id
 group = Maestrano::Account::Group.retrieve("usr-f1d2s54");
 ```
 
+##### Using presets
+
+All actions can be performed with presets, for instance to list all groups with presets
+```ruby
+groups = Maestrano::Account::Group['my-preset'].all
+```
 
 ## Connec!™ Data Sharing
 Maestrano offers the capability to share actual business data between applications via its data sharing platform Connec!™.
@@ -1112,6 +1163,10 @@ client.post('/organizations', { organizations: { name: "DoeCorp Inc."} })
 
 # Update an organization
 client.put('/organizations/e32303c1-5102-0132-661e-600308937d74', { organizations: { is_customer: true} })
+
+# With presets
+client_presets = Maestrano::Connec::Client['my-preset'].new("cld-f7f5g4")
+client_presets.get('/organizations')
 ```
 
 
@@ -1143,6 +1198,6 @@ So if you have any question or need help integrating with us just let us know at
 
 ## License
 
-MIT License. Copyright 2014 Maestrano Pty Ltd. https://maestrano.com
+MIT License. Copyright 2015 Maestrano Pty Ltd. https://maestrano.com
 
 You are not granted rights or licenses to the trademarks of Maestrano.
