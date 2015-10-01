@@ -1,11 +1,11 @@
-== Release process
+## Release process
 
-=== Run the specs
+### Run the specs
 ```bash
 rake test
 ```
 
-=== Release the gem
+### Release the gem
 You need to update the `version.rb` file
 
 Generate the gem file
