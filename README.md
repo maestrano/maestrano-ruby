@@ -68,6 +68,12 @@ gem 'maestrano'
 ### Configuration
 Once installed the first step is to create an initializer to configure the behaviour of the Maestrano gem - including setting your API key.
 
+You can add configuration presets by putting additional configuration blocks in your maestrano.rb initializer. These additional presets can then be specified when doing particular action, such as initializing a Connec!™ client or triggering a SSO handshake. These presets are particularly useful if you are dealing with multiple Maestrano-style marketplaces (multi-enterprise integration).
+
+If this is the first time you integrate with Maestrano, we recommend adopting a multi-tenant approach. All code samples in this documentation provide examples on how to handle multi-tenancy by scoping method calls to a specific configuration preset.
+
+More information about multi-tenant integration can be found on [Our Multi-Tenant Integration Guide](https://maestrano.atlassian.net/wiki/display/CONNECAPIV2/Multi-Tenant+Integration)
+
 The initializer should look like this:
 ```ruby
 # Use this block to configure the behaviour of Maestrano
@@ -381,7 +387,7 @@ Your controller will need to have two actions: init and consume. The init action
 The init action is all handled via Maestrano methods and should look like this:
 ```ruby
 def init
-  redirect_to Maestrano::Saml::Request.new(params,session).redirect_url
+  redirect_to Maestrano::Saml::Request['my-preset'].new(params,session).redirect_url
 end
 ```
 The params variable should contain the GET parameters of the request. The session variable should be the actual client session.

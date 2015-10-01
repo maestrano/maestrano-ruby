@@ -20,6 +20,7 @@ GEM
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     json (1.8.3)
+    json (1.8.3-java)
     macaddr (1.7.1)
       systemu (~> 2.6.2)
     metaclass (0.0.4)
