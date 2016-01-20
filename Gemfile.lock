@@ -12,11 +12,11 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    domain_name (0.5.24)
+    domain_name (0.5.25)
       unf (>= 0.0.5, < 1.0.0)
     http-cookie (1.0.2)
       domain_name (~> 0.5)
-    httparty (0.13.5)
+    httparty (0.13.7)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     json (1.8.3)
@@ -24,14 +24,14 @@ GEM
       systemu (~> 2.6.2)
     metaclass (0.0.4)
     mime-types (1.25.1)
-    mini_portile (0.6.2)
-    mocha (0.13.3)
+    mini_portile2 (2.0.0)
+    mocha (0.14.0)
       metaclass (~> 0.0.1)
     multi_xml (0.5.5)
-    netrc (0.10.3)
-    nokogiri (1.6.6.2)
-      mini_portile (~> 0.6.0)
-    rake (10.3.2)
+    netrc (0.11.0)
+    nokogiri (1.6.7.1)
+      mini_portile2 (~> 2.0.0.rc2)
+    rake (10.5.0)
     rest-client (1.8.0)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
@@ -47,7 +47,6 @@ GEM
       macaddr (~> 1.0)
 
 PLATFORMS
-  java
   ruby
 
 DEPENDENCIES
@@ -57,3 +56,6 @@ DEPENDENCIES
   shoulda (~> 2.11)
   test-unit (~> 2)
   timecop (<= 0.6.0)
+
+BUNDLED WITH
+   1.10.6

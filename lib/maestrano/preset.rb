@@ -11,7 +11,7 @@ module Maestrano
 
     module ClassMethods
       def [](preset)
-        define_singleton_method(:preset) { preset }        
+        define_singleton_method(:preset) { preset || 'default' }        
         self
       end
 
