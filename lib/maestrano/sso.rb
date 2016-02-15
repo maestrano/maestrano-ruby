@@ -9,8 +9,9 @@ module Maestrano
       settings.assertion_consumer_service_url = self.consume_url
       settings.issuer                         = Maestrano[preset].param('api.id')
       settings.idp_sso_target_url             = self.idp_url
-      settings.idp_cert_fingerprint           = Maestrano[preset].param('sso_x509_fingerprint')
-      settings.name_identifier_format         = Maestrano[preset].param('sso_name_id_format')
+      settings.idp_cert                       = Maestrano[preset].param('sso.x509_certificate')
+      settings.idp_cert_fingerprint           = Maestrano[preset].param('sso.x509_fingerprint')
+      settings.name_identifier_format         = Maestrano[preset].param('sso.name_id_format')
       settings
     end
     

@@ -183,7 +183,8 @@ module Maestrano
                 'sso.consume_path'  => '/mno/sso/consume',
                 'sso.creation_mode' => 'real',
                 'sso.idm'           => 'http://idp.myotherapp.com',
-                'sso.x509_fingerprint' => signature_fingerprint_1
+                'sso.x509_fingerprint' => signature_fingerprint_1,
+                'sso.x509_certificate' => signature_1
               }
 
               Maestrano.configure do |config|
@@ -210,6 +211,7 @@ module Maestrano
                 config.sso.creation_mode = @preset_config['sso.creation_mode']
 
                 config.sso.x509_fingerprint = @preset_config['sso.x509_fingerprint']
+                config.sso.x509_certificate = @preset_config['sso.x509_certificate']
               end
             end
 
@@ -229,6 +231,7 @@ module Maestrano
             should "support dynamic namespace resolution on signature elements" do
               Maestrano[@preset].configure do |config|
                 config.sso.x509_fingerprint = "28:74:9B:E8:1F:E8:10:9C:A8:7C:A9:C3:E3:C5:01:6C:92:1C:B4:BA"
+                config.sso.x509_certificate = nil
               end
 
               response = Maestrano::Saml::Response[@preset].new(fixture("no_signature_ns.xml"))

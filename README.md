@@ -144,6 +144,13 @@ Maestrano.configure do |config|
   # used in a controller before filter to check user session - always return true
   #
   # config.sso.slo_enabled = true
+
+  # ==> x509 SSL Certificate
+  # During the SSO handshake, the SSL certificate is validated and must match the IDP provider.
+  # For multi-tenant integration, the certificates may change per environment.
+  #
+  # config.sso.x509_fingerprint = '2f:57:71:e4:40:19:57:37:a6:2c:f0:c5:82:52:2f:2e:41:b7:9d:7e'
+  # config.sso.x509_certificate = "-----BEGIN CERTIFICATE-----\nCERTIFICATE CONTENT==\n-----END CERTIFICATE-----"
   
   # ==> SSO User creation mode
   # !IMPORTANT
