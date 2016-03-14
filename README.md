@@ -682,6 +682,15 @@ Maestrano::Account::Bill
 <td>If the bill relates to a specific period then specifies when the period ended. Both period_started_at and period_ended_at need to be filled in order to appear on customer invoice.</td>
 <tr>
 
+<tr>
+<td><b>third_party</b></td>
+<td>read/write</td>
+<td>Boolean</td>
+<td>-</td>
+<td>-</td>
+<td>Flag for third-party bills (e.g.: charge for SMS credits). Third party bills are not subject to commissions.</td>
+<tr>
+
 </table>
 
 ##### Actions
