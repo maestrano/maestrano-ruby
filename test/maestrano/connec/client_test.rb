@@ -91,6 +91,18 @@ module Maestrano
             assert_equal resp, @client.put(path,body,opts)
           end
         end
+
+        context 'batch' do
+          setup { @client = Maestrano::Connec::Client.new("cld-123") }
+          
+          should "perform the right query" do
+            body = { some: 'data'}
+            opts = { foo: 'bar' }
+            resp = mock('resp')
+            Maestrano::Connec::Client.expects(:post).with("#{Maestrano.param('connec.host')}/batch",@client.default_options.merge(body: body.to_json).merge(opts)).returns(resp)
+            assert_equal resp, @client.batch(body,opts)
+          end
+        end
       end
 
       context 'with preset' do
