@@ -57,7 +57,10 @@ module Maestrano
           default_options.merge(body: body.to_json).merge(options)
         )
       end
+
+      def batch(body, options = {})
+        self.class.post("#{Maestrano[self.class.preset].param('connec.host')}/batch", default_options.merge(body: body.to_json).merge(options))
+      end
     end
-    
   end
 end
