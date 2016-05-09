@@ -7,7 +7,7 @@
 Maestrano Cloud Integration is currently in closed beta. Want to know more? Send us an email to <contact@maestrano.com>.
 
 [![Build Status](https://travis-ci.org/maestrano/maestrano-ruby.svg)](https://travis-ci.org/maestrano/maestrano-ruby)
-[![Gem Version](https://badge.fury.io/rb/maestrano-ruby.svg)](https://rubygems.org/gems/maestrano-ruby)
+[![Gem Version](https://badge.fury.io/rb/maestrano.svg)](https://rubygems.org/gems/maestrano)
 
 - - -
 
