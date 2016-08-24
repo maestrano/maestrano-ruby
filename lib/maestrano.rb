@@ -60,9 +60,13 @@ require 'maestrano/account/recurring_bill'
 # Connec
 require 'maestrano/connec/client'
 
+# Dev platform
+require 'maestrano/auto_configure'
+
+
 module Maestrano
   include Preset
-  
+
   class << self
     attr_accessor :configs
   end
@@ -152,6 +156,13 @@ module Maestrano
     end
     
     return hash
+  end
+
+  def self.auto_configure(config_file_path = nil)
+    AutoConfigure.get_marketplace_configurations(config_file_path)
+  rescue => e
+    # Something
+    raise e
   end
 
   class Configuration
@@ -269,7 +280,7 @@ module Maestrano
       end
     end
     
-    EVT_CONFIG = {
+    EVT_CONFIG ||= {
       'local' => {
         'api.host'             => 'http://application.maestrano.io',
         'api.base'             => '/api/v1/',
