@@ -4,7 +4,7 @@ module Maestrano
   module Saml
     class SamlTest < Test::Unit::TestCase
       include SamlTestHelper
-  
+
       context "Response" do
         should "raise an exception when response is initialized with nil" do
           assert_raises(ArgumentError) { Maestrano::Saml::Response.new(nil) }
@@ -164,7 +164,7 @@ module Maestrano
               @config = {
                 'environment'       => 'production',
                 'app.host'          => 'http://mysuperapp.com',
-    
+
                 'sso.enabled'       => false,
                 'sso.slo_enabled'   => false,
                 'sso.init_path'     => '/mno/sso/init',
@@ -190,7 +190,7 @@ module Maestrano
               Maestrano.configure do |config|
                 config.environment = @config['environment']
                 config.app.host = @config['app.host']
-                
+
                 config.sso.enabled = @config['sso.enabled']
                 config.sso.slo_enabled = @config['sso.slo_enabled']
                 config.sso.idm = @config['sso.idm']
@@ -198,11 +198,11 @@ module Maestrano
                 config.sso.consume_path = @config['sso.consume_path']
                 config.sso.creation_mode = @config['sso.creation_mode']
               end
-            
+
               Maestrano[@preset].configure do |config|
                 config.environment = @preset_config['environment']
                 config.app.host = @preset_config['app.host']
-                
+
                 config.sso.enabled = @preset_config['sso.enabled']
                 config.sso.slo_enabled = @preset_config['sso.slo_enabled']
                 config.sso.idm = @preset_config['sso.idm']
@@ -276,11 +276,11 @@ module Maestrano
 
           should "optionally allow for clock drift" do
             # The NotBefore condition in the document is 2011-06-14T18:21:01.516Z
-            Time.stubs(:now).returns(Time.parse("2011-06-14T18:21:01Z"))
+            time  = Time.parse("2011-06-14T18:21:01Z")
+            Time.stubs(:now).returns(time)
             response = Maestrano::Saml::Response.new(response_document_5, :allowed_clock_drift => 0.515)
             assert !response.send(:validate_conditions, true)
 
-            Time.stubs(:now).returns(Time.parse("2011-06-14T18:21:01Z"))
             response = Maestrano::Saml::Response.new(response_document_5, :allowed_clock_drift => 0.516)
             assert response.send(:validate_conditions, true)
           end

@@ -1,7 +1,5 @@
 module Maestrano
-
-  # Extebd OpenStruct to include a 'attributes'
-  # method
+  # Extend OpenStruct to include a 'attributes' method
   class OpenStruct < ::OpenStruct
     # Return all object defined attributes
     def attributes

@@ -20,5 +20,5 @@ curl -u maestrano https://rubygems.org/api/v1/api_key.yaml > ~/.gem/credentials;
 
 Then push the gem
 ```bash
-gem push maestrano-0.12.3.gem -k maestrano
+gem push maestrano-0.12.5.gem -k maestrano
 ```
