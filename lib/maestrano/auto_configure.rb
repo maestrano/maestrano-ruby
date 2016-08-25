@@ -2,7 +2,6 @@ module Maestrano
   module AutoConfigure
     def self.get_marketplace_configurations(config_file_path = nil)
       devpl_config = dev_platform_config(config_file_path)
-
       begin
         request = RestClient::Request.new(
           method: :get,
@@ -16,16 +15,17 @@ module Maestrano
         response = request.execute
         response = JSON.parse(response.to_s)
       rescue => e
-        #Do something
-        raise e
+        raise "No or bad response received from dev platform: #{e}"
       end
 
       response['marketplaces'].each do |marketplace|
         Maestrano[marketplace['marketplace']].configure do |config|
-          config.environment = h[:environment]
+          config.environment = marketplace['environment']
 
           [:app, :sso, :api, :webhook, :connec].each do |s|
-            config.send(s).marshal_load(hash.inject(response[s.to_s] || {}) { |h, (k,v)| h[k.to_sym] = v; h })
+            (marketplace[s.to_s] || {}).each do |k, v|
+              config.send(s).send("#{k}=", v)
+            end
           end
         end
       end
@@ -33,20 +33,20 @@ module Maestrano
 
     def self.dev_platform_config(config_file_path = nil)
       begin
-        yaml_config = YAML.load_file(Rails.root.join(config_file_path))
+        yaml_config = YAML.load_file("#{Dir.pwd}/#{config_file_path}")
       rescue 
-        yaml_config = {dev_platform: {}}
+        yaml_config = {'dev_platform' => {}, 'environment' => {}}
       end
 
       devpl_config = {}
-      devpl_config[:host] = ENV['MNO_DEVPL_HOST'] || yaml_config[:dev_platform][:host]
-      devpl_config[:v1_path] = ENV['MNO_DEVPL_V1_PATH'] || yaml_config[:dev_platform][:v1_path]
+      devpl_config[:host] = ENV['MNO_DEVPL_HOST'] || yaml_config['dev_platform']['host']
+      devpl_config[:v1_path] = ENV['MNO_DEVPL_V1_PATH'] || yaml_config['dev_platform']['v1_path']
 
-      devpl_config[:environment] = ENV['MNO_DEVPL_ENVIRONMENT_NAME'] || yaml_config[:dev_platform][:environment]
-      devpl_config[:api_key] = ENV['MNO_DEVPL_KEY'] || yaml_config[:dev_platform][:api_key]
-      devpl_config[:api_secret] = ENV['MNO_DEVPL_SECRET'] || yaml_config[:dev_platform][:api_secret]
+      devpl_config[:env_name] = ENV['MNO_DEVPL_ENV_NAME'] || yaml_config['environment']['name']
+      devpl_config[:env_api_key] = ENV['MNO_DEVPL_ENV_KEY'] || yaml_config['environment']['api_key']
+      devpl_config[:env_api_secret] = ENV['MNO_DEVPL_ENV_SECRET'] || yaml_config['environment']['api_secret']
 
-      raise 'Nope' if devpl_config.values.find { |v| v.nil? || v.empty? }
+      raise 'Missing configuration' if devpl_config.values.any? { |v| v.nil? || v.empty? }
 
       devpl_config
     end

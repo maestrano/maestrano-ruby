@@ -161,8 +161,7 @@ module Maestrano
   def self.auto_configure(config_file_path = nil)
     AutoConfigure.get_marketplace_configurations(config_file_path)
   rescue => e
-    # Something
-    raise e
+    raise "Error while fetching dynamic configuration: #{e}. Backtrace: #{e.backtrace}"
   end
 
   class Configuration
