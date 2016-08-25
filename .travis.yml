@@ -3,6 +3,6 @@ rvm:
  - 1.9
  - 2.1
  - 2.2
- # - 2.3 # Compatibility issues with open_struct
+ - 2.3
 before_install:
   - gem install bundler # Update bundler version

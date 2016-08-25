@@ -3,7 +3,11 @@ module Maestrano
   class OpenStruct < ::OpenStruct
     # Return all object defined attributes
     def attributes
-      (self.methods - self.class.new.methods).reject {|method| method =~ /=$/ }
+      if self.respond_to?(:to_h)
+        self.to_h.keys
+      else
+        (self.methods - self.class.new.methods).reject {|method| method =~ /=$/ }
+      end
     end
   end
 end
