@@ -243,6 +243,93 @@ class MaestranoTest < Test::Unit::TestCase
         end
       end
     end
+
+    context 'with dynamic dev platform config' do
+      context 'with no config' do
+        should 'raise error' do
+          assert_raise { Maestrano.auto_configure }
+        end
+      end
+
+      context 'with an invalid config' do
+        should 'raise error' do
+          assert_raise { Maestrano.auto_configure('test/support/yml/wrong_dev_platform.yml') }
+        end
+      end
+
+      context 'with a valid config' do
+        context 'with no response from dev plateform' do
+          should 'raise error' do
+            assert_raise { Maestrano.auto_configure('test/support/yml/dev_platform.yml') }
+          end
+        end
+
+        context 'with bad response from dev plateform' do
+          setup do
+            RestClient::Request.any_instance.stubs(:execute).returns('<html></html>')
+          end
+
+          should 'raise error' do
+            assert_raise { Maestrano.auto_configure('test/support/yml/dev_platform.yml') }
+          end
+        end
+
+        context 'with valid response from dev plateform' do
+          setup do
+            @new_preset = 'this_awesome_one'
+
+            @new_preset_config = {
+              environment: 'uat',
+              app: {
+                host: 'app_host'
+              },
+              sso: {
+                path: 'sso_path'
+              },
+              api: {
+                host: 'api_host'
+              },
+              webhook: {
+                url: 'webhook_url'
+              },
+              connec: {
+                notif: 'connec_notif'
+              }
+            }
+
+            @marketplaces = {
+              marketplaces: [
+                @new_preset_config.merge(marketplace: @new_preset),
+                {
+                  marketplace: @preset,
+                  app: {
+                    host: 'http://myotherapp.uat.com'
+                  }
+                }
+              ]
+            }
+
+            RestClient::Request.any_instance.stubs(:execute).returns(@marketplaces.to_json)
+          end
+
+          should 'creates a new preset' do
+            assert_nothing_raised { Maestrano.auto_configure('test/support/yml/dev_platform.yml') }
+            @new_preset_config.keys.each do |key|
+              assert_equal @new_preset_config[key], Maestrano[@new_preset].param(key)
+            end
+          end
+
+          should 'overload the exisiting preset (only if it is called after)' do
+            assert_nothing_raised { Maestrano.auto_configure('test/support/yml/dev_platform.yml') }
+            @preset_config.keys.reject { |k| k == :app }.each do |key|
+              assert_equal @preset_config[key], Maestrano[@preset].param(key)
+            end
+            assert_equal @marketplaces[:marketplaces].last[:app], Maestrano[@preset].param('app')
+          end
+        end
+
+      end
+    end
   end  
   
   context "old style configuration" do
