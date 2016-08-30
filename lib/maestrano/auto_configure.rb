@@ -13,12 +13,12 @@ module Maestrano
           }
         )
         response = request.execute
-        response = JSON.parse(response.to_s)
+        hash = JSON.parse(response.to_s)
       rescue => e
         raise "No or bad response received from dev platform: #{e}"
       end
-
-      response['marketplaces'].each do |marketplace|
+puts "PARSING CONFIG: #{hash}"
+      hash['marketplaces'].each do |marketplace|
         Maestrano[marketplace['marketplace']].configure do |config|
           config.environment = marketplace['environment']
 
@@ -34,7 +34,7 @@ module Maestrano
     def self.dev_platform_config(config_file_path = nil)
       begin
         yaml_config = YAML.load_file("#{Dir.pwd}/#{config_file_path}")
-      rescue 
+      rescue
         yaml_config = {'dev_platform' => {}, 'environment' => {}}
       end
 
