@@ -1,0 +1,8 @@
+dev_platform:
+  host: 'http://localhost:5000'
+  api_path: '/api/config/v1/marketplaces'
+
+environment:
+  name: 'test'
+  api_key: '123'
+  api_secret: '123'
