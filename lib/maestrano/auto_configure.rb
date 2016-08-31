@@ -5,7 +5,7 @@ module Maestrano
       begin
         request = RestClient::Request.new(
           method: :get,
-          url: "#{devpl_config[:host]}#{devpl_config[:v1_path]}",
+          url: "#{devpl_config[:host]}#{devpl_config[:api_path]}",
           user: devpl_config[:env_api_key],
           password: devpl_config[:env_api_secret],
           headers: {accept: :json, content_type: :json}
