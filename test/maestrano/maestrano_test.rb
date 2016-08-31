@@ -113,6 +113,8 @@ class MaestranoTest < Test::Unit::TestCase
 
   context "new style configuration with presets" do
     setup do
+      Maestrano.reset!
+
       @preset = 'mypreset'
 
       @config = {
@@ -276,55 +278,73 @@ class MaestranoTest < Test::Unit::TestCase
 
         context 'with valid response from dev plateform' do
           setup do
-            @new_preset = 'this_awesome_one'
-
-            @new_preset_config = {
-              environment: 'uat',
+            @preset = 'this_awesome_one'
+            @marketplace = {
+              marketplace: @preset,
+              environment: "myotherapp-uat",
               app: {
-                host: 'app_host'
-              },
-              sso: {
-                path: 'sso_path'
+                host: 'http://myotherapp.uat.com'
               },
               api: {
-                host: 'api_host'
+                id: "app-abcd",
+                key: "642be9cd60eb17f50deaf416787274a9e07f4b8b2e99103e578bc61859410c5f",
+                host: "https://api-hub-uat.maestrano.io",
+                base: "/api/v1/"
               },
-              webhook: {
-                url: 'webhook_url'
+              sso: {
+                idm: "http://rails-demoapp.maestrano.io",
+                init_path: "/maestrano/auth/saml/init/#{@preset}",
+                consume_path: "/maestrano/auth/saml/consume/#{@preset}",
+                idp: "https://api-hub-uat.maestrano.io",
+                x509_fingerprint: "29:C2:88:D9:F5:C5:30:D3:D4:D5:0B:9F:0D:D6:2E:3A:0F:80:7C:50",
+                x509_certificate: "-----BEGIN CERTIFICATE-----\nMIIDeTCCAmGgAwIBAgIBAzANBgkqhkiG9w0BAQsFADBMMQswCQYDVQQGEwJBVTEa\nMBgGA1UECgwRTWFlc3RyYW5vIFB0eSBMdGQxITAfBgNVBAMMGGRldmVsb3BlcnMu\nbWFlc3RyYW5vLmNvbTAeFw0xNjA4MjUwNTQwNTFaFw0zNjA4MjYwNTQwNTFaMEQx\nCzAJBgNVBAYTAkFVMRowGAYDVQQKDBFNYWVzdHJhbm8gUHR5IEx0ZDEZMBcGA1UE\nAwwQdWF0Lm1hZXN0cmFuby5pbzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC\nggEBAK4aVXl1EpXOXA11rcay+g/lmkm0r5zSWT5b8TpIqpD/qbvaF/qwp1kKKhBw\nzMz5896GAjmPQCYfGeKy1aSleh17FUPKAtYr/qL5DpVOpDBmA3kI8BXUeVveiY3Y\nhoylqyucE+Ch+iBJ/Rx3hPxHvQlRWl/SugmHX/RbX3UsHBepBc9VA5yfT9CNwwPK\nZ63opQ6fZJlRJ1uPnhkJpA/e/72F3kPZClreVe2TRKuCij+TFb+3gOKB08qJdhjK\nVnOgJcb9XWcdpsV35KvvvwffSHxjqt4SSwVdy5mhvkJcjwVRaE1xHUq7CXRxJ/X2\nowG5SQbUjTj6Hu4q4NdvbKxRYU0CAwEAAaNuMGwwLQYJYIZIAYb4QgENBCAWHk1h\nZXN0cmFubyBJbnRlcm5hbCBDZXJ0aWZpY2F0ZTAdBgNVHQ4EFgQUPk2GG6uGEnDc\nqgqbEtWuak8sjwQwDAYDVR0TAQH/BAIwADAOBgNVHQ8BAf8EBAMCBLAwDQYJKoZI\nhvcNAQELBQADggEBAJMTiBbxwV0irz7R8Zpxo2mCVm0JcUoyL//NsRkgOSbN1q75\nsfBKDLCGuG79/JpBbmKKFVlZplWyLjKPhkE6Mz3/lJ5U0dKQOI7rfqtZYjEyxpr5\nHaju5Uxm7VMyIrVDgJFeFZQu76CCe7sw6qKfZoHMbrcNuQQzBrCc1pOikHqCtRE5\nTeNfkpUiBvXWb8GVYwa9G95BOUa3feK/8gmhcrv4XMtJkJbn3hCobkZcws2kQT6k\nOEmKL7ZFXtZjc/RNYEiUzeBJbLRTg+tJEZcLW3MdyLYlYgZqwaLp/Q4pmqbQqC/n\nX9wrxgOYwrA+JT7Dc0kfhis5sWVBokFnbPTOxQw=\n-----END CERTIFICATE-----\n"
               },
               connec: {
-                notif: 'connec_notif'
+                host: "http://api-connec.uat.maestrano.io"
               }
             }
-
             @marketplaces = {
-              marketplaces: [
-                @new_preset_config.merge(marketplace: @new_preset),
-                {
-                  marketplace: @preset,
-                  app: {
-                    host: 'http://myotherapp.uat.com'
-                  }
-                }
-              ]
+              marketplaces: [@marketplace]
             }
 
             RestClient::Request.any_instance.stubs(:execute).returns(@marketplaces.to_json)
           end
 
           should 'creates a new preset' do
+            @preset = 'this_awesome_one'
             assert_nothing_raised { Maestrano.auto_configure('test/support/yml/dev_platform.yml') }
-            @new_preset_config.keys.each do |key|
-              assert_equal @new_preset_config[key], Maestrano[@new_preset].param(key).marshal_dump
-            end
+
+            assert_equal @preset, Maestrano.configs[@preset].param('environment')
+            assert_equal @marketplace[:app][:host], Maestrano.configs[@preset].param('app.host')
+            assert_equal @marketplace[:api][:id], Maestrano.configs[@preset].param('api.id')
+            assert_equal @marketplace[:api][:key], Maestrano.configs[@preset].param('api.key')
+            assert_equal @marketplace[:api][:host], Maestrano.configs[@preset].param('api.host')
+            assert_equal @marketplace[:api][:base], Maestrano.configs[@preset].param('api.base')
+            assert_equal @marketplace[:sso][:idm], Maestrano.configs[@preset].param('sso.idm')
+            assert_equal @marketplace[:sso][:init_path], Maestrano.configs[@preset].param('sso.init_path')
+            assert_equal @marketplace[:sso][:consume_path], Maestrano.configs[@preset].param('sso.consume_path')
+            assert_equal @marketplace[:sso][:idp], Maestrano.configs[@preset].param('sso.idp')
+            assert_equal @marketplace[:sso][:x509_fingerprint], Maestrano.configs[@preset].param('sso.x509_fingerprint')
+            assert_equal @marketplace[:sso][:x509_certificate], Maestrano.configs[@preset].param('sso.x509_certificate')
+            assert_equal @marketplace[:connec][:host], Maestrano.configs[@preset].param('connec.host')
           end
 
-          should 'overload the exisiting preset (only if it is called after)' do
+          should 'overwrites the exisiting preset' do
             assert_nothing_raised { Maestrano.auto_configure('test/support/yml/dev_platform.yml') }
-            @preset_config.keys.reject { |k| k == :app }.each do |key|
-              assert_equal @preset_config[key], Maestrano[@preset].param(key).marshal_dump
-            end
-            assert_equal @marketplaces[:marketplaces].last[:app], Maestrano[@preset].param('app')
+
+            assert_equal @preset, Maestrano.configs[@preset].param('environment')
+            assert_equal @marketplace[:app][:host], Maestrano.configs[@preset].param('app.host')
+            assert_equal @marketplace[:api][:id], Maestrano.configs[@preset].param('api.id')
+            assert_equal @marketplace[:api][:key], Maestrano.configs[@preset].param('api.key')
+            assert_equal @marketplace[:api][:host], Maestrano.configs[@preset].param('api.host')
+            assert_equal @marketplace[:api][:base], Maestrano.configs[@preset].param('api.base')
+            assert_equal @marketplace[:sso][:idm], Maestrano.configs[@preset].param('sso.idm')
+            assert_equal @marketplace[:sso][:init_path], Maestrano.configs[@preset].param('sso.init_path')
+            assert_equal @marketplace[:sso][:consume_path], Maestrano.configs[@preset].param('sso.consume_path')
+            assert_equal @marketplace[:sso][:idp], Maestrano.configs[@preset].param('sso.idp')
+            assert_equal @marketplace[:sso][:x509_fingerprint], Maestrano.configs[@preset].param('sso.x509_fingerprint')
+            assert_equal @marketplace[:sso][:x509_certificate], Maestrano.configs[@preset].param('sso.x509_certificate')
+            assert_equal @marketplace[:connec][:host], Maestrano.configs[@preset].param('connec.host')
           end
         end
 

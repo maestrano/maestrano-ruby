@@ -1,6 +1,6 @@
 # libs
-require 'rest_client'
 require 'json'
+require 'rest-client'
 
 # OpenStruct (Extended)
 require 'ostruct'
@@ -70,7 +70,13 @@ module Maestrano
   class << self
     attr_accessor :configs
   end
-  
+
+  # Reset Maesrtano configuration
+  def self.reset!
+    self.configs = {}
+    return self
+  end
+
   # Maestrano Configuration block
   def self.configure
     self.configs ||= {}
@@ -79,13 +85,13 @@ module Maestrano
     self.configs[preset].post_initialize
     return self
   end
-  
+
   # Check that app_id and api_key passed
   # in argument match
   def self.authenticate(app_id,api_key)
     self.param(:app_id) == app_id && self.param(:api_key) == api_key
   end
-  
+
   # Take a user uid (either real or virtual)
   # and a group id and return the user uid that should
   # be used within the app based on the user_creation_mode
@@ -100,13 +106,13 @@ module Maestrano
       return sanitized_user_uid
     end
   end
-  
+
   # Take a user uid (either real or virtual)
   # and return the real uid part
   def self.unmask_user(user_uid)
     user_uid.split(".").first
   end
-  
+
   # Get configuration parameter value
   # E.g:
   # Maestrano.param('api.key')
@@ -115,7 +121,7 @@ module Maestrano
   def self.param(parameter)
     (self.configs[preset] || Configuration.new).param(parameter)
   end
-  
+
   # Return a hash describing the current
   # Maestrano configuration. The metadata
   # will be remotely fetched by Maestrano
@@ -123,17 +129,17 @@ module Maestrano
   def self.to_metadata
     hash = {}
     hash['environment'] = self.param('environment')
-    
+
     config_groups = ['app','api','sso','webhook']
     blacklist = ['api.key','api.token']
-    
+
     config_groups.each do |cgroup_name|
       cgroup = self.configs[preset].send(cgroup_name)
-      
+
       attr_list = cgroup.attributes.map(&:to_s)
       attr_list += Configuration::EVT_CONFIG[hash['environment']].keys.select { |k| k =~ Regexp.new("^#{cgroup_name}\.") }.map { |k| k.gsub(Regexp.new("^#{cgroup_name}\."),'') }
       attr_list.uniq!
-      
+
       attr_list.each do |first_lvl|
         if cgroup.send(first_lvl).is_a?(OpenStruct)
           c2group = cgroup.send(first_lvl)
@@ -154,7 +160,7 @@ module Maestrano
         end
       end
     end
-    
+
     return hash
   end
 
@@ -169,12 +175,12 @@ module Maestrano
 
     def initialize
       @environment = 'test'
-      
+
       # App config
       @app = OpenStruct.new({
         host: 'http://localhost:3000'
       })
-      
+
       # API Config
       @api = OpenStruct.new({
         id: nil,
@@ -185,7 +191,7 @@ module Maestrano
         lang: nil, #set in post_initialize
         lang_version: nil #set in post_initialize
       })
-      
+
       # SSO Config
       @sso = OpenStruct.new({
         enabled: true,
@@ -195,7 +201,7 @@ module Maestrano
         consume_path: '/maestrano/auth/saml/consume',
         idm: nil
       })
-      
+
       # WebHooks Config
       @webhook = OpenStruct.new({
         account: OpenStruct.new({
@@ -213,7 +219,7 @@ module Maestrano
         enabled: true
       })
     end
-    
+
     # Force or default certain parameters
     # Used after configure block
     def post_initialize
@@ -224,7 +230,7 @@ module Maestrano
       self.sso.idm ||= self.app.host
       self.sso.slo_enabled &&= self.sso.enabled
     end
-    
+
     # Transform legacy parameters into new parameter
     # style
     # Dummy mapping
@@ -248,7 +254,7 @@ module Maestrano
         return parameter.to_s
       end
     end
-    
+
     # Handle legacy parameter assignment
     def method_missing(meth, *args, &block)
       if meth.to_s =~ /^((?:sso|app|api|user)_.*)=$/
@@ -261,12 +267,12 @@ module Maestrano
         super
       end
     end
-    
+
     # Get configuration parameter value
     def param(parameter)
       real_param = self.legacy_param_to_new(parameter)
       props = real_param.split('.')
-      
+
       # Either respond to param directly or via properties chaining (e.g: webhook.account.groups_path)
       if self.respond_to?(real_param) || props.inject(self) { |result,elem| result && result.respond_to?(elem) ? result.send(elem) || elem : false }
         last_prop = props.pop
@@ -278,7 +284,7 @@ module Maestrano
         raise ArgumentError, "No such configuration parameter: '#{parameter}'"
       end
     end
-    
+
     EVT_CONFIG ||= {
       'local' => {
         'api.host'             => 'http://application.maestrano.io',
@@ -323,6 +329,34 @@ module Maestrano
         'sso.x509_certificate' => "-----BEGIN CERTIFICATE-----\nMIIDezCCAuSgAwIBAgIJAMzy+weDPp7qMA0GCSqGSIb3DQEBBQUAMIGGMQswCQYD\nVQQGEwJBVTEMMAoGA1UECBMDTlNXMQ8wDQYDVQQHEwZTeWRuZXkxGjAYBgNVBAoT\nEU1hZXN0cmFubyBQdHkgTHRkMRYwFAYDVQQDEw1tYWVzdHJhbm8uY29tMSQwIgYJ\nKoZIhvcNAQkBFhVzdXBwb3J0QG1hZXN0cmFuby5jb20wHhcNMTQwMTA0MDUyMzE0\nWhcNMzMxMjMwMDUyMzE0WjCBhjELMAkGA1UEBhMCQVUxDDAKBgNVBAgTA05TVzEP\nMA0GA1UEBxMGU3lkbmV5MRowGAYDVQQKExFNYWVzdHJhbm8gUHR5IEx0ZDEWMBQG\nA1UEAxMNbWFlc3RyYW5vLmNvbTEkMCIGCSqGSIb3DQEJARYVc3VwcG9ydEBtYWVz\ndHJhbm8uY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+2uyQeAOc/iro\nhCyT33RkkWfTGeJ8E/mu9F5ORWoCZ/h2J+QDuzuc69Rf1LoO4wZVQ8LBeWOqMBYz\notYFUIPlPfIBXDNL/stHkpg28WLDpoJM+46WpTAgp89YKgwdAoYODHiUOcO/uXOO\n2i9Ekoa+kxbvBzDJf7uuR/io6GERXwIDAQABo4HuMIHrMB0GA1UdDgQWBBTGRDBT\nie5+fHkB0+SZ5g3WY/D2RTCBuwYDVR0jBIGzMIGwgBTGRDBTie5+fHkB0+SZ5g3W\nY/D2RaGBjKSBiTCBhjELMAkGA1UEBhMCQVUxDDAKBgNVBAgTA05TVzEPMA0GA1UE\nBxMGU3lkbmV5MRowGAYDVQQKExFNYWVzdHJhbm8gUHR5IEx0ZDEWMBQGA1UEAxMN\nbWFlc3RyYW5vLmNvbTEkMCIGCSqGSIb3DQEJARYVc3VwcG9ydEBtYWVzdHJhbm8u\nY29tggkAzPL7B4M+nuowDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQUFAAOBgQAw\nRxg3rZrML//xbsS3FFXguzXiiNQAvA4KrMWhGh3jVrtzAlN1/okFNy6zuN8gzdKD\nYw2n0c/u3cSpUutIVZOkwQuPCMC1hoP7Ilat6icVewNcHayLBxKgRxpBhr5Sc4av\n3HOW5Bi/eyC7IjeBTbTnpziApEC7uUsBou2rlKmTGw==\n-----END CERTIFICATE-----"
       },
       'production' => {
+        'api.host'             => 'https://maestrano.com',
+        'api.base'             => '/api/v1/',
+        'connec.enabled'       => true,
+        'connec.host'          => 'https://api-connec.maestrano.com',
+        'connec.base_path'     => '/api/v2',
+        'connec.v2_path'       => '/v2',
+        'connec.reports_path'  => '/reports',
+        'connec.timeout'       => 180,
+        'sso.idp'              => 'https://maestrano.com',
+        'sso.name_id_format'   => Maestrano::Saml::Settings::NAMEID_PERSISTENT,
+        'sso.x509_fingerprint' => '2f:57:71:e4:40:19:57:37:a6:2c:f0:c5:82:52:2f:2e:41:b7:9d:7e',
+        'sso.x509_certificate' => "-----BEGIN CERTIFICATE-----\nMIIDezCCAuSgAwIBAgIJAPFpcH2rW0pyMA0GCSqGSIb3DQEBBQUAMIGGMQswCQYD\nVQQGEwJBVTEMMAoGA1UECBMDTlNXMQ8wDQYDVQQHEwZTeWRuZXkxGjAYBgNVBAoT\nEU1hZXN0cmFubyBQdHkgTHRkMRYwFAYDVQQDEw1tYWVzdHJhbm8uY29tMSQwIgYJ\nKoZIhvcNAQkBFhVzdXBwb3J0QG1hZXN0cmFuby5jb20wHhcNMTQwMTA0MDUyNDEw\nWhcNMzMxMjMwMDUyNDEwWjCBhjELMAkGA1UEBhMCQVUxDDAKBgNVBAgTA05TVzEP\nMA0GA1UEBxMGU3lkbmV5MRowGAYDVQQKExFNYWVzdHJhbm8gUHR5IEx0ZDEWMBQG\nA1UEAxMNbWFlc3RyYW5vLmNvbTEkMCIGCSqGSIb3DQEJARYVc3VwcG9ydEBtYWVz\ndHJhbm8uY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQD3feNNn2xfEz5/\nQvkBIu2keh9NNhobpre8U4r1qC7h7OeInTldmxGL4cLHw4ZAqKbJVrlFWqNevM5V\nZBkDe4mjuVkK6rYK1ZK7eVk59BicRksVKRmdhXbANk/C5sESUsQv1wLZyrF5Iq8m\na9Oy4oYrIsEF2uHzCouTKM5n+O4DkwIDAQABo4HuMIHrMB0GA1UdDgQWBBSd/X0L\n/Pq+ZkHvItMtLnxMCAMdhjCBuwYDVR0jBIGzMIGwgBSd/X0L/Pq+ZkHvItMtLnxM\nCAMdhqGBjKSBiTCBhjELMAkGA1UEBhMCQVUxDDAKBgNVBAgTA05TVzEPMA0GA1UE\nBxMGU3lkbmV5MRowGAYDVQQKExFNYWVzdHJhbm8gUHR5IEx0ZDEWMBQGA1UEAxMN\nbWFlc3RyYW5vLmNvbTEkMCIGCSqGSIb3DQEJARYVc3VwcG9ydEBtYWVzdHJhbm8u\nY29tggkA8WlwfatbSnIwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQUFAAOBgQDE\nhe/18oRh8EqIhOl0bPk6BG49AkjhZZezrRJkCFp4dZxaBjwZTddwo8O5KHwkFGdy\nyLiPV326dtvXoKa9RFJvoJiSTQLEn5mO1NzWYnBMLtrDWojOe6Ltvn3x0HVo/iHh\nJShjAn6ZYX43Tjl1YXDd1H9O+7/VgEWAQQ32v8p5lA==\n-----END CERTIFICATE-----",
+      },
+      'maestrano-uat' => {
+        'api.host'             => 'https://uat.maestrano.io',
+        'api.base'             => '/api/v1/',
+        'connec.enabled'       => true,
+        'connec.host'          => 'https://api-connec-uat.maestrano.io',
+        'connec.base_path'     => '/api/v2',
+        'connec.v2_path'       => '/v2',
+        'connec.reports_path'  => '/reports',
+        'connec.timeout'       => 180,
+        'sso.idp'              => 'https://uat.maestrano.io',
+        'sso.name_id_format'   => Maestrano::Saml::Settings::NAMEID_PERSISTENT,
+        'sso.x509_fingerprint' => '8a:1e:2e:76:c4:67:80:68:6c:81:18:f7:d3:29:5d:77:f8:79:54:2f',
+        'sso.x509_certificate' => "-----BEGIN CERTIFICATE-----\nMIIDezCCAuSgAwIBAgIJAMzy+weDPp7qMA0GCSqGSIb3DQEBBQUAMIGGMQswCQYD\nVQQGEwJBVTEMMAoGA1UECBMDTlNXMQ8wDQYDVQQHEwZTeWRuZXkxGjAYBgNVBAoT\nEU1hZXN0cmFubyBQdHkgTHRkMRYwFAYDVQQDEw1tYWVzdHJhbm8uY29tMSQwIgYJ\nKoZIhvcNAQkBFhVzdXBwb3J0QG1hZXN0cmFuby5jb20wHhcNMTQwMTA0MDUyMzE0\nWhcNMzMxMjMwMDUyMzE0WjCBhjELMAkGA1UEBhMCQVUxDDAKBgNVBAgTA05TVzEP\nMA0GA1UEBxMGU3lkbmV5MRowGAYDVQQKExFNYWVzdHJhbm8gUHR5IEx0ZDEWMBQG\nA1UEAxMNbWFlc3RyYW5vLmNvbTEkMCIGCSqGSIb3DQEJARYVc3VwcG9ydEBtYWVz\ndHJhbm8uY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+2uyQeAOc/iro\nhCyT33RkkWfTGeJ8E/mu9F5ORWoCZ/h2J+QDuzuc69Rf1LoO4wZVQ8LBeWOqMBYz\notYFUIPlPfIBXDNL/stHkpg28WLDpoJM+46WpTAgp89YKgwdAoYODHiUOcO/uXOO\n2i9Ekoa+kxbvBzDJf7uuR/io6GERXwIDAQABo4HuMIHrMB0GA1UdDgQWBBTGRDBT\nie5+fHkB0+SZ5g3WY/D2RTCBuwYDVR0jBIGzMIGwgBTGRDBTie5+fHkB0+SZ5g3W\nY/D2RaGBjKSBiTCBhjELMAkGA1UEBhMCQVUxDDAKBgNVBAgTA05TVzEPMA0GA1UE\nBxMGU3lkbmV5MRowGAYDVQQKExFNYWVzdHJhbm8gUHR5IEx0ZDEWMBQGA1UEAxMN\nbWFlc3RyYW5vLmNvbTEkMCIGCSqGSIb3DQEJARYVc3VwcG9ydEBtYWVzdHJhbm8u\nY29tggkAzPL7B4M+nuowDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQUFAAOBgQAw\nRxg3rZrML//xbsS3FFXguzXiiNQAvA4KrMWhGh3jVrtzAlN1/okFNy6zuN8gzdKD\nYw2n0c/u3cSpUutIVZOkwQuPCMC1hoP7Ilat6icVewNcHayLBxKgRxpBhr5Sc4av\n3HOW5Bi/eyC7IjeBTbTnpziApEC7uUsBou2rlKmTGw==\n-----END CERTIFICATE-----"
+      },
+      'maestrano-production' => {
         'api.host'             => 'https://maestrano.com',
         'api.base'             => '/api/v1/',
         'connec.enabled'       => true,

@@ -6,21 +6,19 @@ module Maestrano
         request = RestClient::Request.new(
           method: :get,
           url: "#{devpl_config[:host]}#{devpl_config[:v1_path]}",
-          user: devpl_config[:api_key],
-          password: devpl_config[:api_secret],
-          headers: {
-            accept: :json
-          }
+          user: devpl_config[:env_api_key],
+          password: devpl_config[:env_api_secret],
+          headers: {accept: :json, content_type: :json}
         )
         response = request.execute
         hash = JSON.parse(response.to_s)
       rescue => e
         raise "No or bad response received from dev platform: #{e}"
       end
-puts "PARSING CONFIG: #{hash}"
+
       hash['marketplaces'].each do |marketplace|
         Maestrano[marketplace['marketplace']].configure do |config|
-          config.environment = marketplace['environment']
+          config.environment = marketplace['marketplace']
 
           [:app, :sso, :api, :webhook, :connec].each do |s|
             (marketplace[s.to_s] || {}).each do |k, v|
