@@ -96,7 +96,7 @@ Note that the configuration can also be set from environment variables:
 
 ```bash
 export MNO_DEVPL_HOST=<developer platform host>
-export MNO_DEVPL_CONFIG_API=<developer platform path>
+export MNO_DEVPL_API_PATH=<developer platform path>
 export MNO_DEVPL_ENV_NAME=<your environment nid>
 export MNO_DEVPL_ENV_KEY=<your environment key>
 export MNO_DEVPL_ENV_SECRET=<your environment secret>
