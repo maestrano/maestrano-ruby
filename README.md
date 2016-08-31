@@ -67,7 +67,48 @@ gem 'maestrano'
 
 
 ### Configuration
-Once installed the first step is to create an initializer to configure the behaviour of the Maestrano gem - including setting your API key.
+Once installed the first step is to create an initializer to configure the behaviour of the Maestrano gem
+
+#### Configuration based of the Developer Platform
+Your environment configuration is retrieved from the developer platform where your different environments are registered.
+In your initializer add the following configuration:
+
+`config/initializers/maestrano.rb`
+```ruby
+Maestrano.auto_configure('config/dev_platform.yml')
+```
+
+`dev_platform.yml`
+```yml
+dev_platform:
+  host: 'https://dev-platform.maestrano.com'
+  api_path: '/api/config/v1/marketplaces'
+
+environment:
+  name: 'my-environment'
+  api_key: 'your-environment-api-key'
+  api_secret: 'your-environment-api-secret'
+```
+
+The API keys can be found under your Environment settings on the developer platform.
+
+Note that the configuration can also be set from environment variables:
+
+```bash
+export MNO_DEVPL_HOST=<developer platform host>
+export MNO_DEVPL_CONFIG_API=<developer platform path>
+export MNO_DEVPL_ENV_NAME=<your environment nid>
+export MNO_DEVPL_ENV_KEY=<your environment key>
+export MNO_DEVPL_ENV_SECRET=<your environment secret>
+```
+
+`config/initializers/maestrano.rb`
+```ruby
+Maestrano.auto_configure
+```
+
+#### Configure environments manually - Deprecated
+Environments configuration should be driven from the developer platform configuration. For backward compatibility purpose, environments can still be defined manually.
 
 You can add configuration presets by putting additional configuration blocks in your maestrano.rb initializer. These additional presets can then be specified when doing particular action, such as initializing a Connec!™ client or triggering a SSO handshake. These presets are particularly useful if you are dealing with multiple Maestrano-style marketplaces (multi-enterprise integration).
 

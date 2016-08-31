@@ -1,8 +1,8 @@
 dev_platform:
   host: 'stuff'
-  v1_path: 'stuff'
+  api_path: 'stuff'
 
-environment: 
+environment:
   name: 'test'
   api_key: '123'
   api_secret: '123'
