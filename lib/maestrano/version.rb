@@ -1,3 +1,3 @@
 module Maestrano
-  VERSION = '0.12.5'
+  VERSION = '1.0.0-RC1'
 end
