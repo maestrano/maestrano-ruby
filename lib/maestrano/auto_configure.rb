@@ -43,13 +43,13 @@ module Maestrano
 
       devpl_config = {}
       devpl_config[:host] = ENV['MNO_DEVPL_HOST'] || yaml_config['dev_platform']['host']
-      devpl_config[:api_path] = ENV['⁠⁠⁠⁠MNO_DEVPL_API_PATH'] || yaml_config['dev_platform']['api_path']
+      devpl_config[:api_path] = ENV['MNO_DEVPL_API_PATH'] || yaml_config['dev_platform']['api_path']
 
       devpl_config[:env_name] = ENV['MNO_DEVPL_ENV_NAME'] || yaml_config['environment']['name']
       devpl_config[:env_api_key] = ENV['MNO_DEVPL_ENV_KEY'] || yaml_config['environment']['api_key']
       devpl_config[:env_api_secret] = ENV['MNO_DEVPL_ENV_SECRET'] || yaml_config['environment']['api_secret']
 
-      raise 'Missing configuration' if devpl_config.values.any? { |v| v.nil? || v.empty? }
+      raise "Missing configuration: #{devpl_config.select{|k,v| v.nil? || v.empty?}.map{|k,_| k}}" if devpl_config.values.any? { |v| v.nil? || v.empty? }
 
       devpl_config
     end
