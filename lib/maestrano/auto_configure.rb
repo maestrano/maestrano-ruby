@@ -2,6 +2,7 @@ module Maestrano
   module AutoConfigure
     def self.get_marketplace_configurations(config_file_path = nil)
       devpl_config = dev_platform_config(config_file_path)
+
       begin
         request = RestClient::Request.new(
           method: :get,
@@ -31,7 +32,11 @@ module Maestrano
 
     def self.dev_platform_config(config_file_path = nil)
       begin
-        yaml_config = YAML.load_file("#{Dir.pwd}/#{config_file_path}")
+        if config_file_path
+          yaml_config = YAML.load_file("#{Dir.pwd}/#{config_file_path}")
+        else
+          yaml_config = {'dev_platform' => {}, 'environment' => {}}
+        end
       rescue
         yaml_config = {'dev_platform' => {}, 'environment' => {}}
       end
