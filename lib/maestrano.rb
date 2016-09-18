@@ -278,7 +278,7 @@ module Maestrano
         last_prop = props.pop
         obj = props.inject(self,:send)
         obj.send(last_prop)
-      elsif EVT_CONFIG[@environment.to_s].has_key?(real_param.to_s)
+      elsif EVT_CONFIG.has_key?(@environment.to_s) && EVT_CONFIG[@environment.to_s].has_key?(real_param.to_s)
         EVT_CONFIG[@environment.to_s][real_param.to_s]
       else
         raise ArgumentError, "No such configuration parameter: '#{parameter}'"
