@@ -4,7 +4,7 @@ module Maestrano
   module Account
     class RecurringBillTest < Test::Unit::TestCase
       include APITestHelper
-      
+
       should "be listable" do
         @api_mock.expects(:get).once.returns(test_response(test_account_recurring_bill_array))
         c = Maestrano::Account::RecurringBill.all
@@ -31,7 +31,7 @@ module Maestrano
 
       should "successfully create a remote bill when passed correct parameters" do
         @api_mock.expects(:post).with do |url, api_token, params|
-          url == "#{Maestrano.param('api_host')}#{Maestrano.param('api_base')}account/recurring_bills" && api_token.nil? && 
+          url == "#{Maestrano.param('api.host')}#{Maestrano.param('api.base')}account/recurring_bills" && api_token.nil? &&
           CGI.parse(params) == {"group_id"=>["cld-1"], "price_cents"=>["23000"], "currency"=>["AUD"], "description"=>["Some recurring bill"], "period"=>["Month"]}
         end.once.returns(test_response(test_account_recurring_bill))
 
