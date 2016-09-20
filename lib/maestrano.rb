@@ -188,8 +188,8 @@ module Maestrano
         token: nil,
         version: nil,
         verify_ssl_certs: false,
-        lang: nil, #set in post_initialize
-        lang_version: nil #set in post_initialize
+        lang: nil, # set in post_initialize
+        lang_version: nil # set in post_initialize
       })
 
       # SSO Config
@@ -199,7 +199,7 @@ module Maestrano
         creation_mode: 'real',
         init_path: '/maestrano/auth/saml/init',
         consume_path: '/maestrano/auth/saml/consume',
-        name_id_format: Maestrano::Saml::Settings::NAMEID_PERSISTENT,
+        name_id_format: nil, # set in post_initialize
         idm: nil
       })
 
@@ -229,7 +229,10 @@ module Maestrano
       self.api.lang = 'ruby'
       self.api.lang_version = "#{RUBY_VERSION} p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE})"
       self.sso.idm ||= self.app.host
+      self.sso.name_id_format ||= Maestrano::Saml::Settings::NAMEID_PERSISTENT
       self.sso.slo_enabled &&= self.sso.enabled
+      self.connec.base_path ||= '/api/v2' unless self.environment == 'test' # Sandbox has a different endpoint
+      self.connec.timeout ||= 60
     end
 
     # Transform legacy parameters into new parameter

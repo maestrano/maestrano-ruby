@@ -60,7 +60,7 @@ module Maestrano
       return "#{host}#{api_base}#{endpoint}"
     end
 
-    def self.session_check_url(user_uid,sso_session)
+    def self.session_check_url(user_uid, sso_session)
       host = Maestrano[preset].param('api.host')
       api_base = Maestrano[preset].param('api.base')
       endpoint = 'auth/saml'

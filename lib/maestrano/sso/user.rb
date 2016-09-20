@@ -14,7 +14,7 @@ module Maestrano
         # end
         raise NoMethodError, "You need to override find_for_maestrano_auth in your #{self.class.name} model"
       end
-      
+
       # Check whether the user is a maestrano one
       def maestrano?
         if self.respond_to?(:provider)
@@ -23,11 +23,11 @@ module Maestrano
           raise NoMethodError, "You need to override maestrano? in your #{self.class.name} model"
         end
       end
-      
+
       # Check whether the SSO session is still valid
       # or not
-      def maestrano_session_valid?(session)
-        Maestrano::SSO::Session.new(session).valid?
+      def maestrano_session_valid?(session, preset = nil)
+        Maestrano::SSO::Session[preset].new(session).valid?
       end
     end
   end

@@ -94,6 +94,7 @@ class MaestranoTest < Test::Unit::TestCase
 
     context "with environment params" do
       should "return the right test parameters" do
+        Maestrano.reset!
         Maestrano.configure { |config| config.environment = 'test' }
 
         ['api.host', 'api.base', 'sso.idp', 'sso.name_id_format', 'sso.x509_certificate', 'connec.host', 'connec.base_path'].each do |parameter|
@@ -230,6 +231,7 @@ class MaestranoTest < Test::Unit::TestCase
 
     context "with environment params" do
       should "return the right test parameters" do
+        @preset = 'test'
         Maestrano[@preset].configure { |config| config.environment = 'test' }
 
         ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate', 'connec.host','connec.base_path'].each do |parameter|
