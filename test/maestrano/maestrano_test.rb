@@ -509,5 +509,4 @@ class MaestranoTest < Test::Unit::TestCase
       assert_equal expected, Maestrano.to_metadata
     end
   end
-
 end

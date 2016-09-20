@@ -199,6 +199,7 @@ module Maestrano
         creation_mode: 'real',
         init_path: '/maestrano/auth/saml/init',
         consume_path: '/maestrano/auth/saml/consume',
+        name_id_format: Maestrano::Saml::Settings::NAMEID_PERSISTENT,
         idm: nil
       })
 
