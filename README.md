@@ -69,7 +69,7 @@ gem 'maestrano'
 ### Configuration
 Once installed the first step is to create an initializer to configure the behaviour of the Maestrano gem
 
-#### Configuration based of the Developer Platform
+#### Configuration based of the Developer Platform (Recommended)
 Your environment configuration is retrieved from the developer platform where your different environments are registered.
 In your initializer add the following configuration:
 
@@ -107,7 +107,7 @@ export MNO_DEVPL_ENV_SECRET=<your environment secret>
 Maestrano.auto_configure
 ```
 
-#### Configure environments manually - Deprecated
+#### Configure environments manually (Deprecated)
 Environments configuration should be driven from the developer platform configuration. For backward compatibility purpose, environments can still be defined manually.
 
 You can add configuration presets by putting additional configuration blocks in your maestrano.rb initializer. These additional presets can then be specified when doing particular action, such as initializing a Connec!™ client or triggering a SSO handshake. These presets are particularly useful if you are dealing with multiple Maestrano-style marketplaces (multi-enterprise integration).
@@ -305,7 +305,7 @@ Maestrano['my-preset2'].configure do |config|
 end
 ```
 
-### Metadata Endpoint
+### Metadata Endpoint (Deprecated)
 Your configuration initializer is now all setup and shiny. Great! But need to know about it. Of course
 we could propose a long and boring form on maestrano.com for you to fill all these details (especially the webhooks) but we thought it would be more convenient to fetch that automatically.
 
