@@ -7,8 +7,8 @@ Gem::Specification.new do |s|
   s.version = Maestrano::VERSION
   s.summary = 'Ruby bindings for the Maestrano API'
   s.description = 'Maestrano is the next generation marketplace for SME applications. See https://maestrano.com for details.'
-  s.authors = ['Arnaud Lachaume']
-  s.email = ['arnaud.lachaume@maestrano.com']
+  s.authors = ['Maestrano']
+  s.email = ['it@maestrano.com']
   s.homepage = 'https://maestrano.com'
   s.license = 'MIT'
 
