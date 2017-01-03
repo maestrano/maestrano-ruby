@@ -466,49 +466,4 @@ class MaestranoTest < Test::Unit::TestCase
       assert_equal 'usr-1', Maestrano.unmask_user('usr-1')
     end
   end
-
-  context "to_metadata" do
-    should "should return the right hash" do
-      expected = {
-        'environment'        => @config['environment'],
-        'app' => {
-          'host'             => @config['app.host']
-        },
-        'api' => {
-          'id'               => @config['api.id'],
-          'version'          => Maestrano::VERSION,
-          'verify_ssl_certs' => false,
-          'lang'             => 'ruby',
-          'lang_version'     => "#{RUBY_VERSION} p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE})",
-          'host'             => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['api.host'],
-          'base'             => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['api.base'],
-
-        },
-        'sso' => {
-          'enabled'          => @config['sso.enabled'],
-          'slo_enabled'      => @config['sso.slo_enabled'],
-          'init_path'        => @config['sso.init_path'],
-          'consume_path'     => @config['sso.consume_path'],
-          'creation_mode'    => @config['sso.creation_mode'],
-          'idm'              => @config['sso.idm'],
-          'idp'              => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['sso.idp'],
-          'name_id_format'   => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['sso.name_id_format'],
-          'x509_fingerprint' => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['sso.x509_fingerprint'],
-          'x509_certificate' => Maestrano::Configuration::EVT_CONFIG[@config['environment']]['sso.x509_certificate'],
-        },
-        'webhook' => {
-          'account' => {
-            'groups_path' => @config['webhook.account.groups_path'],
-            'group_users_path' => @config['webhook.account.group_users_path'],
-          },
-          'connec' => {
-            'notifications_path' => 'mno/receive',
-            'subscriptions'      => { organizations: true, people: true }
-          }
-        }
-      }
-
-      assert_equal expected, Maestrano.to_metadata
-    end
-  end
 end

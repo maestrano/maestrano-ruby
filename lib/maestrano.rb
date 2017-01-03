@@ -21,7 +21,6 @@ require 'maestrano/saml/attribute_value'
 require 'maestrano/saml/response'
 require 'maestrano/saml/settings'
 require 'maestrano/saml/validation_error'
-require 'maestrano/saml/metadata'
 
 # SSO
 require 'maestrano/sso'
@@ -120,48 +119,6 @@ module Maestrano
   # Maestrano['preset'].param('api.key')
   def self.param(parameter)
     (self.configs[preset] || Configuration.new).param(parameter)
-  end
-
-  # Return a hash describing the current
-  # Maestrano configuration. The metadata
-  # will be remotely fetched by Maestrano
-  # Exclude any info containing an api key
-  def self.to_metadata
-    hash = {}
-    hash['environment'] = self.param('environment')
-
-    config_groups = ['app','api','sso','webhook']
-    blacklist = ['api.key','api.token']
-
-    config_groups.each do |cgroup_name|
-      cgroup = self.configs[preset].send(cgroup_name)
-
-      attr_list = cgroup.attributes.map(&:to_s)
-      attr_list += Configuration::EVT_CONFIG[hash['environment']].keys.select { |k| k =~ Regexp.new("^#{cgroup_name}\.") }.map { |k| k.gsub(Regexp.new("^#{cgroup_name}\."),'') }
-      attr_list.uniq!
-
-      attr_list.each do |first_lvl|
-        if cgroup.send(first_lvl).is_a?(OpenStruct)
-          c2group = cgroup.send(first_lvl)
-          c2group.attributes.each do |secnd_lvl|
-            full_param = [cgroup_name,first_lvl,secnd_lvl].join('.')
-            unless blacklist.include?(full_param)
-              hash[cgroup_name.to_s] ||= {}
-              hash[cgroup_name.to_s][first_lvl.to_s] ||= {}
-              hash[cgroup_name.to_s][first_lvl.to_s][secnd_lvl.to_s] = self.param(full_param)
-            end
-          end
-        else
-          full_param = [cgroup_name,first_lvl].join('.')
-          unless blacklist.include?(full_param)
-            hash[cgroup_name.to_s] ||= {}
-            hash[cgroup_name.to_s][first_lvl.to_s] = self.param(full_param)
-          end
-        end
-      end
-    end
-
-    return hash
   end
 
   def self.auto_configure(config_file_path = nil)

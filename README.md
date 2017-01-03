@@ -16,7 +16,6 @@ Maestrano Cloud Integration is currently in closed beta. Want to know more? Send
 3. [Getting Started](#getting-started)
   * [Installation](#installation)
   * [Configuration](#configuration)
-  * [Metadata Endpoint](#metadata-endpoint)
 4. [Single Sign-On Setup](#single-sign-on-setup)
   * [User Setup](#user-setup)
   * [Group Setup](#group-setup)
@@ -255,8 +254,6 @@ Sad as it is a business might decide to stop using your service at some point. O
 
 Maestrano only uses this controller for service cancellation so there is no need to implement any other type of action - ie: GET, PUT/PATCH or POST. The use of other http verbs might come in the future to improve the communication between Maestrano and your service but as of now it is not required.
 
-The controller example below reimplements the authenticate_maestrano! method seen in the [metadata section](#metadata) for completeness. Utimately you should move this method to a helper if you can.
-
 The example below is for Rails and need to be adapted depending on the framework you're using:
 ```ruby
 class MaestranoAccountGroupsController < ApplicationController
@@ -314,8 +311,6 @@ end
 A business might decide at some point to revoke access to your services for one of its member. In such case we will issue a DELETE request to the webhook.account.group_users_path endpoint (typically /maestrano/account/groups/:group_id/users/:id).
 
 Maestrano only uses this controller for user membership cancellation so there is no need to implement any other type of action - ie: GET, PUT/PATCH or POST. The use of other http verbs might come in the future to improve the communication between Maestrano and your service but as of now it is not required.
-
-The controller example below reimplements the authenticate_maestrano! method seen in the [metadata section](#metadata) for completeness. Utimately you should move this method to a helper if you can.
 
 The example below is for Rails and need to be adapted depending on the framework you're using:
 ```ruby
