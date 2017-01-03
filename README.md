@@ -39,11 +39,8 @@ Maestrano Cloud Integration is currently in closed beta. Want to know more? Send
 - - -
 
 ## Getting Setup
-Before integrating with us you will need an App ID and API Key. Maestrano Cloud Integration being still in closed beta you will need to contact us beforehand to gain production access.
-
-For testing purpose we provide an API Sandbox where you can freely obtain an App ID and API Key. The sandbox is great to test single sign-on and API integration (e.g: billing API).
-
-To get started just go to: http://api-sandbox.maestrano.io
+To start the integration of your application with the Maestrano platform, you first need to register your application on our Developer Platform. You can find [more information here](https://maestrano.atlassian.net/wiki/x/NYA3Ag)
+Once your application is registered, you will be provided with API keys that are used to configure your application on the different marketplaces powered by Maestrano.
 
 ## Getting Started with Rails
 
@@ -65,12 +62,10 @@ Or add it to your Gemfile
 gem 'maestrano'
 ```
 
-
 ### Configuration
 Once installed the first step is to create an initializer to configure the behaviour of the Maestrano gem
 
-#### Configuration based of the Developer Platform
-The [developer platform](https://dev-platform.maestrano.com) is the easiest way to configure Maestrano. The only actions needed from your part is to create your application and environments on the developer platform and to create a config file. The framework will then contact the developer platform and retrieve the marketplaces configuration for your app environment.
+Use the [developer platform](https://dev-platform.maestrano.com) to create your application and your environments. The framework will then contact the developer platform and retrieve the marketplaces configuration for your application environments. This way your application can be automatically added to new environment without having to update the configuration on your side.
 
 In your initializer add the following configuration:
 
@@ -86,9 +81,9 @@ dev_platform:
   api_path: '/api/config/v1/marketplaces'
 
 environment:
-  name: 'my-environment'
-  api_key: 'your-environment-api-key'
-  api_secret: 'your-environment-api-secret'
+  name: 'my-environment' # Any arbitrary name you want to use
+  api_key: 'your-environment-api-key' # Provided by the developer platform
+  api_secret: 'your-environment-api-secret' # Provided by the developer platform
 ```
 
 The API keys can be found under your Environment settings on the developer platform.
@@ -105,242 +100,7 @@ export MNO_DEVPL_ENV_SECRET=<your environment secret>
 
 `config/initializers/maestrano.rb`
 ```ruby
-Maestrano.auto_configure
-```
-
-#### Deprecated - Configure environments manually
-Environments configuration should be driven from the developer platform configuration. For backward compatibility purpose, environments can still be defined manually.
-
-You can add configuration presets by putting additional configuration blocks in your maestrano.rb initializer. These additional presets can then be specified when doing particular action, such as initializing a Connec!™ client or triggering a SSO handshake. These presets are particularly useful if you are dealing with multiple Maestrano-style marketplaces (multi-enterprise integration).
-
-If this is the first time you integrate with Maestrano, we recommend adopting a multi-tenant approach. All code samples in this documentation provide examples on how to handle multi-tenancy by scoping method calls to a specific configuration preset.
-
-More information about multi-tenant integration can be found on [Our Multi-Tenant Integration Guide](https://maestrano.atlassian.net/wiki/display/CONNECAPIV2/Multi-Tenant+Integration)
-
-The initializer should look like this:
-```ruby
-# Use this block to configure the behaviour of Maestrano
-# in your app
-Maestrano.configure do |config|
-  
-  # ==> Environment configuration
-  # The environment to connect to.
-  # If set to 'production' then all Single Sign-On (SSO) and API requests
-  # will be made to maestrano.com
-  # If set to 'test' then requests will be made to api-sandbox.maestrano.io
-  # The api-sandbox allows you to easily test integration scenarios.
-  # More details on http://api-sandbox.maestrano.io
-  #
-  config.environment = 'test' # or 'production'
-  
-  # ==> Application host
-  # This is your application host (e.g: my-app.com) which is ultimately
-  # used to redirect users to the right SAML url during SSO handshake.
-  #
-  config.app.host = (config.environment == 'production' ? 'https://my-app.com' : 'http://localhost:3000')
-  
-  # ==> App ID & API key
-  # Your application App ID and API key which you can retrieve on http://maestrano.com
-  # via your cloud partner dashboard.
-  # For testing you can retrieve/generate an api.id and api.key from the API Sandbox directly 
-  # on http://api-sandbox.maestrano.io
-  #
-  config.api.id = (config.environment == 'production' ? 'prod_app_id' : 'sandbox_app_id')
-  config.api.key = (config.environment == 'production' ? 'prod_api_key' : 'sandbox_api_key')
-  
-  # ==> Single Sign-On activation
-  # Enable/Disable single sign-on. When troubleshooting authentication issues
-  # you might want to disable SSO temporarily
-  #
-  # config.sso.enabled = true
-  
-  # ==> Single Sign-On Identity Manager
-  # By default we consider that the domain managing user identification
-  # is the same as your application host (see above config.app.host parameter)
-  # If you have a dedicated domain managing user identification and therefore
-  # responsible for the single sign-on handshake (e.g: https://idp.my-app.com)
-  # then you can specify it below
-  #
-  # config.sso.idm = (config.environment == 'production' ? 'https://idp.my-app.com' : 'http://localhost:3000')
-  
-  # ==> SSO Initialization endpoint
-  # This is your application path to the SAML endpoint that allows users to
-  # initialize SSO authentication. Upon reaching this endpoint users your
-  # application will automatically create a SAML request and redirect the user
-  # to Maestrano. Maestrano will then authenticate and authorize the user. Upon
-  # authorization the user gets redirected to your application consumer endpoint
-  # (see below) for initial setup and/or login.
-  #
-  # config.sso.init_path = '/maestrano/auth/saml/init'
-  
-  # ==> SSO Consumer endpoint
-  # This is your application path to the SAML endpoint that allows users to
-  # finalize SSO authentication. During the 'consume' action your application
-  # sets users (and associated group) up and/or log them in.
-  #
-  # config.sso.consume_path = '/maestrano/auth/saml/consume'
-  
-  # ==> Single Logout activation
-  # Enable/Disable single logout. When troubleshooting authentication issues
-  # you might want to disable SLO temporarily.
-  # If set to false then Maestrano::SSO::Session#valid? - which should be
-  # used in a controller before filter to check user session - always return true
-  #
-  # config.sso.slo_enabled = true
-
-  # ==> x509 SSL Certificate
-  # During the SSO handshake, the SSL certificate is validated and must match the IDP provider.
-  # For multi-tenant integration, the certificates may change per environment.
-  #
-  # config.sso.x509_fingerprint = '2f:57:71:e4:40:19:57:37:a6:2c:f0:c5:82:52:2f:2e:41:b7:9d:7e'
-  # config.sso.x509_certificate = "-----BEGIN CERTIFICATE-----\nCERTIFICATE CONTENT==\n-----END CERTIFICATE-----"
-  
-  # ==> SSO User creation mode
-  # !IMPORTANT
-  # On Maestrano users can take several "instances" of your service. You can consider
-  # each "instance" as 1) a billing entity and 2) a collaboration group (this is
-  # equivalent to a 'customer account' in a commercial world). When users login to
-  # your application via single sign-on they actually login via a specific group which
-  # is then supposed to determine which data they have access to inside your application.
-  #
-  # E.g: John and Jack are part of group 1. They should see the same data when they login to
-  # your application (employee info, analytics, sales etc..). John is also part of group 2 
-  # but not Jack. Therefore only John should be able to see the data belonging to group 2.
-  #
-  # In most application this is done via collaboration/sharing/permission groups which is
-  # why a group is required to be created when a new user logs in via a new group (and 
-  # also for billing purpose - you charge a group, not a user directly). 
-  #
-  # == mode: 'real'
-  # In an ideal world a user should be able to belong to several groups in your application.
-  # In this case you would set the 'sso.creation_mode' to 'real' which means that the uid
-  # and email we pass to you are the actual user email and maestrano universal id.
-  #
-  # == mode: 'virtual'
-  # Now let's say that due to technical constraints your application cannot authorize a user
-  # to belong to several groups. Well next time John logs in via a different group there will
-  # be a problem: the user already exists (based on uid or email) and cannot be assigned 
-  # to a second group. To fix this you can set the 'sso.creation_mode' to 'virtual'. In this
-  # mode users get assigned a truly unique uid and email across groups. So next time John logs
-  # in a whole new user account can be created for him without any validation problem. In this
-  # mode the email we assign to him looks like "usr-sdf54.cld-45aa2@mail.maestrano.com". But don't
-  # worry we take care of forwarding any email you would send to this address
-  #
-  # config.sso.creation_mode = 'real' # or 'virtual'
-  
-  # ==> Account Webhooks
-  # Single sign on has been setup into your app and Maestrano users are now able
-  # to use your service. Great! Wait what happens when a business (group) decides to 
-  # stop using your service? Also what happens when a user gets removed from a business?
-  # Well the endpoints below are for Maestrano to be able to notify you of such
-  # events.
-  #
-  # Even if the routes look restful we issue only issue DELETE requests for the moment
-  # to notify you of any service cancellation (group deletion) or any user being
-  # removed from a group.
-  #
-  # config.webhook.account.groups_path = '/maestrano/account/groups/:id',
-  # config.webhook.account.group_users_path = '/maestrano/account/groups/:group_id/users/:id',
-  
-  
-  # ==> Connec Subscriptions/Webhook
-  # The following section is used to configure the Connec!™ webhooks and which entities
-  # you should receive via webhook.
-  #
-  # == Notification Path
-  # This is the path of your application where notifications (created/updated entities) will
-  # be POSTed to.
-  # You should have a controller matching this path handling the update of your internal entities
-  # based on the Connec!™ entities you receive
-  #
-  # config.webhook.connec.notifications_path = '/maestrano/connec/notifications'
-  #
-  # == Subscriptions
-  # This is the list of entities (organizations,people,invoices etc.) for which you want to be
-  # notified upon creation/update in Connec!™
-  # 
-  # config.webhook.connec.subscriptions = {
-  #   accounts: true,
-  #   company: true,
-  #   employees: false,
-  #   events: false,
-  #   event_orders: false,
-  #   invoices: true,
-  #   items: true,
-  #   journals: false,
-  #   opportunities: true,
-  #   organizations: true,
-  #   payments: false,
-  #   pay_items: false,
-  #   pay_schedules: false,
-  #   pay_stubs: false,
-  #   pay_runs: false,
-  #   people: true,
-  #   projects: false,
-  #   purchase_orders: false,
-  #   quotes: false,
-  #   sales_orders: false,
-  #   tax_codes: true,
-  #   tax_rates: false,
-  #   time_activities: false,
-  #   time_sheets: false,
-  #   venues: false,
-  #   warehouses: false,
-  #   work_locations: false
-  # }
-end
-```
-
-If you need to support multiple marketplace providers, you can define configuration presets and switch between these at runtime:
-```ruby
-Maestrano['my-preset1'].configure do |config|
-  config.environment = 'production'
-  config.app.host = 'https://my-custom-provider1.com'
-  ...
-end
-
-Maestrano['my-preset2'].configure do |config|
-  config.environment = 'production'
-  config.app.host = 'https://my-custom-provider2.com'
-  ...
-end
-```
-
-### Deprecated - Metadata Endpoint
-Your configuration initializer is now all setup and shiny. Great! But need to know about it. Of course
-we could propose a long and boring form on maestrano.com for you to fill all these details (especially the webhooks) but we thought it would be more convenient to fetch that automatically.
-
-For that we expect you to create a metadata endpoint that we can fetch regularly (or when you press 'refresh metadata' in your maestrano cloud partner dashboard). By default we assume that it will be located at
-YOUR_WEBSITE/maestrano/metadata(.json)
-
-Of course if you prefer a different url you can always change that endpoint in your maestrano cloud partner dashboard.
-
-What would the controller action look like? First let's talk about authentication. You don't want that endpoint to be visible to anyone. Maestrano always uses http basic authentication to contact your service remotely. The login/password used for this authentication are your actual api.id and api.key.
-
-So here is an example of controller action for Rails to adapt depending on the framework you're using:
-
-```ruby
-class MaestranoMetaDataController < ApplicationController
-  before_filter :authenticate_maestrano!
-  
-  def metadata
-    render json: Maestrano.to_metadata
-    # Or using presets
-    # render json: Maestrano['my-preset'].to_metadata
-  end
-  
-  private
-    def authenticate_maestrano!
-      authorized = false
-      authenticate_with_http_basic do |app_id, api_token|
-        authorized = Maestrano.authenticate(app_id,api_token)
-      end
-      unless authorized
-        render json: {error: 'Invalid credentials' }, status: :unauthorized
-      end
-      return true
-    end
-end
+Maestrano.auto_configure # Uses environment variables
 ```
 
 ## Single Sign-On Setup
@@ -364,7 +124,7 @@ class User
   ...
   
   def self.find_or_create_for_maestrano(sso_hash)
-    user = self.where(provider:'maestrano', uid: sso_hash[:uid]).first
+    user = self.where(provider: 'maestrano', uid: sso_hash[:uid]).first
     
     unless user
       user = self.new
@@ -1234,8 +994,6 @@ client_presets = Maestrano::Connec::Client['my-preset'].new("cld-f7f5g4")
 client_presets.get('/organizations')
 ```
 
-
-
 ### Webhook Notifications
 If you have configured the Maestrano API to receive update notifications (see 'subscriptions' configuration at the top) from Connec!™ then you can expect to receive regular POST requests on the notification_path you have configured.
 
@@ -1263,6 +1021,6 @@ So if you have any question or need help integrating with us just let us know at
 
 ## License
 
-MIT License. Copyright 2015 Maestrano Pty Ltd. https://maestrano.com
+MIT License. Copyright 2017 Maestrano Pty Ltd. https://maestrano.com
 
 You are not granted rights or licenses to the trademarks of Maestrano.
