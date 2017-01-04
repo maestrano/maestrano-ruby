@@ -131,7 +131,7 @@ module Maestrano
     attr_accessor :environment, :app, :sso, :api, :webhook, :connec
 
     def initialize
-      @environment = 'test'
+      @environment = 'production'
 
       # App config
       @app = OpenStruct.new({
@@ -188,7 +188,7 @@ module Maestrano
       self.sso.idm ||= self.app.host
       self.sso.name_id_format ||= Maestrano::Saml::Settings::NAMEID_PERSISTENT
       self.sso.slo_enabled &&= self.sso.enabled
-      self.connec.base_path ||= '/api/v2' unless self.environment == 'test' # Sandbox has a different endpoint
+      self.connec.base_path ||= '/api/v2'
       self.connec.timeout ||= 60
     end
 
