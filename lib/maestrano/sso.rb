@@ -41,9 +41,10 @@ module Maestrano
       return "#{host}#{path}"
     end
 
-    def self.logout_url
+    def self.logout_url(user_uid = nil)
       host = Maestrano[preset].param('api.host')
       path = '/app_logout'
+      path = "#{path}?user_uid=#{user_uid}" if user_uid
       return "#{host}#{path}"
     end
 
