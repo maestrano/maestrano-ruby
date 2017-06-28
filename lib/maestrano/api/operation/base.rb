@@ -7,7 +7,7 @@ module Maestrano
         def self.api_url(url='')
           Maestrano[self.preset].param('api.host') + Maestrano[self.preset].param('api.base') + url
         end
-        
+
         # Perform remote request
         def self.request(method, url, api_token, params={}, headers={})
           unless api_token ||= Maestrano[self.preset].param('api_token')
@@ -46,7 +46,7 @@ module Maestrano
           rescue NoMethodError => e
             # Work around RestClient bug
             if e.message =~ /\WRequestFailed\W/
-              e = APIConnectionError.new('Unexpected HTTP response code')
+              e = Maestrano::API::Error::ConnectionError.new('Unexpected HTTP response code')
               handle_restclient_error(e)
             else
               raise
@@ -205,7 +205,7 @@ module Maestrano
 
           end
 
-          raise APIConnectionError.new(message + "\n\n(Network error: #{e.message})")
+          raise Maestrano::API::Error::ConnectionError.new(message + "\n\n(Network error: #{e.message})")
         end
       end
     end
