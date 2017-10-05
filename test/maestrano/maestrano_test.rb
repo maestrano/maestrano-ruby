@@ -95,10 +95,9 @@ class MaestranoTest < Test::Unit::TestCase
     context "with environment params" do
       should "return the right test parameters" do
         Maestrano.reset!
-        Maestrano.configure { |config| config.environment = 'test' }
-
+        Maestrano.configure { |config| config.environment = 'local' }
         ['api.host', 'api.base', 'sso.idp', 'sso.name_id_format', 'sso.x509_certificate', 'connec.host', 'connec.base_path'].each do |parameter|
-          assert_equal Maestrano::Configuration::EVT_CONFIG['test'][parameter], Maestrano.param(parameter)
+          assert_equal Maestrano::Configuration::EVT_CONFIG['local'][parameter], Maestrano.param(parameter)
         end
       end
 
@@ -231,11 +230,11 @@ class MaestranoTest < Test::Unit::TestCase
 
     context "with environment params" do
       should "return the right test parameters" do
-        @preset = 'test'
-        Maestrano[@preset].configure { |config| config.environment = 'test' }
+        @preset = 'local'
+        Maestrano[@preset].configure { |config| config.environment = 'local' }
 
         ['api.host','api.base','sso.idp', 'sso.name_id_format', 'sso.x509_certificate', 'connec.host','connec.base_path'].each do |parameter|
-          assert_equal Maestrano::Configuration::EVT_CONFIG['test'][parameter], Maestrano[@preset].param(parameter)
+          assert_equal Maestrano::Configuration::EVT_CONFIG['local'][parameter], Maestrano[@preset].param(parameter)
         end
       end
 
@@ -410,11 +409,11 @@ class MaestranoTest < Test::Unit::TestCase
 
     context "with environment params" do
       should "return the right test parameters" do
-        Maestrano.configure { |config| config.environment = 'test' }
+        Maestrano.configure { |config| config.environment = 'local' }
 
         ['api_host','api_base','sso_name_id_format', 'sso_x509_certificate'].each do |parameter|
           key = Maestrano::Configuration.new.legacy_param_to_new(parameter)
-          assert_equal Maestrano::Configuration::EVT_CONFIG['test'][key], Maestrano.param(parameter)
+          assert_equal Maestrano::Configuration::EVT_CONFIG['local'][key], Maestrano.param(parameter)
         end
       end
 
