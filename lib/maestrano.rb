@@ -127,6 +127,10 @@ module Maestrano
     raise "Error while fetching dynamic configuration: #{e}. Backtrace: #{e.backtrace}"
   end
 
+  def self.find_by_app_id_and_app_key(app_id, app_key)
+    Maestrano.configs.find { |_,v| v.param('api.id') == app_id && v.param('api.key') == app_key }.first rescue nil
+  end
+
   class Configuration
     attr_accessor :environment, :app, :sso, :api, :webhook, :connec
 
