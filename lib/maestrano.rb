@@ -128,10 +128,7 @@ module Maestrano
   end
 
   def self.find_by_app_id_and_app_key(app_id, app_key)
-    Maestrano.configs.each do |k, v|
-      return k if v.param('api.id') == app_id && v.param('api.key') == app_key
-    end
-    nil
+    Maestrano.configs.find { |_,v| v.param('api.id') == app_id && v.param('api.key') == app_key }.first rescue nil
   end
 
   class Configuration

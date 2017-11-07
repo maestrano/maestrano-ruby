@@ -30,5 +30,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rake', '~> 10')
 
   s.add_runtime_dependency("uuid", ["~> 2.3"])
-  s.add_runtime_dependency("nokogiri", [">= 1.7.2"])
+  s.add_runtime_dependency("nokogiri", [">= 1.8.1"])
 end
